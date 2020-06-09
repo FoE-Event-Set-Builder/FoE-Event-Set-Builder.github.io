@@ -44,7 +44,7 @@ let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "In
 
 function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xffffff);
+    scene.background = new THREE.Color(0xcccccc);
 
     //var size = 32;
 
@@ -89,7 +89,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('canvas').appendChild(renderer.domElement);
 
-    grid = new THREE.GridHelper(1000, 1000, 0x888888, 0x888888);
+    grid = new THREE.GridHelper(1000, 1000, 0x777777, 0x777777);
     scene.add(grid);
 
     var dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
@@ -105,7 +105,7 @@ function init() {
 
 
     //create a blue LineBasicMaterial
-    var lineMat = new THREE.LineBasicMaterial({ color: 0x0000ff });
+    var lineMat = new THREE.LineBasicMaterial({ color: 0x00ff00 });
 
     var points = [];
     points.push(new THREE.Vector3(4, 0, -32));
@@ -536,6 +536,7 @@ function updateConnections() {
 
     for (var i = 0; i < objects.length; i++) {
         tiles += objects[i].geometry.parameters.width * objects[i].geometry.parameters.depth;
+        var objSet = objects[i].set;
         if (set == objSet) {
             stiles += objects[i].geometry.parameters.width * objects[i].geometry.parameters.depth;
         }
@@ -543,7 +544,6 @@ function updateConnections() {
             var neighbours = getNeighbours(i, objects[i].name);
             var unique = [...new Set(neighbours)];
 
-            var objSet = objects[i].set;
 
 
             var rewardNum = sets[objSet][objects[i].building].level[objects[i].level].rewards.length;
