@@ -1,13 +1,17 @@
-let controls, renderer, scene, camera, objects = [], texts = [], startPosition, guiControls, grid, raycaster, gui;
+// As you can see this is just me fooling around testing a bunch of stuff, this is a hobby project, proper coding styles be damned :P
+let controls, renderer, scene, camera, objects = [], texts = [], startPosition, guiControls, grid, raycaster, gui, selectionBox, selectionHelper;
 let texture = new THREE.TextureLoader().load('/assets/texture.png');
 let topx = 0;
 let topz = 0;
 let currentx = 0;
 let currentz = 0;
+
 let initDone = false;
 let doUpdateRewards = true;
 let line;
 let frustumSize = 48;
+let dragging = false;
+let isDown = true;
 
 let buildingSelected = false;
 let prevSet = 0;
@@ -19,7 +23,10 @@ let pbuilding = 0;
 let plevel = 1;
 let page = 17;
 
+let folder2;
 
+
+// Get the information on all sets and their buildings.
 let cherry = getCherry();
 let piazza = getPiazza();
 let celtic = getCeltic();
@@ -29,8 +36,10 @@ let classicalGarden = getClassicalGarden();
 let royalGarden = getRoyalGarden();
 let winterVillage = getWinterVillage();
 
+// Array used for easy access of information, DO NOT change order, it'll break everything. Probs a better way to do this, but meh :)
 let sets = [cherry, piazza, celtic, indianPalace, indianFountain, classicalGarden, royalGarden, winterVillage];
 
+// Display information for the dat.gui controls. Again do not change order...
 let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, NishikigoiPond: 3, GongOfWisdom: 4 },
 { Homes: 0, Cafe: 1, ClockTower: 2, Fountain: 3, MaskVendor: 4 },
 { MoonGate: 0, FaeryRings: 1, DruidWillow: 2, MajesticFawn: 3, StandingStone: 4 },
@@ -42,13 +51,27 @@ let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, Nishikigoi
 let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village"];
 
 
+//let selBox;
+
+let helpElement = document.getElementById("info");
+helpElement.style.display = "none";
+let closeHelp = document.getElementsByClassName("close")[0];
+
+closeHelp.onclick = function () {
+    helpElement.style.display = "none";
+}
+
+window.onclick = function (event) {
+    if (event.target == helpElement) {
+        helpElement.style.display = "none";
+    }
+}
+
+
 function init() {
+    // Basuc threejs stuff
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xcccccc);
-
-    //var size = 32;
-
-    //camera = new THREE.OrthographicCamera(window.innerWidth / - size, window.innerWidth / size, window.innerHeight / size, window.innerHeight / - size, 1, 1000);
+    scene.background = new THREE.Color(0xeeeeee);
 
     var aspect = window.innerWidth / window.innerHeight;
     camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 100);
@@ -56,12 +79,7 @@ function init() {
     camera.position.set(0, 20, 0);
     scene.add(camera);
 
-
-
-
     window.addEventListener('resize', onWindowResize, false);
-
-
     function onWindowResize() {
 
         var aspect = window.innerWidth / window.innerHeight;
@@ -76,22 +94,28 @@ function init() {
 
     }
 
+    // On click for main canvas
+    document.querySelector("#canvas").addEventListener('mousedown', onDocumentClick, false);
 
-
-
+    // WIP
+    //window.addEventListener('mousemove', onMouseMove, false);
+    //window.addEventListener('mouseup', onMouseUp, false);
+    // Not in use
+    //document.addEventListener('keydown', keyPressEvent, false);
 
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
-    controls = new THREE.OrbitControls(camera, document.querySelector("#canvas"));
-    controls.enableRotate = false;
-    controls.update();
+
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('canvas').appendChild(renderer.domElement);
 
-    grid = new THREE.GridHelper(1000, 1000, 0x777777, 0x777777);
-    scene.add(grid);
+    // Controls
+    controls = new THREE.OrbitControls(camera, document.querySelector("#canvas"));
+    controls.enableRotate = false;
+    controls.update();
 
+    // Drag controls for moving the buildings
     var dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
     dragControls.addEventListener('dragstart', dragStart);
     dragControls.addEventListener('dragend', dragEnd);
@@ -99,14 +123,13 @@ function init() {
 
     raycaster = new THREE.Raycaster();
 
-    document.querySelector("#canvas").addEventListener('mousedown', onDocumentClick, false);
 
-    //document.addEventListener('keydown', keyPressEvent, false);
+    // Helper grid to make it easier to use, see building sizes etc
+    grid = new THREE.GridHelper(1000, 1000, 0x777777, 0x777777);
+    scene.add(grid);
 
-
-    //create a blue LineBasicMaterial
-    var lineMat = new THREE.LineBasicMaterial({ color: 0x00ff00 });
-
+    // Outline of the max foe city limits
+    var lineMat = new THREE.LineBasicMaterial({ color: 0xff0000 });
     var points = [];
     points.push(new THREE.Vector3(4, 0, -32));
     points.push(new THREE.Vector3(4, 0, -24));
@@ -129,47 +152,56 @@ function init() {
     points.push(new THREE.Vector3(-24, 0, -16));
     points.push(new THREE.Vector3(-24, 0, -32));
     points.push(new THREE.Vector3(4, 0, -32));
-
     var lineGeo = new THREE.BufferGeometry().setFromPoints(points);
     line = new THREE.Line(lineGeo, lineMat);
     scene.add(line);
 
 
+    /* To be implemented
+    var boxGeo = new THREE.PlaneGeometry(2, 2, 1);
+    var tx = new THREE.TextureLoader().load("/assets/sel.png");
+    tx.minFilter = THREE.LinearFilter;
+    var boxMat = new THREE.MeshPhongMaterial({ map: tx, transparent: true, side: THREE.DoubleSide });
 
+    selBox = new THREE.Mesh(boxGeo, boxMat);
+    selBox.rotateX(90);
+    scene.add(selBox);
+    */
+
+
+    // Controls! What do you mean the naming scheme makes no sense? 
     guiControls = new addGuiControls();
     gui = new dat.GUI();
+    // Add Building
+    gui.add(guiControls, 'showHelp').name("How To Use")
     var folder1 = gui.addFolder('Add Building');
     folder1.add(guiControls, 'addBuilding1').name("Add Building");;
     folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
     folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen();
     folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen();;
     folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age");
-
-
     folder1.add(guiControls, 'road1').name("Road");
     folder1.add(guiControls, 'base1').name("Base");
     folder1.add(guiControls, 'bonus1').name("Set Bonus 1");
     folder1.add(guiControls, 'bonus2').name("Set Bonus 2");
     folder1.add(guiControls, 'bonus3').name("Set Bonus 3");
-
-
-
     folder1.open();
 
-
-
-    var folder2 = gui.addFolder("Current Building");
+    // Current Building
+    folder2 = gui.addFolder("Current Building");
     folder2.add(guiControls, 'removeBuilding').name("Remove Building");
     folder2.add(guiControls, 'curSet').listen().name("Set");
     folder2.add(guiControls, 'cBuilding', "").listen().name("Building");
     folder2.add(guiControls, 'cAge', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateCurrentBuilding);
     folder2.add(guiControls, 'cLevel', { 1: 0, 2: 1 }).listen().name("Level").onChange(updateCurrentBuilding);
     folder2.add(guiControls, 'cConnected').listen().name("Road Connection").onChange(updateCurrentBuilding);
-    //folder2.add(guiControls, 'updateBuilding').name("Apply Changes");;
 
+    // Production overview
     var folder21 = gui.addFolder("Production Overview");
 
-    var folder22 = folder21.addFolder("Combined Production");
+    // Combined Production
+    var folder22 = folder21.addFolder("All Sets");
+    // Total
     var folder3 = folder22.addFolder("Total");
     var folder4 = folder3.addFolder("Stats");
     folder4.add(guiControls, 'population').listen().name("Population");
@@ -190,6 +222,7 @@ function init() {
     folder6.add(guiControls, 'coinsBoost').listen().name("Coins %");
     folder6.add(guiControls, 'supplyBoost').listen().name("Supplies %");
     folder6.open();
+    // Per Tile
     var folder8 = folder22.addFolder("Per Tile");
     var folder9 = folder8.addFolder("Stats");
     folder9.add(guiControls, 'tpopulation').listen().name("Population");
@@ -211,8 +244,10 @@ function init() {
     folder11.add(guiControls, 'tsupplyBoost').listen().name("Supplies %");
     folder11.open();
 
-    var folder322 = folder21.addFolder("Per Set Production");
+    // Per Set Productions
+    var folder322 = folder21.addFolder("Per Set");
     folder322.add(guiControls, 'cset', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).listen().name("Set");
+    // Total
     var folder33 = folder322.addFolder("Total");
     var folder34 = folder33.addFolder("Stats");
     folder34.add(guiControls, 'spopulation').listen().name("Population");
@@ -233,6 +268,7 @@ function init() {
     folder36.add(guiControls, 'scoinsBoost').listen().name("Coins %");
     folder36.add(guiControls, 'ssupplyBoost').listen().name("Supplies %");
     folder36.open();
+    // Per Tile
     var folder38 = folder322.addFolder("Per Tile");
     var folder39 = folder38.addFolder("Stats");
     folder39.add(guiControls, 'stpopulation').listen().name("Population");
@@ -254,9 +290,7 @@ function init() {
     folder311.add(guiControls, 'stsupplyBoost').listen().name("Supplies %");
     folder311.open();
 
-
-
-
+    // Save / Load Build
     var folder7 = gui.addFolder("Save/Load Build");
     folder7.add(guiControls, 'save').name("Save Build");
     folder7.add(guiControls, 'saveString').listen().name("Copy:");
@@ -264,47 +298,50 @@ function init() {
     folder7.add(guiControls, 'load').name("Load Build");
     folder7.open();
 
-    var folder41 = gui.addFolder("Settings");
+    // Toggles
+    var folder41 = gui.addFolder("Settings / Toggles");
     folder41.add(guiControls, 'texts').name("Show Initials").onChange(updateTextVisibilities);
     folder41.add(guiControls, 'line').name("City Outline").onChange(updateLineVisibilities);
+    folder41.add(guiControls, 'highlightRoads').name("Needs Road").onChange(updateRoadHighlight);
+    folder41.open();
 
+    //selectionBox = new SelectionBox(camera, scene);
+    //selectionHelper = new SelectionHelper(selectionBox, renderer, 'selectBox');
 
-
-    initDone = true;
+    initDone = true; // Not really used, but why not leave it in??
 }
 
+// Update the highlighting of buildings requiring roads
+function updateRoadHighlight() {
+    var highlight = guiControls.highlightRoads;
+    for (var i = 0; i < objects.length; i++) {
+        var color = highlight ? (sets[objects[i].set][objects[i].building].road ? 0xffff33 : 0xcccccc) : sets[objects[i].set][objects[i].building].color;
+        objects[i].material.color = new THREE.Color(color);
+    }
+}
+
+
+// Update the "Add Building" controls based on which set is selected
 function updateSetBuildings() {
-    /*
-    gui.__folders["Add Building"].__controllers[4].remove();
-    gui.__folders["Add Building"].__controllers[3].remove();
-    gui.__folders["Add Building"].__controllers[2].remove();
-    gui.__folders["Add Building"].__controllers[1].remove();
-    gui.__folders["Add Building"].__controllers[0].remove();
-    */
 
     while (gui.__folders["Add Building"].__controllers.length > 0) {
         gui.__folders["Add Building"].__controllers[gui.__folders["Add Building"].__controllers.length - 1].remove();
     }
 
     var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : { 1: 0, 2: 1 };
-
     gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("Add Building");;
     gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
     gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building");
     gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]);;
-
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age");;
-
-
-    //gui.__folders["Add Building"].__controllers[2].setValue(levels[Object.keys(levels).length]);
-
 }
 
+// Update the gui display of building productions
 function updateRewards(current, ob) {
     var folder = current ? "Current Building" : "Add Building";
     var len = gui.__folders[folder].__controllers.length;
 
-    var stop = current ? 3 : 5;
+    var stop = current ? 0 : 5;
 
     if (gui.__folders[folder].__controllers.length < stop) { return; }
 
@@ -322,6 +359,10 @@ function updateRewards(current, ob) {
     var bonusNum = sets[set][building].level[level].bonuses.length;
 
     if (current) {
+
+        gui.__folders[folder].add(guiControls, 'removeBuilding').name("Remove Building");
+        gui.__folders[folder].add(guiControls, 'curSet').listen().name("Set");
+        gui.__folders[folder].add(guiControls, 'cBuilding', "").listen().name("Building");
         gui.__folders[folder].add(guiControls, 'cAge', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateCurrentBuilding);
         var cLevel = sets[set][building].level.length == 1 ? { 1: 0 } : { 1: 0, 2: 1 };
         gui.__folders[folder].add(guiControls, 'cLevel', cLevel).listen().name("Level").onChange(updateCurrentBuilding);
@@ -359,18 +400,19 @@ function updateRewards(current, ob) {
 
 }
 
-
+// Update the visibility of the texts ... duh
 function updateTextVisibilities() {
     for (var i = 0; i < texts.length; i++) {
         texts[i].visible = guiControls.texts;
     }
 }
 
+// Same^^
 function updateLineVisibilities() {
     line.visible = !line.visible;
 }
 
-// not in use
+// not in use - probs won't use
 function keyPressEvent(event) {
     console.log(event.key);
     if (event.key == "a") {
@@ -386,31 +428,93 @@ function keyPressEvent(event) {
     }
 }
 
+// not in use - WIP
+function onMouseMove(event) {
+    if (!buildingSelected || !isDown) { return; }
+    selectionBox.endPoint.set(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1,
+        0.5);
+    //selectionHelper.onSelectMove(event);
+    if (isDown) {
+        for (var i = 0; i < selectionBox.collection.length; i++) {
+            if (selectionBox.collection[i].geometry.type != "TextGeometry" && selectionBox.collection[i].type != "LineSegments" && selectionBox.collection[i].type != "Line") {
+                //if(!objects.indexOf(scene.getObjectByProperty('uuid',selectionBox.collection[i].uuid))){
+                //console.log(selectionBox.collection[i]);
+                selectionBox.collection[i].material.color.set(sets[selectionBox.collection[i].set][selectionBox.collection[i].building].color);
+            }
+        }
+
+        var allSelected = selectionBox.select();
+        for (var i = 0; i < allSelected.length; i++) {
+
+            if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line") {
+                //if(!objects.indexOf(scene.getObjectByProperty('uuid',allSelected[i].uuid))){
+                allSelected[i].material.color.set(0xff33ff);
+            }
+        }
+
+    }
+}
+
+// not in use - WIP
+function onMouseUp(event) {
+    //if (guiControls.curSet != null) { return }
+    if (!buildingSelected || isDown) { return }
+    selectionBox.endPoint.set(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1,
+        0.5);
+    //selectionHelper.onSelectOver(event);
+    //selectionBox.updateFrustum();
+
+    //console.log("selected");
+
+    var allSelected = selectionBox.select();
+    for (var i = 0; i < allSelected.length; i++) {
+
+        if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line") {
+            //if(!objects.indexOf(scene.getObjectByProperty('uuid',allSelected[i].uuid))){
+            allSelected[i].material.color.set(0xff33ff);
+        }
+    }
+
+    isDown = false;
+
+    //selectionBox = new SelectionBox(camera,scene);
+    //selectionHelper = new SelectionHelper(selectionBox,renderer,'selectBox')
+
+
+}
+
+// The almighty on click event! 
 function onDocumentClick(event) {
+    // Get the intersection of the mouse and the scene
     var mouse = new THREE.Vector2(0, 0);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-
-
     raycaster.setFromCamera(mouse, camera);
 
+    // Get intersection with the helper grid
     var gridIntersect = raycaster.intersectObject(grid);
-
+    // Get the clicked position in the scene
     currentx = Math.round(gridIntersect[0].point.x);
     currentz = Math.round(gridIntersect[0].point.z);
 
+    // Check if the click intersects with one of the buildings
     var intersects = raycaster.intersectObjects(objects);
 
-
+    // Reset all building highlighting
     for (var i = 0; i < objects.length; i++) {
         objects[i].material.emissiveIntensity = 0;
     }
 
+    // Is a building intersected? 
     if (intersects[0] != null) {
+
+        //Update gui to show currently selected building
         guiControls.uuid = intersects[0].object.uuid;
         intersects[0].object.material.emissiveIntensity = 2;
-        //guiControls.cBuilding = setNames[intersects[0].object.set] + ": " + intersects[0].object.name;
         guiControls.curSet = setNames[intersects[0].object.set];
         guiControls.cBuilding = intersects[0].object.name;
         guiControls.cLevel = intersects[0].object.level;
@@ -422,15 +526,23 @@ function onDocumentClick(event) {
             gui.__folders["Current Building"].name = intersects[0].object.name + " - No Road Required";
         }
 
-
+        // Update the production stats of the currently selected building
         updateRewards(true, intersects[0].object);
 
-
+        // Blocks other stuff from running when a building is selected
         buildingSelected = true;
+
+        // Open GUI folder
+        //folder2.open();
+
     } else {
+        // Reset gui when no building selected
         gui.__folders["Current Building"].name = "Current Building";
 
-        while (gui.__folders["Current Building"].__controllers.length > 5) {
+        //Close folder
+        //folder2.close();
+
+        while (gui.__folders["Current Building"].__controllers.length > 0) {
             gui.__folders["Current Building"].__controllers[gui.__folders["Current Building"].__controllers.length - 1].remove();
         }
 
@@ -440,17 +552,51 @@ function onDocumentClick(event) {
         guiControls.cAge = null;
         guiControls.cConnected = null;
         guiControls.curSet = null;
+
+
+
+        // TO be implemented
+        /*
+        isDown = true;
+
+        selBox.geometry = new THREE.PlaneGeometry(Math.random()*20+1,Math.random()*20+1,1);
+
+        selBox.position.set(currentx-selBox.geometry.parameters.width/2,1,currentz-selBox.geometry.parameters.height/2);
+
+        selectionBox.startPoint.set(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1,
+            0.5);
+        selectionBox.endPoint.set(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1,
+            0.5);
+        //selectionHelper.onSelectStart(event);
+
+        for (var i = 0; i < selectionBox.collection.length; i++) {
+            if (selectionBox.collection[i].geometry.type != "TextGeometry" && selectionBox.collection[i].type != "LineSegments" && selectionBox.collection[i].type != "Line") {
+                //if(!objects.indexOf(scene.getObjectByProperty('uuid',selectionBox.collection[i].uuid))){
+                //console.log(selectionBox.collection[i]);
+                selectionBox.collection[i].material.color.set(sets[selectionBox.collection[i].set][selectionBox.collection[i].building].color);
+            }
+        }
+        */
+
     }
 
+    // Update the production overview
     updateConnections();
 }
 
-
+// Drag control start! Store starting position
 function dragStart(event) {
+    dragging = true;
     startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
 }
 
+// Function runs whenever a dragged building's position changes
 function drag(event) {
+    // Round the position of the object to always align with the grid
     if (event.object.geometry.parameters.depth % 2 == 1) {
         event.object.position.z = Math.round(event.object.position.z) - 0.5;
     }
@@ -464,6 +610,7 @@ function drag(event) {
         event.object.position.x = Math.round(event.object.position.x) - 0.5;
     }
 
+    // If the new position overlaps with an existing building, reset it to the previous location
     for (var i = 0; i < objects.length; i++) {
         if (!(event.object.uuid == objects[i].uuid)) {
             if (overlaps(objects[i], event.object)) {
@@ -475,30 +622,22 @@ function drag(event) {
     }
 
 
+    // Move the text with the object, I feel like there should be a way to link it to the object, probably is, but this works fine :)
     texts[objects.indexOf(scene.getObjectByProperty('uuid', event.object.uuid))].position.set(event.object.position.x - event.object.textSize / 2, 2, event.object.position.z + event.object.textSize / 2);
 
+    // Update start position
     startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
 
 }
 
+// Recalculate production overview
 function dragEnd(event) {
-
-    for (var i = 0; i < objects.length; i++) {
-        if (!(event.object.uuid == objects[i].uuid)) {
-            if (overlaps(objects[i], event.object)) {
-                //console.log("o");
-                event.object.position.x = startPosition.x;
-                event.object.position.z = startPosition.z;
-                updateConnections();
-                return;
-            }
-        }
-    }
+    draggin = false;
     updateConnections();
 }
 
+// Probably not the best name tbh, this calculates all the stats of the current setup
 function updateConnections() {
-
     var population = 0;
     var happiness = 0;
     var fps = 0;
@@ -632,9 +771,9 @@ function updateConnections() {
         guiControls.stcoinsBoost = (parseFloat(sstats[11]) / parseFloat(stiles)).toFixed(2);
         guiControls.stsupplyBoost = (parseFloat(sstats[12]) / parseFloat(stiles)).toFixed(2);
     }
-
 }
 
+// Gets all the neighbours of a building
 function getNeighbours(j, name) {
     var neighbours = [];
     for (var i = 0; i < objects.length; i++) {
@@ -647,6 +786,7 @@ function getNeighbours(j, name) {
     return neighbours;
 }
 
+// Checks if two buildings are neighbours
 function isNeighbour(ob1, ob2) {
 
     var pos1 = new THREE.Vector3(0, 0, 0);
@@ -663,6 +803,7 @@ function isNeighbour(ob1, ob2) {
     return ((Math.abs(pos1.z - pos2.z) <= (n1 / 2 + n2 / 2)) && (Math.abs(pos1.x - pos2.x) <= (m1 / 2 + m2 / 2)) && (dist < Math.sqrt(Math.pow(n1 / 2 + n2 / 2, 2) + Math.pow(m1 / 2 + m2 / 2, 2))));
 }
 
+// Check if two buildings overlap
 function overlaps(ob1, ob2) {
     var pos1 = new THREE.Vector3(0, 0, 0);
     var pos2 = new THREE.Vector3(0, 0, 0);
@@ -698,10 +839,10 @@ function overlaps(ob1, ob2) {
     return true;
 }
 
+// Update the current building when the user changes it in the controls
 function updateCurrentBuilding() {
     if (buildingSelected && guiControls.cLevel != null && guiControls.cAge != null && guiControls.cConnected != null) {
         var id = objects.indexOf(scene.getObjectByProperty('uuid', guiControls.uuid));
-
         objects[id].level = guiControls.cLevel;
         objects[id].age = guiControls.cAge;
         objects[id].connected = guiControls.cConnected;
@@ -710,7 +851,14 @@ function updateCurrentBuilding() {
     }
 }
 
+// Everything to do with the controls
 function addGuiControls() {
+
+    this.showHelp = function(){
+        console.log("help");
+        helpElement.style.display = "block";
+    }
+
     this.set = 0;
     this.building = 0;
     this.level = 1;
@@ -750,50 +898,6 @@ function addGuiControls() {
             objects[id].connected = this.cConnected;
             updateConnections();
         }
-
-        /*
-        if (!buildingSelected) {
-            return;
-        }
-        for (var i = 0; i < objects.length; i++) {
-            if (objects[i].uuid == this.uuid) {
-                // get by uuid
-                objects[i].level = this.cLevel;
-                objects[i].age = this.cAge;
-                objects[i].connected = this.cConnected;
-                updateConnections();
-                //if (objects[i].name == this.cBuilding) {
-                //objects[i].building = this.cBuilding;
-                
-            } else {
-                var newBuilding = spring[this.cBuilding];
-                var n = newBuilding.size[0];
-                var m = newBuilding.size[1];
-                objects[i].geometry = new THREE.BoxGeometry(n, 1, m);
-                var tx = new THREE.TextureLoader().load(newBuilding.material[0]);
-                tx.minFilter = THREE.LinearFilter;
-                var material = new THREE.MeshPhongMaterial({ map: tx });
-                material.emissive.setHex(newBuilding.material[1]);
-                material.emissiveIntensity = 0;
-                objects[i].material = material;
-                objects[i].position.set(-topx + n, 1, topz + m);
-                //bld.set = 0;
-                objects[i].name = newBuilding.name;
-                objects[i].building = this.cBuilding;
-                objects[i].road = newBuilding.road;
-
-                gui.__folders["Current Building"].name = "Current Building";
-                guiControls.cBuilding = null;
-                guiControls.cLevel = null;
-                guiControls.cAge = null;
-                guiControls.cConnected = null;
-                buildingSelected = false;
-            }
-            
-                return;
-            }
-        }
-        */
     }
 
     this.removeBuilding = function () {
@@ -812,6 +916,10 @@ function addGuiControls() {
         this.cAge = null;
         this.cConnected = null;
         updateConnections();
+
+        while (gui.__folders["Current Building"].__controllers.length > 0) {
+            gui.__folders["Current Building"].__controllers[gui.__folders["Current Building"].__controllers.length - 1].remove();
+        }
         return;
     }
 
@@ -888,10 +996,14 @@ function addGuiControls() {
 
     this.texts = true;
     this.line = true;
+    this.highlightRoads = false;
 }
 
+// Save the current scene to a string. Tried making it as small as possible, but I would love to have some sort of online storing in the future. 
+// I have no idea how that works though, so yeah ... this works for now :(
 function saveScene() {
     var string = "";
+    /* Old version
     for (var i = 0; i < objects.length; i++) {
         var ob = objects[i];
         string += i == 0 ? "" : "x";
@@ -901,50 +1013,84 @@ function saveScene() {
         string += ob.age < 10 ? "0" + ob.age : ob.age;
         string += ob.connected ? "1" : "0";
         string += "I" + ob.position.x.toString() + "I" + ob.position.z.toString();
+    }*/
+    for (var i = 0; i < objects.length; i++) {
+        var ob = objects[i];
+        var base = 32;
+        string += i == 0 ? "" : "z";
+        string += ob.set.toString(base);
+        string += ob.building.toString(base);
+        string += ob.level.toString(base);
+        string += ob.age.toString(base);
+        string += ob.connected ? "1" : "0";
+        string += "u" + ob.position.x.toString(base).replace("-", "y").replace(".", "w") + "u" + ob.position.z.toString(base).replace("-", "y").replace(".", "w");
     }
-    console.log(string);
+    //console.log(string);
     return string;
 }
 
+// Clear scene, parse the save string and add buildings
 function loadScene(string) {
     clearScene();
     if (string.length < 5) {
         updateConnections();
         return;
     }
-    var buildings = string.split("x");
-    for (var i = 0; i < buildings.length; i++) {
-        var bld = buildings[i].split("I");
-        var set = parseInt(bld[0].substring(0, 2));
-        var building = parseInt(bld[0].substring(2, 4));
-        var level = parseInt(bld[0].substring(4, 6));
-        var age = parseInt(bld[0].substring(6, 8));
-        var connected = bld[0].substring(8, 9) == "1" ? true : false;
-        var x = parseFloat(bld[1]);
-        var z = parseFloat(bld[2]);
-        addBuilding(set, building, level, age, connected, x, z);
+    // For old version
+    if (string.includes("x")) {
+        var buildings = string.split("x");
+        for (var i = 0; i < buildings.length; i++) {
+            var bld = buildings[i].split("I");
+            var set = parseInt(bld[0].substring(0, 2));
+            var building = parseInt(bld[0].substring(2, 4));
+            var level = parseInt(bld[0].substring(4, 6));
+            var age = parseInt(bld[0].substring(6, 8));
+            var connected = bld[0].substring(8, 9) == "1" ? true : false;
+            var x = parseFloat(bld[1]);
+            var z = parseFloat(bld[2]);
+            addBuilding(set, building, level, age, connected, x, z);
+        }
+    } else {
+        var buildings = string.split("z");
+        for (var i = 0; i < buildings.length; i++) {
+            var bld = buildings[i].split("u");
+            var base = 32;
+            var set = toDec(bld[0].substring(0, 1), base);
+            var building = toDec(bld[0].substring(1, 2), base);
+            var level = toDec(bld[0].substring(2, 3), base);
+            var age = toDec(bld[0].substring(3, 4), base);
+            var connected = bld[0].substring(4, 5) == "1" ? true : false;
+            var x = toDec(bld[1], base);
+            var z = toDec(bld[2], base);
+            addBuilding(set, building, level, age, connected, x, z);
+        }
     }
+
+
     dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
     dragControls.addEventListener('dragstart', dragStart);
     dragControls.addEventListener('dragend', dragEnd);
     dragControls.addEventListener('drag', drag);
 
-    updateConnections();
+    //updateConnections(); 
+}
 
-
+// Convert from given base to decimal
+function toDec(numString, base) {
+    var parts = numString.replace("y", "-").replace("w", ".").split(".");
+    if (parts.length > 1) {
+        var sign = Math.sign(parseInt(parts[0], base));
+        if (Object.is(sign, -0)) { sign = -1; } //Sign of "-0" is "-0" 
+        if (Object.is(sign, 0)) { sign = 1; } //Sign of "0" is "0"               <-- don't ask me why
+        return parseInt(parts[0], base) + sign * parseInt(parts[1], base) / Math.pow(base, parts[1].length);
+    }
+    return parseInt(parts[0], base);
 }
 
 
+// Add a new building!
 function addBuilding(set, building, level, age, connected, x, z) {
-    var cols = [0x8b4513,
-        0x814f2c,
-        0x966441,
-        0xae5617,
-        0x9a4204,
-        0xc15305,
-        0x9f5927,
-        0xd2691e,
-        0xa85418]
+    // Add building
     var newBuilding = sets[set][building];
     var n = newBuilding.size[0];
     var m = newBuilding.size[1];
@@ -966,25 +1112,13 @@ function addBuilding(set, building, level, age, connected, x, z) {
     bld.road = newBuilding.road;
 
 
+    // Add text
     var loader = new THREE.FontLoader();
     loader.load('assets/Arial_Regular.json', function (font) {
-
         var offset = 0.5;
         var size = n > m ? m - m * offset : n - n * offset;
-
         var textGeometry = new THREE.TextGeometry(newBuilding.text, {
-
-            font: font,
-            // 4 = 0.66
-            // 12 = 
-            size: size,
-            height: 5,
-            curveSegments: 12,
-
-            bevelThickness: 1,
-            bevelSize: 1,
-            bevelEnabled: false
-
+            font: font, size: size, height: 5, curveSegments: 12, bevelThickness: 1, bevelSize: 1, bevelEnabled: false
         });
 
         var textMaterial = new THREE.MeshPhongMaterial(
@@ -992,35 +1126,9 @@ function addBuilding(set, building, level, age, connected, x, z) {
         );
 
         textGeometry.rotateX(-1.57);
-        //textGeometry.rotateY(-1.57);
         var mesh = new THREE.Mesh(textGeometry, textMaterial);
-        var tx = n % 2 == 0 ? x - 0.375 * n : x - 0.375 * n;
-        var tz = m % 2 == 0 ? z + 0.375 * m : z + 0.375 * m;
         mesh.position.set(x - size / 2, 2, z + size / 2);
         mesh.visible = guiControls.texts;
-        //mesh.position.set(x-n/2+0.125*n,1,z+m/2-0.125*m); 
-        //mesh.geometry.center();
-        if (n >= m) {
-            //mesh.position.set(x-0.5*n+offset*m,1,z+0.5*m-offset*m); 
-        } else {
-            //mesh.position.set(x-0.5*n+offset*n,1,z+0.5*m-offset*n); 
-        }
-
-        /*
-        if(n >= m){
-            mesh.position.set(x-1.5*offset*n+0.5*offset*(n-m),1,z+1.5*offset*m); 
-        }else{
-            mesh.position.set(x-1.5*offset*n,1,z+1.5*offset*n-0.5*offset*(m-n)); 
-        }
-        
-        if(n > m){
-            mesh.position.set(x-0.5, 1, z+0.33*m);
-        } else if(n == m){
-            mesh.position.set(x-0.33*n, 1, z+0.33*m);
-        }else {
-            mesh.position.set(x-0.33*n, 1, z+0.5);
-        }
-        */
         bld.textSize = size;
         scene.add(bld);
         objects.push(bld);
@@ -1032,6 +1140,7 @@ function addBuilding(set, building, level, age, connected, x, z) {
     scene.updateMatrixWorld();
 }
 
+// Remove everything
 function clearScene() {
     for (var i = 0; i < objects.length; i++) {
         scene.remove(objects[i]);
@@ -1043,6 +1152,7 @@ function clearScene() {
     texts = [];
 }
 
+// Let there be life!
 function animate() {
     requestAnimationFrame(animate);
     updateTopLeft();
@@ -1060,11 +1170,14 @@ function animate() {
     }
 
     renderer.render(scene, camera)
-
+    if (!initDone) {
+        updateConnections();
+    }
 
 
 }
 
+// Get the current top-left position based on window size, used for adding new buildings
 function updateTopLeft() {
     var mouse = new THREE.Vector2(1, 1);
     raycaster = new THREE.Raycaster();
@@ -1077,6 +1190,8 @@ function updateTopLeft() {
 }
 
 init();
+
+// Easier testing
 //loadScene("020001171I4I-2.5x020101170I1.5I0.5x020201171I5I0.5x020301171I1.5I-1.5x020401171I1.5I-3x020001171I4I3.5x020001171I-1I-2.5x020001171I-1I3.5x020201171I-2I0.5x020301171I1.5I2.5x020401171I1.5I4x020301171I3.5I-0.5x020301171I3.5I1.5x020301171I-0.5I-0.5x020301171I-0.5I1.5x020301171I3.5I0.5x020301171I-0.5I0.5");
 
 animate();

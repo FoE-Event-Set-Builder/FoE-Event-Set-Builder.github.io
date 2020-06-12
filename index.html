@@ -1,37 +1,89 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-		<meta content="utf-8" http-equiv="encoding">
-		<meta charset="utf-8">
-		
-		<script src="js/dat.gui.min.js"></script>
-		<!--link rel="stylesheet" type="text/css" href="dat-gui-light-theme.css"-->
-		<title>FoE Event Set Builder</title>
-		<style>
-			body { margin: 0; }
-			canvas { display: block; }
-		</style>
-	</head>
-	<body>
-        <div id="canvas" style="position:absolute"></div>
-        
-        
-        
-		
-		<script src="js/three.js"></script>
-		<script src="js/OrbitControls.js"></script>
-		<script src="js/DragControls.js"></script>
 
-		<script src="sets/cherry.js"></script>
-		<script src="sets/piazza.js"></script>
-		<script src="sets/celtic.js"></script>
-		<script src="sets/indianpalace.js"></script>
-		<script src="sets/indianfountain.js"></script>
-		<script src="sets/classical.js"></script>
-		<script src="sets/royal.js"></script>
-		<script src="sets/winter.js"></script>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<meta charset="utf-8">
 
-		<script src="main.js"></script>
-	</body>
+
+	<title>FoE Event Set Builder</title>
+	<style>
+		body {
+			margin: 0;
+			overflow: hidden;
+		}
+
+		canvas {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="info" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h1 id="foe-event-set-builder-how-to-use-">FoE Event Set Builder - How To use!</h1>
+<h2 id="add-building">Add building</h2>
+<p>To add a building, simply select the set, building, age and level and click the &quot;Add Building&quot; button. The building will be added to the scene and you can start building! When selecting a building, the stats of the chosen building is displayed, giving you information of what the building gives with your current options.</p>
+<h2 id="manipulate-buildings">Manipulate Buildings</h2>
+<p>To move a building simply click and drag it! To change the options of the currently selected building, click on it and open the &quot;Current Building&quot; menu. Here you will see the full name of the building and its set, as well as which rewards it gives with the current options. You can change the age and level of the building, and if the building requires road connection you can choose if the building is connected or not. An unconnected building will count towards the set bonuses of neighboring buildings, but its own rewards will not. You can also choose to remove the building, this will completely remove it from the scene.  </p>
+<h2 id="production-overview">Production Overview</h2>
+<p>The Production Overview shows you what your current setup will give you per collection. &quot;All Sets&quot; will show the total production information of all buildings in your design. &quot;Per Set&quot; will only show the production of the chosen set. For each option you can choose between &quot;Total&quot; and &quot;Per Tile&quot; production, which show the raw numbers, and the raw numbers divided by the tiles used, respectively. </p>
+<h2 id="settings-toggles">Settings / Toggles</h2>
+<p><strong>Show Initials:</strong> This option toggles whether or not the first letter of each building is displayed. This is designed to make it easier to distinguish buildings, but if you&#39;ve familiar with the color scheme you might find them annoying instead. </p>
+<p><strong>City Outline:</strong> This option toggles whether or not the city outline is shown. The red outline shows the maximum size of a forge of empires city, though keep in mind that at the moment a full city cannot be filled with the current expansions. </p>
+<p><strong>Needs Road:</strong> This option highlights all the buildings that require roads. Buildings that require roads will be marked in Yellow, all other buildings will be made Gray. The buildings will be reset to their own color when the option is turned off</p>
+<h2 id="save-load-builds">Save / Load Builds</h2>
+<p>Due to the current website hosting and my lack of knowledge, all saving and loading of builds is done through a save string. This text string is generated using the &quot;Save Build&quot; button, which will save the current build and generate a string in the &quot;Copy&quot; field. Copy this text to a local file, or alternatively a <a href="https://pastebin.com/">Pastebin</a> file or similar for easy sharing. To load the build, paste this string in the &quot;Paste&quot; field and press the &quot;Load Build&quot; button. <strong>WARNING: This will delete the current build, make sure to save before loading a new build.</strong></p>
+<h2 id="examples">Examples</h2>
+<ol>
+<li><a href="https://pastebin.com/QELLj4Q1">My Cherry + Piazza Setup (pastebin)</a></li>
+<li><a href="https://pastebin.com/aA7ZHCCL">All Buildings (pastebin)</a></li>
+<li><a href="https://pastebin.com/tEevZWty">9x9 Celtic Forest (pastebin)</a></li>
+<li><a href="https://pastebin.com/B1zPEd7e">14x4 Indian Palace (pastebin)</a></li>
+</ol>
+<h2 id="plans-for-future-improvements">Plans For Future Improvements</h2>
+<ol>
+<li>Ability to select, move and delete multiple buildings at the same time</li>
+<li>Ability to add complete sets</li>
+<li>Library of common builds</li>
+<li>Online save features</li>
+<li>Better building designs / colors</li>
+<li>Improve Controls</li>
+</ol>
+<h2 id="about">About</h2>
+<p>Forge of Empires, FOE, and all associated trademarks and content belong to InnoGames GmbH.<br>foe-event-set-builder.github.io is an unofficial 3rd party site, and is not directly affiliated with InnoGames.  </p>
+<p>This site was created as a hobby project by a person quite new to javascript / website development, so please don&#39;t hesitate to contact me on foeeventsetbuilder@gmail.com or create an issue on github if you have any questions, issues or suggestions.</p>
+<p>Created by MooingCat, EN(16), June 2020. </p>
+
+			
+		</div>
+	</div>
+	<div id="canvas" style="position:absolute"></div>
+
+
+	<script src="js/dat.gui.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="theme.css">
+
+	<script src="js/three.js"></script>
+	<script src="js/SelectionBox.js"></script>
+	<script src="js/SelectionHelper.js"></script>
+	<script src="js/OrbitControls.js"></script>
+	<script src="js/DragControls.js"></script>
+
+	<script src="sets/cherry.js"></script>
+	<script src="sets/piazza.js"></script>
+	<script src="sets/celtic.js"></script>
+	<script src="sets/indianpalace.js"></script>
+	<script src="sets/indianfountain.js"></script>
+	<script src="sets/classical.js"></script>
+	<script src="sets/royal.js"></script>
+	<script src="sets/winter.js"></script>
+
+	<script src="main.js"></script>
+</body>
+
 </html>
