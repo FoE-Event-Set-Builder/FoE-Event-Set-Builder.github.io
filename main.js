@@ -1034,6 +1034,10 @@ function loadScene(string) {
     clearScene();
     if (string.length < 5) {
         updateConnections();
+        dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
+        dragControls.addEventListener('dragstart', dragStart);
+        dragControls.addEventListener('dragend', dragEnd);
+        dragControls.addEventListener('drag', drag);
         return;
     }
     // For old version
