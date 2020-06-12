@@ -986,10 +986,11 @@ function addGuiControls() {
     this.save = function () {
         if (objects.length == 0) {
             this.saveString = "No Buildings";
+            this.shareString = "No Buildings";
         } else {
             var string = saveScene();
             this.saveString = string;
-            this.shareString = window.location.hostname + "/?" + string;
+            this.shareString = "hhtps//" + window.location.hostname + "/?" + string;
         }
     }
     this.saveString = "";
