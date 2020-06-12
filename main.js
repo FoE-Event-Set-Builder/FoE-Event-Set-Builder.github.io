@@ -291,11 +291,13 @@ function init() {
     folder311.open();
 
     // Save / Load Build
-    var folder7 = gui.addFolder("Save/Load Build");
+    var folder7 = gui.addFolder("Save Build");
     folder7.add(guiControls, 'save').name("Save Build");
-    folder7.add(guiControls, 'saveString').listen().name("Copy:");
-    folder7.add(guiControls, 'loadString').listen().name("Paste:");
-    folder7.add(guiControls, 'load').name("Load Build");
+    folder7.add(guiControls, 'saveString').listen().name("String:");
+    folder7.add(guiControls, 'shareString').listen().name("Link:")
+    var folder77 = gui.addFolder("Load Build");
+    folder77.add(guiControls, 'loadString').listen().name("String:");
+    folder77.add(guiControls, 'load').name("Load Build");
     folder7.open();
 
     // Toggles
@@ -985,10 +987,13 @@ function addGuiControls() {
         if (objects.length == 0) {
             this.saveString = "No Buildings";
         } else {
-            this.saveString = saveScene();
+            var string = saveScene();
+            this.saveString = string;
+            this.shareString = window.location.hostname + "/?" + string;
         }
     }
     this.saveString = "";
+    this.shareString = "";
     this.load = function () {
         loadScene(this.loadString);
     }
