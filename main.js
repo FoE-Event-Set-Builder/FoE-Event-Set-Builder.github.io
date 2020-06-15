@@ -990,7 +990,7 @@ function addGuiControls() {
         } else {
             var string = saveScene();
             this.saveString = string;
-            this.shareString = "hhtps//" + window.location.hostname + "/?" + string;
+            this.shareString = "https://" + window.location.hostname + "/?" + string;
         }
     }
     this.saveString = "";
