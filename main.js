@@ -180,6 +180,7 @@ function init() {
     folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen();
     folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen();;
     folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age");
+    folder1.add(guiControls, 'bsize').name("Size");
     folder1.add(guiControls, 'road1').name("Road");
     folder1.add(guiControls, 'base1').name("Base");
     folder1.add(guiControls, 'bonus1').name("Set Bonus 1");
@@ -224,6 +225,8 @@ function init() {
     folder6.open();
     // Per Tile
     var folder8 = folder22.addFolder("Per Tile");
+    folder8.add(guiControls,'tempty').name("Empty Tiles:").onChange(updateConnections);
+    folder8.add(guiControls,'troads').name("Road Tiles:").onChange(updateConnections);
     var folder9 = folder8.addFolder("Stats");
     folder9.add(guiControls, 'tpopulation').listen().name("Population");
     folder9.add(guiControls, 'thappiness').listen().name("Happiness");
@@ -270,6 +273,8 @@ function init() {
     folder36.open();
     // Per Tile
     var folder38 = folder322.addFolder("Per Tile");
+    folder38.add(guiControls,'stempty').name("Empty Tiles:").onChange(updateConnections);
+    folder38.add(guiControls,'stroads').name("Road Tiles:").onChange(updateConnections);
     var folder39 = folder38.addFolder("Stats");
     folder39.add(guiControls, 'stpopulation').listen().name("Population");
     folder39.add(guiControls, 'sthappiness').listen().name("Happiness");
@@ -333,7 +338,7 @@ function updateSetBuildings() {
     var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : { 1: 0, 2: 1 };
     gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("Add Building");;
     gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
-    gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building");
+    gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0);
     gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]);;
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age");;
 }
@@ -373,6 +378,8 @@ function updateRewards(current, ob) {
         }
 
     } else {
+        var bsize = sets[set][building].size[0] + " x " + sets[set][building].size[1];
+        gui.__folders[folder].add(guiControls, "bsize").setValue(bsize).name("Size")
         var road = sets[set][building].road ? "Required" : "Not Required";
         gui.__folders[folder].add(guiControls, "road1").setValue(road).name("Road");
     }
@@ -655,7 +662,7 @@ function updateConnections() {
     var supplyBoost = 0;
     var names = ["population", "happiness", "fps", "goods", "medals", "coins", "supplies", "attackingAttack", "attackingDefense", "defendingAttack", "defendingDefense", "coinsBoost", "supplyBoost"];
     var stats = [population, happiness, fps, goods, medals, coins, supplies, attackingAttack, attackingDefense, defendingAttack, defendingDefense, coinsBoost, supplyBoost];
-    var tiles = 0;
+    var tiles = guiControls.tempty + guiControls.troads;
 
     var spopulation = 0;
     var shappiness = 0;
@@ -671,7 +678,7 @@ function updateConnections() {
     var scoinsBoost = 0;
     var ssupplyBoost = 0;
     var sstats = [spopulation, shappiness, sfps, sgoods, smedals, scoins, ssupplies, sattackingAttack, sattackingDefense, sdefendingAttack, sdefendingDefense, scoinsBoost, ssupplyBoost];
-    var stiles = 0;
+    var stiles = guiControls.stempty + guiControls.stroads;
 
     var set = guiControls.cset;
 
@@ -874,6 +881,7 @@ function addGuiControls() {
         addBuilding(this.set, this.building, this.level, this.age, true, x, z);
     }
 
+    this.bsize = "2 x 3";
     this.road1 = "Not Required";
     this.base1 = "6140 Happiness";
     this.base2 = "";
@@ -939,6 +947,8 @@ function addGuiControls() {
     this.coinsBoost = 0;
     this.supplyBoost = 0;
 
+    this.tempty = 0;
+    this.troads = 0;
     this.tpopulation = "0";
     this.thappiness = "0";
     this.tfps = "0";
@@ -969,6 +979,8 @@ function addGuiControls() {
     this.scoinsBoost = 0;
     this.ssupplyBoost = 0;
 
+    this.stempty = 0;
+    this.stroads = 0;
     this.stpopulation = "0";
     this.sthappiness = "0";
     this.stfps = "0";
