@@ -299,7 +299,8 @@ function init() {
     var folder7 = gui.addFolder("Save Build");
     folder7.add(guiControls, 'save').name("Save Build");
     folder7.add(guiControls, 'saveString').listen().name("String:");
-    folder7.add(guiControls, 'shareString').listen().name("Link:")
+    folder7.add(guiControls, 'shareString').listen().name("Full Link:")
+    folder7.add(guiControls, 'bitlyString').listen().name("Bitly Link:")
     var folder77 = gui.addFolder("Load Build");
     folder77.add(guiControls, 'loadString').listen().name("String:");
     folder77.add(guiControls, 'load').name("Load Build");
@@ -999,14 +1000,21 @@ function addGuiControls() {
         if (objects.length == 0) {
             this.saveString = "No Buildings";
             this.shareString = "No Buildings";
+            this.bitlyString = "No Buildings";
         } else {
             var string = saveScene();
             this.saveString = string;
-            this.shareString = "https://" + window.location.hostname + "/?" + string;
+            this.shareString = "https://foe-event-set-builder.github.io/?" + string;
+            ShortLinkBitly(this.shareString);
+
+            /*getBitlyLink(sshareString, function(short){
+                guiControls.shareString = short;
+            });*/
         }
     }
     this.saveString = "";
     this.shareString = "";
+    this.bitlyString = "";
     this.load = function () {
         loadScene(this.loadString);
     }
@@ -1015,6 +1023,32 @@ function addGuiControls() {
     this.texts = true;
     this.line = true;
     this.highlightRoads = false;
+}
+
+function ShortLinkBitly( url ) { /*pLongUrl is the long URL*/
+
+	var apiKey = 'aad38d22cab392ecf419e3ecfd811157a5b63a4a';
+	
+    var params = {
+        "long_url" : url           
+    };
+
+    $.ajax({
+        url: "https://api-ssl.bitly.com/v4/shorten",
+        cache: false,
+        dataType: "json",
+        method: "POST",
+        contentType: "application/json",
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", "Bearer " + apiKey);
+        },
+        data: JSON.stringify(params)
+    }).done(function(data) {
+        guiControls.bitlyString = "" + data.link;
+
+    }).fail(function(data) {
+        guiControls.bitlyString = "error";
+    });
 }
 
 // Save the current scene to a string. Tried making it as small as possible, but I would love to have some sort of online storing in the future. 
