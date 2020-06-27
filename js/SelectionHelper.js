@@ -29,7 +29,7 @@
             }.bind(this), false);
         }
         onSelectStart(event) {
-            console.log("start");
+            //console.log("start");
             this.renderer.domElement.parentElement.appendChild(this.element);
             //console.log(this.renderer.domElement.)
             this.element.style.left = event.clientX + 'px';
@@ -50,8 +50,8 @@
             this.element.style.height = (this.pointBottomRight.y - this.pointTopLeft.y) + 'px';
         }
         onSelectOver() {
-            console.log("end");
-            console.log(this.element);
+            //console.log("end");
+            //console.log(this.element);
             this.element.parentElement.removeChild(this.element);
         }
     }
