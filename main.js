@@ -8,6 +8,7 @@ let currentz = 0;
 let controls;
 let select = false;
 let buildingsSelected = false;
+let keyPressed = false;
 
 let initDone = false;
 let doUpdateRewards = true;
@@ -84,6 +85,7 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     updateTopLeft();
+    requestAnimationFrame(animate);
 }
 
 function init() {
@@ -176,9 +178,9 @@ function init() {
     var folder1 = gui.addFolder('Add Building');
     folder1.add(guiControls, 'addBuilding1').name("Add Building");;
     folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
-    folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen();
-    folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen();;
-    folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age");
+    folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen().onChange(updateAddStats);
+    folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen().onChange(updateAddStats);;
+    folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
     folder1.add(guiControls, 'bsize').name("Size");
     folder1.add(guiControls, 'road1').name("Road");
     folder1.add(guiControls, 'base1').name("Base");
@@ -248,7 +250,7 @@ function init() {
 
     // Per Set Productions
     var folder322 = folder21.addFolder("Per Set");
-    folder322.add(guiControls, 'cset', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).listen().name("Set");
+    folder322.add(guiControls, 'cset', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).listen().name("Set").onChange(updateConnections);
     // Total
     var folder33 = folder322.addFolder("Total");
     var folder34 = folder33.addFolder("Stats");
@@ -320,6 +322,11 @@ function init() {
     initDone = true; // Not really used, but why not leave it in??
 }
 
+function updateAddStats(){
+    console.log("update");
+    updateRewards(false, null);
+}
+
 // Update the highlighting of buildings requiring roads
 function updateRoadHighlight() {
     var highlight = guiControls.highlightRoads;
@@ -339,9 +346,10 @@ function updateSetBuildings() {
     var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : { 1: 0, 2: 1 };
     gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("Add Building");;
     gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
-    gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0);
-    gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]);;
-    gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age");;
+    gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0).onChange(updateAddStats);
+    gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats);
+    gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
+    updateRewards(false,null);
 }
 
 // Update the gui display of building productions
@@ -445,6 +453,9 @@ function keyPressEvent(event) {
 }
 
 function onMouseMove(event) {
+    
+
+    if(keyPressed){requestAnimationFrame(animate);}
     if (!select) { return; }
 
     var mouse = new THREE.Vector2(0, 0);
@@ -473,7 +484,8 @@ function onMouseMove(event) {
 }
 
 function onMouseUp(event) {
-
+    requestAnimationFrame(animate);
+    keyPressed = false;
     moveCam = false;
     if (!select) { return }
     selectionBox.endPoint.set(
@@ -506,7 +518,7 @@ function onMouseUp(event) {
 // The almighty on click event! 
 function onDocumentClick(event) {
 
-
+    keyPressed = true;
     // Get the intersection of the mouse and the scene
     var mouse = new THREE.Vector2(0, 0);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -601,6 +613,8 @@ function onDocumentClick(event) {
 
 // Drag control start! Store starting position
 function dragStart(event) {
+    
+    requestAnimationFrame(animate);
     dragging = true;
     startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
     groupStart = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
@@ -631,6 +645,8 @@ function dragStart(event) {
 
 // Function runs whenever a dragged building's position changes
 function drag(event) {
+    
+    requestAnimationFrame(animate);
     //console.log(dragMesh);
     // Round the position of the object to always align with the grid
     if (event.object.geometry.parameters.depth % 2 == 1) {
@@ -677,6 +693,8 @@ function drag(event) {
 
 // Recalculate production overview
 function dragEnd(event) {
+    
+    requestAnimationFrame(animate);
     draggin = false;
     if (buildingsSelected) {
         var diffx = event.object.position.x - groupStart.x;
@@ -833,6 +851,9 @@ function updateConnections() {
         guiControls.stcoinsBoost = (parseFloat(sstats[11]) / parseFloat(stiles)).toFixed(2);
         guiControls.stsupplyBoost = (parseFloat(sstats[12]) / parseFloat(stiles)).toFixed(2);
     }
+
+    
+    requestAnimationFrame(animate);
 }
 
 // Gets all the neighbours of a building
@@ -926,12 +947,14 @@ function addGuiControls() {
     this.level = 1;
     this.age = 17;
     this.addBuilding1 = function () {
+        requestAnimationFrame(animate);
         var newBuilding = sets[this.set][this.building];
         var n = newBuilding.size[0];
         var m = newBuilding.size[1];
         var x = -topx + n;
         var z = topz + m;
         addBuilding(this.set, this.building, this.level, this.age, true, x, z);
+        requestAnimationFrame(animate);
     }
 
     this.bsize = "2 x 3";
@@ -1056,6 +1079,8 @@ function addGuiControls() {
 }
 
 function removeBuilding1() {
+    
+    requestAnimationFrame(animate);
     if (!buildingSelected && !buildingsSelected) {
         return;
     }
@@ -1185,6 +1210,8 @@ function loadScene(string) {
 
     guiControls.population = "-";
 
+    
+    requestAnimationFrame(animate);
     //updateConnections(); 
 }
 
@@ -1248,10 +1275,11 @@ function addBuilding(set, building, level, age, connected, x, z) {
         objects.push(bld);
         scene.add(mesh);
         texts.push(mesh);
+        scene.updateMatrixWorld();
+        requestAnimationFrame(animate);
 
     });
 
-    scene.updateMatrixWorld();
 }
 
 // Remove everything
@@ -1264,29 +1292,15 @@ function clearScene() {
         scene.remove(texts[i]);
     }
     texts = [];
+    requestAnimationFrame(animate);
 }
 
 // Let there be life!
 function animate() {
-    requestAnimationFrame(animate);
-
     if(guiControls.population == "-"){
         updateConnections();
     }
 
-    if (guiControls.cset != prevSet) {
-        updateConnections();
-        prevSet = guiControls.cset;
-    }
-
-    if (pset != guiControls.set || pbuilding != guiControls.building || plevel != guiControls.level || page != guiControls.age) {
-        updateRewards(false, null);
-        pset = guiControls.set;
-        pbuilding = guiControls.building;
-        plevel = guiControls.level;
-        page = guiControls.age;
-    }
-    console.log("render");
     renderer.render(scene, camera)
 }
 
@@ -1306,4 +1320,5 @@ init();
 
 // Easier testing
 //loadScene("101h1uyauy6wgz111h1uy7wguy7z121h1uy9wguy4z131h1uy7uy4wgz141h1uy8wguy5wgz001h1uy9u3wgz011h0uy8wgu6z021h1uy6wgu3z041h1uy7wgu4wgz101h1uy2uy6wgz111h1uy1wguy4z121h1uy9wguy9z121h1uy4wguy7z121h1uy4wguy4z141h1uy7wguy8wgz141h1uy4wguy5wgz141h1uy0wguy5wgz141h1uy1wguy2wgz121h1u0wguy7z121h1u0wguy2z131h1u1uy4wgz001h1uy6u5wgz001h1uy7u8wgz001h1uyau8wgz041h1uy8wgu7wgz021h0uy8wgubz001h1uy6ubwgz001h1uy9udwgz011h1uy6wguez041h1uy7wgucwgz041h1uyewgu4wgz041h1uyawguawgz041h1uyewgucwgz041h1uydwgu7wgz041h1uyawgu6wgz001h1uygu5wgz001h1uydu3wgz001h1uybu4wgz001h1uycu8wgz001h1uyfu8wgz001h1uydudwgz011h1uyfwgu3z011h0uydwgubz021h1uyfwguez021h0uydwgu6z001h1uygubwgz001h1uybucwgz001h1uyeugwgz001h1uyhugwgz001h1uy8ugwgz001h1uy5ugwgz001h1uy9ujwgz001h1uy6ulwgz001h1uygulwgz001h1uydujwgz011h1uyfwgujz021h1uy6wgujz021h1uydwgumz011h1uy8wgumz001h1uybukwgz041h1uyfwgufwgz041h1uy6wgufwgz041h1uyewgukwgz041h1uy7wgukwgz041h1uyawgumwgz141h1uy5wguy5wgz141h1uy3wguy5wg");
-animate();
+
+
