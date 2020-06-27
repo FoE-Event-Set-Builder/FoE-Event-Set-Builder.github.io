@@ -1286,7 +1286,7 @@ function animate() {
         plevel = guiControls.level;
         page = guiControls.age;
     }
-
+    console.log("render");
     renderer.render(scene, camera)
 }
 
