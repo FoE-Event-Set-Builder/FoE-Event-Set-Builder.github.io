@@ -1,17 +1,21 @@
 // As you can see this is just me fooling around testing a bunch of stuff, this is a hobby project, proper coding styles be damned :P
-let controls, renderer, scene, camera, objects = [], texts = [], startPosition, guiControls, grid, raycaster, gui, selectionBox, selectionHelper;
-let texture = new THREE.TextureLoader().load('/assets/texture.png');
+let renderer, scene, camera, objects = [], texts = [], startPosition, groupStart, dragMesh, guiControls, grid, raycaster, gui, selectionBox, selectionHelper;
+let texture = new THREE.TextureLoader().load(document.location.pathname + 'assets/texture.png');
 let topx = 0;
 let topz = 0;
 let currentx = 0;
 let currentz = 0;
+let controls;
+let select = false;
+let buildingsSelected = false;
 
 let initDone = false;
 let doUpdateRewards = true;
 let line;
 let frustumSize = 48;
 let dragging = false;
-let isDown = true;
+let isDown = false;
+let moveCam = false;
 
 let buildingSelected = false;
 let prevSet = 0;
@@ -51,7 +55,7 @@ let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, Nishikigoi
 let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village"];
 
 
-//let selBox;
+let selBox;
 
 let helpElement = document.getElementById("info");
 helpElement.style.display = "none";
@@ -67,9 +71,23 @@ window.onclick = function (event) {
     }
 }
 
+function onWindowResize() {
+
+    var aspect = window.innerWidth / window.innerHeight;
+
+    camera.left = frustumSize * aspect / - 2;
+    camera.right = frustumSize * aspect / 2;
+    camera.top = frustumSize / 2;
+    camera.bottom = - frustumSize / 2;
+
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    updateTopLeft();
+}
 
 function init() {
-    // Basuc threejs stuff
+    // Basic threejs stuff
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xeeeeee);
 
@@ -80,28 +98,15 @@ function init() {
     scene.add(camera);
 
     window.addEventListener('resize', onWindowResize, false);
-    function onWindowResize() {
-
-        var aspect = window.innerWidth / window.innerHeight;
-
-        camera.left = frustumSize * aspect / - 2;
-        camera.right = frustumSize * aspect / 2;
-        camera.top = frustumSize / 2;
-        camera.bottom = - frustumSize / 2;
-
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-
-    }
 
     // On click for main canvas
     document.querySelector("#canvas").addEventListener('mousedown', onDocumentClick, false);
 
     // WIP
-    //window.addEventListener('mousemove', onMouseMove, false);
-    //window.addEventListener('mouseup', onMouseUp, false);
+    window.addEventListener('mousemove', onMouseMove, false);
+    window.addEventListener('mouseup', onMouseUp, false);
     // Not in use
-    //document.addEventListener('keydown', keyPressEvent, false);
+    document.addEventListener('keydown', keyPressEvent, false);
 
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
@@ -113,6 +118,7 @@ function init() {
     // Controls
     controls = new THREE.OrbitControls(camera, document.querySelector("#canvas"));
     controls.enableRotate = false;
+    controls.mouseButtons = { ORBIT: THREE.MOUSE.RIGHT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.LEFT };
     controls.update();
 
     // Drag controls for moving the buildings
@@ -122,7 +128,6 @@ function init() {
     dragControls.addEventListener('drag', drag);
 
     raycaster = new THREE.Raycaster();
-
 
     // Helper grid to make it easier to use, see building sizes etc
     grid = new THREE.GridHelper(1000, 1000, 0x777777, 0x777777);
@@ -156,22 +161,16 @@ function init() {
     line = new THREE.Line(lineGeo, lineMat);
     scene.add(line);
 
-
-    /* To be implemented
-    var boxGeo = new THREE.PlaneGeometry(2, 2, 1);
-    var tx = new THREE.TextureLoader().load("/assets/sel.png");
-    tx.minFilter = THREE.LinearFilter;
-    var boxMat = new THREE.MeshPhongMaterial({ map: tx, transparent: true, side: THREE.DoubleSide });
-
+    var boxGeo = new THREE.BoxGeometry(0, 0, 0);
+    var boxMat = new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
     selBox = new THREE.Mesh(boxGeo, boxMat);
-    selBox.rotateX(90);
+    selBox.position.set(-100, 3, -100);
+    selBox.visible = false;
     scene.add(selBox);
-    */
-
 
     // Controls! What do you mean the naming scheme makes no sense? 
     guiControls = new addGuiControls();
-    gui = new dat.GUI();
+    gui = new dat.GUI({ width: 250 });
     // Add Building
     gui.add(guiControls, 'showHelp').name("How To Use")
     var folder1 = gui.addFolder('Add Building');
@@ -225,8 +224,8 @@ function init() {
     folder6.open();
     // Per Tile
     var folder8 = folder22.addFolder("Per Tile");
-    folder8.add(guiControls,'tempty').name("Empty Tiles:").onChange(updateConnections);
-    folder8.add(guiControls,'troads').name("Road Tiles:").onChange(updateConnections);
+    folder8.add(guiControls, 'tempty').name("Empty Tiles:").onChange(updateConnections);
+    folder8.add(guiControls, 'troads').name("Road Tiles:").onChange(updateConnections);
     var folder9 = folder8.addFolder("Stats");
     folder9.add(guiControls, 'tpopulation').listen().name("Population");
     folder9.add(guiControls, 'thappiness').listen().name("Happiness");
@@ -273,8 +272,8 @@ function init() {
     folder36.open();
     // Per Tile
     var folder38 = folder322.addFolder("Per Tile");
-    folder38.add(guiControls,'stempty').name("Empty Tiles:").onChange(updateConnections);
-    folder38.add(guiControls,'stroads').name("Road Tiles:").onChange(updateConnections);
+    folder38.add(guiControls, 'stempty').name("Empty Tiles:").onChange(updateConnections);
+    folder38.add(guiControls, 'stroads').name("Road Tiles:").onChange(updateConnections);
     var folder39 = folder38.addFolder("Stats");
     folder39.add(guiControls, 'stpopulation').listen().name("Population");
     folder39.add(guiControls, 'sthappiness').listen().name("Happiness");
@@ -313,8 +312,10 @@ function init() {
     folder41.add(guiControls, 'highlightRoads').name("Needs Road").onChange(updateRoadHighlight);
     folder41.open();
 
-    //selectionBox = new SelectionBox(camera, scene);
-    //selectionHelper = new SelectionHelper(selectionBox, renderer, 'selectBox');
+    selectionBox = new SelectionBox(camera, scene);
+    selectionHelper = new SelectionHelper(selectionBox, renderer, 'selectBox');
+
+    updateTopLeft();
 
     initDone = true; // Not really used, but why not leave it in??
 }
@@ -327,7 +328,6 @@ function updateRoadHighlight() {
         objects[i].material.color = new THREE.Color(color);
     }
 }
-
 
 // Update the "Add Building" controls based on which set is selected
 function updateSetBuildings() {
@@ -419,86 +419,94 @@ function updateTextVisibilities() {
 
 // Same^^
 function updateLineVisibilities() {
-    line.visible = !line.visible;
+    line.visible = guiControls.line;
 }
 
-// not in use - probs won't use
 function keyPressEvent(event) {
-    console.log(event.key);
-    if (event.key == "a") {
-        //console.log(currentx + " " + currentz);
-        if (spring[guiControls.building].size[0] % 2 == 1) {
-            currentx += 0.5;
+    //console.log(event.key);
+    if (event.key == "Backspace" || event,key = "Delete") {
+        if (buildingsSelected) {
+            var len = objects.length;
+            var ids = [];
+            for (var i = 0; i < len; i++) {
+                if (objects[i].selected) {
+                    ids.push(objects[i].uuid);
+                }
+            }
+            for (var j = 0; j < ids.length; j++) {
+                guiControls.uuid = ids[j];
+                removeBuilding1();
+            }
+            buildingsSelected = false;
+        } else {
+            removeBuilding1();
         }
-        if (spring[guiControls.building].size[1] % 2 == 1) {
-            currentz += 0.5;
-        }
-
-        addBuilding(0, guiControls.building, guiControls.level, guiControls.age, true, currentx, currentz);
     }
 }
 
-// not in use - WIP
 function onMouseMove(event) {
-    if (!buildingSelected || !isDown) { return; }
+    if (!select) { return; }
+
+    var mouse = new THREE.Vector2(0, 0);
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
     selectionBox.endPoint.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1,
+        mouse.x,
+        mouse.y,
         0.5);
-    //selectionHelper.onSelectMove(event);
-    if (isDown) {
-        for (var i = 0; i < selectionBox.collection.length; i++) {
-            if (selectionBox.collection[i].geometry.type != "TextGeometry" && selectionBox.collection[i].type != "LineSegments" && selectionBox.collection[i].type != "Line") {
-                //if(!objects.indexOf(scene.getObjectByProperty('uuid',selectionBox.collection[i].uuid))){
-                //console.log(selectionBox.collection[i]);
-                selectionBox.collection[i].material.color.set(sets[selectionBox.collection[i].set][selectionBox.collection[i].building].color);
-            }
-        }
 
-        var allSelected = selectionBox.select();
-        for (var i = 0; i < allSelected.length; i++) {
 
-            if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line") {
-                //if(!objects.indexOf(scene.getObjectByProperty('uuid',allSelected[i].uuid))){
-                allSelected[i].material.color.set(0xff33ff);
-            }
-        }
+    raycaster.setFromCamera(mouse, camera);
 
-    }
+    // Get intersection with the helper grid
+    var gridIntersect = raycaster.intersectObject(grid);
+    // Get the clicked position in the scene
+
+    var n = (currentx - (gridIntersect[0].point.x));
+    var m = (currentz - (gridIntersect[0].point.z));
+
+
+    selBox.visible = true;
+    selBox.geometry = new THREE.BoxGeometry(n, 1, m);
+    selBox.position.set(currentx - n / 2, 2, currentz - m / 2);
 }
 
-// not in use - WIP
 function onMouseUp(event) {
-    //if (guiControls.curSet != null) { return }
-    if (!buildingSelected || isDown) { return }
+
+    moveCam = false;
+    if (!select) { return }
     selectionBox.endPoint.set(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1,
         0.5);
-    //selectionHelper.onSelectOver(event);
-    //selectionBox.updateFrustum();
 
-    //console.log("selected");
+    selBox.visible = false;
 
     var allSelected = selectionBox.select();
     for (var i = 0; i < allSelected.length; i++) {
 
-        if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line") {
-            //if(!objects.indexOf(scene.getObjectByProperty('uuid',allSelected[i].uuid))){
+        if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line" && allSelected[i].uuid != selBox.uuid) {
+            //console.log(allSelected[i].uuid);
             allSelected[i].material.color.set(0xff33ff);
+            allSelected[i].selected = true;
+            buildingsSelected = true;
+        
         }
     }
 
-    isDown = false;
+    selBox.material.color.set(0x0000ff);
 
-    //selectionBox = new SelectionBox(camera,scene);
-    //selectionHelper = new SelectionHelper(selectionBox,renderer,'selectBox')
+    isDown = false;
+    select = false;
 
 
 }
 
 // The almighty on click event! 
 function onDocumentClick(event) {
+
+
     // Get the intersection of the mouse and the scene
     var mouse = new THREE.Vector2(0, 0);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -508,8 +516,29 @@ function onDocumentClick(event) {
     // Get intersection with the helper grid
     var gridIntersect = raycaster.intersectObject(grid);
     // Get the clicked position in the scene
-    currentx = Math.round(gridIntersect[0].point.x);
-    currentz = Math.round(gridIntersect[0].point.z);
+    currentx = (gridIntersect[0].point.x);
+    currentz = (gridIntersect[0].point.z);
+
+    if (event.button === 2) {
+        if (buildingsSelected) {
+            for (var i = 0; i < objects.length; i++) {
+                objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
+                objects[i].selected = false;
+                //console.log("r");
+            }
+            buildingsSelected = false;
+        }
+        selectionBox.startPoint.set(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1,
+            0.5);
+        selectionBox.endPoint.set(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1,
+            0.5);
+        select = true;
+        return;
+    }
 
     // Check if the click intersects with one of the buildings
     var intersects = raycaster.intersectObjects(objects);
@@ -521,7 +550,7 @@ function onDocumentClick(event) {
 
     // Is a building intersected? 
     if (intersects[0] != null) {
-
+        controls.enablePan = false;
         //Update gui to show currently selected building
         guiControls.uuid = intersects[0].object.uuid;
         intersects[0].object.material.emissiveIntensity = 2;
@@ -539,18 +568,20 @@ function onDocumentClick(event) {
         // Update the production stats of the currently selected building
         updateRewards(true, intersects[0].object);
 
-        // Blocks other stuff from running when a building is selected
         buildingSelected = true;
 
-        // Open GUI folder
-        //folder2.open();
-
     } else {
+        if (buildingsSelected) {
+            for (var i = 0; i < objects.length; i++) {
+                objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
+                objects[i].selected = false;
+                //console.log("r");
+            }
+            buildingsSelected = false;
+        }
+        controls.enablePan = true;
         // Reset gui when no building selected
         gui.__folders["Current Building"].name = "Current Building";
-
-        //Close folder
-        //folder2.close();
 
         while (gui.__folders["Current Building"].__controllers.length > 0) {
             gui.__folders["Current Building"].__controllers[gui.__folders["Current Building"].__controllers.length - 1].remove();
@@ -562,36 +593,6 @@ function onDocumentClick(event) {
         guiControls.cAge = null;
         guiControls.cConnected = null;
         guiControls.curSet = null;
-
-
-
-        // TO be implemented
-        /*
-        isDown = true;
-
-        selBox.geometry = new THREE.PlaneGeometry(Math.random()*20+1,Math.random()*20+1,1);
-
-        selBox.position.set(currentx-selBox.geometry.parameters.width/2,1,currentz-selBox.geometry.parameters.height/2);
-
-        selectionBox.startPoint.set(
-            (event.clientX / window.innerWidth) * 2 - 1,
-            -(event.clientY / window.innerHeight) * 2 + 1,
-            0.5);
-        selectionBox.endPoint.set(
-            (event.clientX / window.innerWidth) * 2 - 1,
-            -(event.clientY / window.innerHeight) * 2 + 1,
-            0.5);
-        //selectionHelper.onSelectStart(event);
-
-        for (var i = 0; i < selectionBox.collection.length; i++) {
-            if (selectionBox.collection[i].geometry.type != "TextGeometry" && selectionBox.collection[i].type != "LineSegments" && selectionBox.collection[i].type != "Line") {
-                //if(!objects.indexOf(scene.getObjectByProperty('uuid',selectionBox.collection[i].uuid))){
-                //console.log(selectionBox.collection[i]);
-                selectionBox.collection[i].material.color.set(sets[selectionBox.collection[i].set][selectionBox.collection[i].building].color);
-            }
-        }
-        */
-
     }
 
     // Update the production overview
@@ -602,27 +603,50 @@ function onDocumentClick(event) {
 function dragStart(event) {
     dragging = true;
     startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
+    groupStart = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
+
+    if (buildingsSelected) {
+        var mergeGeometry = new THREE.Geometry();
+        var mats = [];
+
+        var material = new THREE.MeshPhongMaterial({ color: 0x666666, transparent: true, opacity: 0.5 });
+        for (var i = 0; i < objects.length; i++) {
+            if (objects[i].selected && objects[i].uuid != event.object.uuid) {
+                mergeGeometry.merge(objects[i].geometry, objects[i].matrix);
+                mats.push(material);
+                objects[i].visible = false;
+                texts[i].visible = false;
+                //console.log("start: " + objects[i].uuid);
+            }
+        }
+        while(mats.length < 3){
+            mergeGeometry.merge(event.object.geometry, event.object.matrix);
+            mats.push(material);
+        }
+        dragMesh = new THREE.Mesh(mergeGeometry, mats)
+        scene.add(dragMesh);
+        dragMesh.visible = true;
+    }
 }
 
 // Function runs whenever a dragged building's position changes
 function drag(event) {
+    //console.log(dragMesh);
     // Round the position of the object to always align with the grid
     if (event.object.geometry.parameters.depth % 2 == 1) {
         event.object.position.z = Math.round(event.object.position.z) - 0.5;
-    }
-    if (event.object.geometry.parameters.depth % 2 == 0) {
+    } else {
         event.object.position.z = Math.round(event.object.position.z);
     }
     if (event.object.geometry.parameters.width % 2 == 0) {
         event.object.position.x = Math.round(event.object.position.x);
-    }
-    if (event.object.geometry.parameters.width % 2 == 1) {
+    } else {
         event.object.position.x = Math.round(event.object.position.x) - 0.5;
     }
 
     // If the new position overlaps with an existing building, reset it to the previous location
     for (var i = 0; i < objects.length; i++) {
-        if (!(event.object.uuid == objects[i].uuid)) {
+        if (!(event.object.uuid == objects[i].uuid) && !objects[i].selected) {
             if (overlaps(objects[i], event.object)) {
                 event.object.position.x = startPosition.x;
                 event.object.position.z = startPosition.z;
@@ -630,6 +654,17 @@ function drag(event) {
             }
         }
     }
+
+
+    if (buildingsSelected) {
+        var diffx = event.object.position.x - startPosition.x;
+        var diffz = event.object.position.z - startPosition.z;
+        
+            dragMesh.position.set(dragMesh.position.x + diffx, dragMesh.position.y, dragMesh.position.z + diffz);
+            //requestAnimationFrame(animate);
+        
+    }
+
 
 
     // Move the text with the object, I feel like there should be a way to link it to the object, probably is, but this works fine :)
@@ -643,6 +678,23 @@ function drag(event) {
 // Recalculate production overview
 function dragEnd(event) {
     draggin = false;
+    if (buildingsSelected) {
+        var diffx = event.object.position.x - groupStart.x;
+        var diffz = event.object.position.z - groupStart.z;
+
+        for (var i = 0; i < objects.length; i++) {
+            if (objects[i].selected && objects[i].uuid != event.object.uuid) {
+                objects[i].position.set(objects[i].position.x + diffx, objects[i].position.y, objects[i].position.z + diffz);
+                texts[i].position.set(texts[i].position.x + diffx, texts[i].position.y, texts[i].position.z + diffz);
+                objects[i].visible = true;
+                texts[i].visible = true;
+            }
+
+            requestAnimationFrame(animate);
+        }
+        dragMesh.visible = false;
+        scene.remove(dragMesh);
+    }
     updateConnections();
 }
 
@@ -864,8 +916,8 @@ function updateCurrentBuilding() {
 // Everything to do with the controls
 function addGuiControls() {
 
-    this.showHelp = function(){
-        console.log("help");
+    this.showHelp = function () {
+        //console.log("help");
         helpElement.style.display = "block";
     }
 
@@ -912,26 +964,7 @@ function addGuiControls() {
     }
 
     this.removeBuilding = function () {
-        if (!buildingSelected) {
-            return;
-        }
-        var ob = scene.getObjectByProperty('uuid', this.uuid);
-        var text = texts[objects.indexOf(ob)];
-        scene.remove(text);
-        scene.remove(ob);
-        objects.splice(objects.indexOf(ob), 1);
-        texts.splice(texts.indexOf(text), 1);
-        buildingSelected = false;
-        this.cBuilding = "";
-        this.cLevel = null;
-        this.cAge = null;
-        this.cConnected = null;
-        updateConnections();
-
-        while (gui.__folders["Current Building"].__controllers.length > 0) {
-            gui.__folders["Current Building"].__controllers[gui.__folders["Current Building"].__controllers.length - 1].remove();
-        }
-        return;
+        removeBuilding1();
     }
 
     this.population = 0;
@@ -1006,10 +1039,6 @@ function addGuiControls() {
             this.saveString = string;
             this.shareString = "https://foe-event-set-builder.github.io/?" + string;
             ShortLinkBitly(this.shareString);
-
-            /*getBitlyLink(sshareString, function(short){
-                guiControls.shareString = short;
-            });*/
         }
     }
     this.saveString = "";
@@ -1017,6 +1046,7 @@ function addGuiControls() {
     this.bitlyString = "";
     this.load = function () {
         loadScene(this.loadString);
+        updateConnections();
     }
     this.loadString = "";
 
@@ -1025,12 +1055,37 @@ function addGuiControls() {
     this.highlightRoads = false;
 }
 
-function ShortLinkBitly( url ) { /*pLongUrl is the long URL*/
+function removeBuilding1() {
+    if (!buildingSelected && !buildingsSelected) {
+        return;
+    }
+    //console.log("removing: " + guiControls.uuid);
+    var ob = scene.getObjectByProperty('uuid', guiControls.uuid);
+    var text = texts[objects.indexOf(ob)];
+    scene.remove(text);
+    scene.remove(ob);
+    objects.splice(objects.indexOf(ob), 1);
+    texts.splice(texts.indexOf(text), 1);
+    buildingSelected = false;
+    guiControls.cBuilding = "";
+    guiControls.cLevel = null;
+    guiControls.cAge = null;
+    guiControls.cConnected = null;
+    updateConnections();
 
-	var apiKey = 'aad38d22cab392ecf419e3ecfd811157a5b63a4a';
-	
+    while (gui.__folders["Current Building"].__controllers.length > 0) {
+        gui.__folders["Current Building"].__controllers[gui.__folders["Current Building"].__controllers.length - 1].remove();
+    }
+    gui.__folders["Current Building"].name = "Current Building";
+    return;
+}
+
+function ShortLinkBitly(url) { 
+
+    var apiKey = 'aad38d22cab392ecf419e3ecfd811157a5b63a4a';
+
     var params = {
-        "long_url" : url           
+        "long_url": url
     };
 
     $.ajax({
@@ -1043,10 +1098,10 @@ function ShortLinkBitly( url ) { /*pLongUrl is the long URL*/
             xhr.setRequestHeader("Authorization", "Bearer " + apiKey);
         },
         data: JSON.stringify(params)
-    }).done(function(data) {
+    }).done(function (data) {
         guiControls.bitlyString = "" + data.link;
 
-    }).fail(function(data) {
+    }).fail(function (data) {
         guiControls.bitlyString = "error";
     });
 }
@@ -1128,6 +1183,8 @@ function loadScene(string) {
     dragControls.addEventListener('dragend', dragEnd);
     dragControls.addEventListener('drag', drag);
 
+    guiControls.population = "-";
+
     //updateConnections(); 
 }
 
@@ -1151,7 +1208,7 @@ function addBuilding(set, building, level, age, connected, x, z) {
     var n = newBuilding.size[0];
     var m = newBuilding.size[1];
     var geometry = new THREE.BoxGeometry(n, 1, m);
-    var img = "/assets/" + n + "x" + m + ".png";
+    var img = document.location.pathname + "assets/" + n + "x" + m + ".png";
     var tx = new THREE.TextureLoader().load(img);
     tx.minFilter = THREE.LinearFilter;
     var material = new THREE.MeshPhongMaterial({ color: newBuilding.color, map: tx });
@@ -1166,6 +1223,7 @@ function addBuilding(set, building, level, age, connected, x, z) {
     bld.name = newBuilding.name;
     bld.connected = connected;
     bld.road = newBuilding.road;
+    bld.selected = false;
 
 
     // Add text
@@ -1211,7 +1269,11 @@ function clearScene() {
 // Let there be life!
 function animate() {
     requestAnimationFrame(animate);
-    updateTopLeft();
+
+    if(guiControls.population == "-"){
+        updateConnections();
+    }
+
     if (guiControls.cset != prevSet) {
         updateConnections();
         prevSet = guiControls.cset;
@@ -1226,11 +1288,6 @@ function animate() {
     }
 
     renderer.render(scene, camera)
-    if (!initDone) {
-        updateConnections();
-    }
-
-
 }
 
 // Get the current top-left position based on window size, used for adding new buildings
@@ -1248,6 +1305,5 @@ function updateTopLeft() {
 init();
 
 // Easier testing
-//loadScene("020001171I4I-2.5x020101170I1.5I0.5x020201171I5I0.5x020301171I1.5I-1.5x020401171I1.5I-3x020001171I4I3.5x020001171I-1I-2.5x020001171I-1I3.5x020201171I-2I0.5x020301171I1.5I2.5x020401171I1.5I4x020301171I3.5I-0.5x020301171I3.5I1.5x020301171I-0.5I-0.5x020301171I-0.5I1.5x020301171I3.5I0.5x020301171I-0.5I0.5");
-
+//loadScene("101h1uyauy6wgz111h1uy7wguy7z121h1uy9wguy4z131h1uy7uy4wgz141h1uy8wguy5wgz001h1uy9u3wgz011h0uy8wgu6z021h1uy6wgu3z041h1uy7wgu4wgz101h1uy2uy6wgz111h1uy1wguy4z121h1uy9wguy9z121h1uy4wguy7z121h1uy4wguy4z141h1uy7wguy8wgz141h1uy4wguy5wgz141h1uy0wguy5wgz141h1uy1wguy2wgz121h1u0wguy7z121h1u0wguy2z131h1u1uy4wgz001h1uy6u5wgz001h1uy7u8wgz001h1uyau8wgz041h1uy8wgu7wgz021h0uy8wgubz001h1uy6ubwgz001h1uy9udwgz011h1uy6wguez041h1uy7wgucwgz041h1uyewgu4wgz041h1uyawguawgz041h1uyewgucwgz041h1uydwgu7wgz041h1uyawgu6wgz001h1uygu5wgz001h1uydu3wgz001h1uybu4wgz001h1uycu8wgz001h1uyfu8wgz001h1uydudwgz011h1uyfwgu3z011h0uydwgubz021h1uyfwguez021h0uydwgu6z001h1uygubwgz001h1uybucwgz001h1uyeugwgz001h1uyhugwgz001h1uy8ugwgz001h1uy5ugwgz001h1uy9ujwgz001h1uy6ulwgz001h1uygulwgz001h1uydujwgz011h1uyfwgujz021h1uy6wgujz021h1uydwgumz011h1uy8wgumz001h1uybukwgz041h1uyfwgufwgz041h1uy6wgufwgz041h1uyewgukwgz041h1uy7wgukwgz041h1uyawgumwgz141h1uy5wguy5wgz141h1uy3wguy5wg");
 animate();
