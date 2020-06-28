@@ -108,7 +108,7 @@ function init() {
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('mouseup', onMouseUp, false);
     // Not in use
-    document.querySelector("canvas").addEventListener('keydown', keyPressEvent, false);
+    document.querySelector("#canvas").addEventListener('keydown', keyPressEvent, false);
 
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
