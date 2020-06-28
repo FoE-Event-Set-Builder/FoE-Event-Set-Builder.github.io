@@ -372,6 +372,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 				// orthographic
 				panLeft( deltaX * ( scope.object.right - scope.object.left ) / scope.object.zoom / element.clientWidth, scope.object.matrix );
 				panUp( deltaY * ( scope.object.top - scope.object.bottom ) / scope.object.zoom / element.clientHeight, scope.object.matrix );
+				
 
 			} else {
 
@@ -396,6 +397,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom * dollyScale ) );
 			scope.object.updateProjectionMatrix();
 			zoomChanged = true;
+			requestAnimationFrame(animate);
+			updateTopLeft();
 
 		} else {
 
@@ -417,6 +420,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / dollyScale ) );
 			scope.object.updateProjectionMatrix();
 			zoomChanged = true;
+			requestAnimationFrame(animate);
+			updateTopLeft();
 
 		} else {
 
