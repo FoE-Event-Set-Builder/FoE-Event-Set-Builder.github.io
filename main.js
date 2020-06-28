@@ -110,6 +110,7 @@ function init() {
     // Not in use
     document.querySelector("#canvas").addEventListener('keydown', keyPressEvent, false);
 
+
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
@@ -163,12 +164,13 @@ function init() {
     line = new THREE.Line(lineGeo, lineMat);
     scene.add(line);
 
-    var boxGeo = new THREE.BoxGeometry(0, 0, 0);
+    var boxGeo = new THREE.BoxGeometry(1, 1, 1);
     var boxMat = new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
     selBox = new THREE.Mesh(boxGeo, boxMat);
     selBox.position.set(-100, 3, -100);
     selBox.visible = false;
     scene.add(selBox);
+
 
     // Controls! What do you mean the naming scheme makes no sense? 
     guiControls = new addGuiControls();
@@ -430,6 +432,8 @@ function updateLineVisibilities() {
     line.visible = guiControls.line;
 }
 
+
+
 function keyPressEvent(event) {
     //console.log(event.key);
 
@@ -486,7 +490,6 @@ function onMouseMove(event) {
 
 function onMouseUp(event) {
     requestAnimationFrame(animate);
-    updateTopLeft();
     keyPressed = false;
     moveCam = false;
     if (!select) { return }
@@ -953,6 +956,7 @@ function addGuiControls() {
         var newBuilding = sets[this.set][this.building];
         var n = newBuilding.size[0];
         var m = newBuilding.size[1];
+        updateTopLeft();
         var x = -topx + n;
         var z = topz + m;
         addBuilding(this.set, this.building, this.level, this.age, true, x, z);
@@ -1305,18 +1309,23 @@ function animate() {
 
     renderer.render(scene, camera)
 }
-
 // Get the current top-left position based on window size, used for adding new buildings
 function updateTopLeft() {
+    requestAnimationFrame(animate);
     var mouse = new THREE.Vector2(1, 1);
     raycaster = new THREE.Raycaster();
 
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObject(grid);
 
+    
     topx = intersects[0].point.x;
     topz = intersects[0].point.z;
+    console.log("x: " + topx + " z: " + topz)
+    //objects[0].position.set(-topx, 1, topz);
 }
+
+
 
 init();
 
