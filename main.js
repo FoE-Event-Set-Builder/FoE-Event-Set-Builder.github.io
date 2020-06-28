@@ -108,7 +108,7 @@ function init() {
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('mouseup', onMouseUp, false);
     // Not in use
-    document.addEventListener('keydown', keyPressEvent, false);
+    document.querySelector("canvas").addEventListener('keydown', keyPressEvent, false);
 
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
@@ -432,6 +432,7 @@ function updateLineVisibilities() {
 
 function keyPressEvent(event) {
     //console.log(event.key);
+
     if (event.key == "Backspace" || event,key = "Delete") {
         if (buildingsSelected) {
             var len = objects.length;
@@ -485,6 +486,7 @@ function onMouseMove(event) {
 
 function onMouseUp(event) {
     requestAnimationFrame(animate);
+    updateTopLeft();
     keyPressed = false;
     moveCam = false;
     if (!select) { return }
