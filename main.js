@@ -180,13 +180,15 @@ function init() {
 }
 
 function addControls() {
+
     // Controls! What do you mean the naming scheme makes no sense? 
     guiControls = new addGuiControls();
     gui = new dat.GUI({ width: 250 });
+    gui.domElement.id = "gui";
     // Add Building
     gui.add(guiControls, 'showHelp').name("How To Use")
     var folder1 = gui.addFolder('Add Building');
-    folder1.add(guiControls, 'addBuilding1').name("Add Building");;
+    folder1.add(guiControls, 'addBuilding1').name("✔️ Add");;
     folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
     folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen().onChange(updateAddStats);
     folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen().onChange(updateAddStats);;
@@ -201,12 +203,15 @@ function addControls() {
 
     // Current Building
     folder2 = gui.addFolder("Current Building");
-    folder2.add(guiControls, 'removeBuilding').name("Remove Building");
+    folder2.open();
+    /*
+    folder2.add(guiControls, 'removeBuilding').name("❌ Remove Building");
     folder2.add(guiControls, 'curSet').listen().name("Set");
     folder2.add(guiControls, 'cBuilding', "").listen().name("Building");
     folder2.add(guiControls, 'cAge', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateCurrentBuilding);
     folder2.add(guiControls, 'cLevel', { 1: 0, 2: 1 }).listen().name("Level").onChange(updateCurrentBuilding);
-    folder2.add(guiControls, 'cConnected').listen().name("Road Connection").onChange(updateCurrentBuilding);
+    folder2.add(guiControls, 'cConnected').listen().name("Building Connected To Road: ").onChange(updateCurrentBuilding);
+    */
 
     // Production overview
     var folder21 = gui.addFolder("Production Overview");
@@ -319,9 +324,9 @@ function addControls() {
 
     // Toggles
     var folder41 = gui.addFolder("Settings / Toggles");
-    folder41.add(guiControls, 'texts').name("Show Initials").onChange(updateTextVisibilities);
-    folder41.add(guiControls, 'line').name("City Outline").onChange(updateLineVisibilities);
-    folder41.add(guiControls, 'highlightRoads').name("Needs Road").onChange(updateRoadHighlight);
+    folder41.add(guiControls, 'texts').name("Show Building Initials").onChange(updateTextVisibilities);
+    folder41.add(guiControls, 'line').name("Show City Outline").onChange(updateLineVisibilities);
+    folder41.add(guiControls, 'highlightRoads').name("Show Buildings Requiring Roads").onChange(updateRoadHighlight);
     folder41.open();
 }
 
@@ -347,11 +352,12 @@ function updateSetBuildings() {
     }
 
     var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : { 1: 0, 2: 1 };
-    gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("Add Building");;
+    gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("✔️ Add");;
     gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
     gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0).onChange(updateAddStats);
     gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats);
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
+   
     updateRewards(false, null);
 }
 
@@ -379,14 +385,17 @@ function updateRewards(current, ob) {
 
     if (current) {
 
-        gui.__folders[folder].add(guiControls, 'removeBuilding').name("Remove Building");
+        gui.__folders[folder].add(guiControls, 'removeBuilding').name("❌ Remove Building");
         gui.__folders[folder].add(guiControls, 'curSet').listen().name("Set");
         gui.__folders[folder].add(guiControls, 'cBuilding', "").listen().name("Building");
         gui.__folders[folder].add(guiControls, 'cAge', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateCurrentBuilding);
         var cLevel = sets[set][building].level.length == 1 ? { 1: 0 } : { 1: 0, 2: 1 };
         gui.__folders[folder].add(guiControls, 'cLevel', cLevel).listen().name("Level").onChange(updateCurrentBuilding);
         if (sets[set][building].road) {
-            gui.__folders[folder].add(guiControls, 'cConnected', ob.connected).listen().name("Road Connection").onChange(updateCurrentBuilding);
+            //var curVal = ob.connected ? 1 : 0;
+            var op = { Diconnected: false, Connected: true};
+            gui.__folders[folder].add(guiControls, 'cConnected', op).listen().setValue(ob.connected).name("Building Connected").onChange(updateCurrentBuilding);
+            gui.__folders[folder].__controllers[5].__li.className = "cr number";
         }
 
     } else {
@@ -990,7 +999,7 @@ function addGuiControls() {
     this.cBuilding = "";
     this.cLevel = null;
     this.cAge = null;
-    this.cConnected = false;
+    this.cConnected = null;
     this.cNeighbours = 0;
     this.uuid = null;
 
