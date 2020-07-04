@@ -289,8 +289,8 @@ function addControls() {
     folder36.open();
     // Per Tile
     var folder38 = folder322.addFolder("Per Tile");
-    folder38.add(guiControls, 'stempty').name("Empty Tiles:").onChange(updateConnections).listen();
-    folder38.add(guiControls, 'stroads').name("Road Tiles:").onChange(updateConnections).listen();
+    folder38.add(guiControls, 'stempty').name("Empty Tiles:").onChange(updateConnections);
+    folder38.add(guiControls, 'stroads').name("Road Tiles:").onChange(updateConnections);
     var folder39 = folder38.addFolder("Stats");
     folder39.add(guiControls, 'stpopulation').listen().name("Population");
     folder39.add(guiControls, 'sthappiness').listen().name("Happiness");
@@ -445,6 +445,7 @@ function updateLineVisibilities() {
 
 
 function keyPressEvent(event) {
+    console.log("hey");
     // Prevent backspace from going to previous page
     if (event.which === 8 && !$(event.target).is("input, textarea")) {
         event.preventDefault();
