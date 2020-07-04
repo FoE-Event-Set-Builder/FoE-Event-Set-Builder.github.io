@@ -398,7 +398,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 			scope.object.updateProjectionMatrix();
 			zoomChanged = true;
 			requestAnimationFrame(animate);
-			updateTopLeft();
 
 		} else {
 
@@ -421,7 +420,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 			scope.object.updateProjectionMatrix();
 			zoomChanged = true;
 			requestAnimationFrame(animate);
-			updateTopLeft();
 
 		} else {
 

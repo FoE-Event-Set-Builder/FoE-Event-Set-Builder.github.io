@@ -103,11 +103,9 @@ function init() {
     // On click for main canvas
     document.querySelector("#canvas").addEventListener('mousedown', onDocumentClick, false);
 
-    // WIP
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('mouseup', onMouseUp, false);
-    // Not in use
-    document.querySelector("#canvas").addEventListener('keydown', keyPressEvent, false);
+    window.addEventListener('keydown', keyPressEvent, true);
 
 
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -438,9 +436,13 @@ function updateLineVisibilities() {
 
 
 function keyPressEvent(event) {
-    //console.log(event.key);
-
-    if (event.key == "Backspace" || event, key = "Delete") {
+    // Prevent backspace from going to previous page
+    if (event.which === 8 && !$(event.target).is("input, textarea")) {
+        event.preventDefault();
+    }
+    
+    if ((event.key == "Backspace" || event.key == "Delete") && !$(event.target).is("input, textarea")) {
+        
         if (buildingsSelected) {
             var len = objects.length;
             var ids = [];
@@ -525,6 +527,12 @@ function onMouseUp(event) {
 
 // The almighty on click event! 
 function onDocumentClick(event) {
+
+    // clear inputs when main body clicked
+    var inputs = document.getElementsByTagName("INPUT");
+    for(var i = 0; i<inputs.length; i++){
+        inputs[i].blur();
+    }
 
     keyPressed = true;
     // Get the intersection of the mouse and the scene
