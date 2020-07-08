@@ -3,8 +3,8 @@
 .dg .cr.function{border-left:5px solid #ff0000;  }
 .dg .cr.function{background-color: #222222}
 .dg .cr.function{color: #ffffff}
-.dg .cr.number{border-left:0px solid; width: 105%}
-.dg .cr.string{border-left:0px solid; width: 105% }
+.dg .cr.number{border-left:0px solid;}
+.dg .cr.string{border-left:0px solid;}
 
 .dg .cr.string input[type=text]{color:#cccccc}
 .dg .cr.number input[type=text] {

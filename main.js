@@ -326,21 +326,56 @@ function addControls() {
     var folder41 = gui.addFolder("Settings / Toggles");
     folder41.add(guiControls, 'texts').name("Show Building Initials").onChange(updateTextVisibilities);
     folder41.add(guiControls, 'line').name("Show City Outline").onChange(updateLineVisibilities);
-    folder41.add(guiControls, 'highlightRoads').name("Show Buildings Requiring Roads").onChange(updateRoadHighlight);
+    folder41.add(guiControls, 'highlightRoads').name("Show Buildings Requiring Roads").listen().onChange(updateRoadHighlight);
+    folder41.add(guiControls, 'numConnectionsHighlight').listen().name("Show # Connections").onChange(updateNumConnectionHighlight);
     folder41.open();
 }
 
 function updateAddStats() {
-    console.log("update");
+    //console.log("update");
     updateRewards(false, null);
 }
 
 // Update the highlighting of buildings requiring roads
 function updateRoadHighlight() {
     var highlight = guiControls.highlightRoads;
+    if(highlight){guiControls.numConnectionsHighlight = false}
     for (var i = 0; i < objects.length; i++) {
         var color = highlight ? (sets[objects[i].set][objects[i].building].road ? 0xffff33 : 0xcccccc) : sets[objects[i].set][objects[i].building].color;
         objects[i].material.color = new THREE.Color(color);
+    }
+}
+
+function updateNumConnectionHighlight() {
+    //console.log("num");
+    if (guiControls.numConnectionsHighlight) {
+        guiControls.highlightRoads = false;
+        for (var i = 0; i < objects.length; i++) {
+            var neighbours = getNeighbours(i, objects[i].name);
+            var unique = [...new Set(neighbours)];
+            var full = sets[objects[i].set][objects[i].building].level[objects[i].level].bonuses.length;
+            var connections = Math.min(unique.length, full);
+            var diff = full - connections;
+            var color = 0x000000;
+            switch (diff) {
+                case 0: color = 0x00ff00;
+                    break;
+                case 1: color = 0xfeff51;
+                    break;
+                case 2: color = 0xff9e16;
+                    break;
+                case 3: color = 0xff5050;
+                    break;
+                case 4: color = 0xcc0000;
+                    break;
+            }
+            objects[i].material.color = new THREE.Color(color);
+        }
+    }else{
+        for (var i = 0; i<objects.length; i++){
+            var color = sets[objects[i].set][objects[i].building].color;
+            objects[i].material.color = new THREE.Color(color);
+        }
     }
 }
 
@@ -357,7 +392,7 @@ function updateSetBuildings() {
     gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0).onChange(updateAddStats);
     gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats);
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
-   
+
     updateRewards(false, null);
 }
 
@@ -393,7 +428,7 @@ function updateRewards(current, ob) {
         gui.__folders[folder].add(guiControls, 'cLevel', cLevel).listen().name("Level").onChange(updateCurrentBuilding);
         if (sets[set][building].road) {
             //var curVal = ob.connected ? 1 : 0;
-            var op = { Diconnected: false, Connected: true};
+            var op = { Diconnected: false, Connected: true };
             gui.__folders[folder].add(guiControls, 'cConnected', op).listen().setValue(ob.connected).name("Building Connected").onChange(updateCurrentBuilding);
             gui.__folders[folder].__controllers[5].__li.className = "cr number";
         }
@@ -450,9 +485,9 @@ function keyPressEvent(event) {
     if (event.which === 8 && !$(event.target).is("input, textarea")) {
         event.preventDefault();
     }
-    
+
     if ((event.key == "Backspace" || event.key == "Delete") && !$(event.target).is("input, textarea")) {
-        
+
         if (buildingsSelected) {
             var len = objects.length;
             var ids = [];
@@ -540,7 +575,7 @@ function onDocumentClick(event) {
 
     // clear inputs when main body clicked
     var inputs = document.getElementsByTagName("INPUT");
-    for(var i = 0; i<inputs.length; i++){
+    for (var i = 0; i < inputs.length; i++) {
         inputs[i].blur();
     }
 
@@ -740,6 +775,7 @@ function dragEnd(event) {
         scene.remove(dragMesh);
     }
     updateConnections();
+    if(guiControls.numConnectionsHighlight){updateNumConnectionHighlight()}
 }
 
 // Probably not the best name tbh, this calculates all the stats of the current setup
@@ -1105,6 +1141,7 @@ function addGuiControls() {
     this.texts = true;
     this.line = true;
     this.highlightRoads = false;
+    this.numConnectionsHighlight = false;
 }
 
 function removeBuilding1() {
@@ -1195,7 +1232,7 @@ function loadScene(string) {
     var bldIndex = 0;
 
     if (strings.length == 3 || strings[0] === "") { bldIndex = 1 }
-    
+
 
     var buildings = strings[bldIndex].split("z");
     for (var i = 0; i < buildings.length; i++) {
@@ -1336,6 +1373,6 @@ function animate() {
 init();
 
 // Easier testing
-//loadScene("101h1uyauy6wgz111h1uy7wguy7z121h1uy9wguy4z131h1uy7uy4wgz141h1uy8wguy5wgz001h1uy9u3wgz011h0uy8wgu6z021h1uy6wgu3z041h1uy7wgu4wgz101h1uy2uy6wgz111h1uy1wguy4z121h1uy9wguy9z121h1uy4wguy7z121h1uy4wguy4z141h1uy7wguy8wgz141h1uy4wguy5wgz141h1uy0wguy5wgz141h1uy1wguy2wgz121h1u0wguy7z121h1u0wguy2z131h1u1uy4wgz001h1uy6u5wgz001h1uy7u8wgz001h1uyau8wgz041h1uy8wgu7wgz021h0uy8wgubz001h1uy6ubwgz001h1uy9udwgz011h1uy6wguez041h1uy7wgucwgz041h1uyewgu4wgz041h1uyawguawgz041h1uyewgucwgz041h1uydwgu7wgz041h1uyawgu6wgz001h1uygu5wgz001h1uydu3wgz001h1uybu4wgz001h1uycu8wgz001h1uyfu8wgz001h1uydudwgz011h1uyfwgu3z011h0uydwgubz021h1uyfwguez021h0uydwgu6z001h1uygubwgz001h1uybucwgz001h1uyeugwgz001h1uyhugwgz001h1uy8ugwgz001h1uy5ugwgz001h1uy9ujwgz001h1uy6ulwgz001h1uygulwgz001h1uydujwgz011h1uyfwgujz021h1uy6wgujz021h1uydwgumz011h1uy8wgumz001h1uybukwgz041h1uyfwgufwgz041h1uy6wgufwgz041h1uyewgukwgz041h1uy7wgukwgz041h1uyawgumwgz141h1uy5wguy5wgz141h1uy3wguy5wg");
+loadScene("101h1uyauy6wgz111h1uy7wguy7z121h1uy9wguy4z131h1uy7uy4wgz141h1uy8wguy5wgz001h1uy9u3wgz011h0uy8wgu6z021h1uy6wgu3z041h1uy7wgu4wgz101h1uy2uy6wgz111h1uy1wguy4z121h1uy9wguy9z121h1uy4wguy7z121h1uy4wguy4z141h1uy7wguy8wgz141h1uy4wguy5wgz141h1uy0wguy5wgz141h1uy1wguy2wgz121h1u0wguy7z121h1u0wguy2z131h1u1uy4wgz001h1uy6u5wgz001h1uy7u8wgz001h1uyau8wgz041h1uy8wgu7wgz021h0uy8wgubz001h1uy6ubwgz001h1uy9udwgz011h1uy6wguez041h1uy7wgucwgz041h1uyewgu4wgz041h1uyawguawgz041h1uyewgucwgz041h1uydwgu7wgz041h1uyawgu6wgz001h1uygu5wgz001h1uydu3wgz001h1uybu4wgz001h1uycu8wgz001h1uyfu8wgz001h1uydudwgz011h1uyfwgu3z011h0uydwgubz021h1uyfwguez021h0uydwgu6z001h1uygubwgz001h1uybucwgz001h1uyeugwgz001h1uyhugwgz001h1uy8ugwgz001h1uy5ugwgz001h1uy9ujwgz001h1uy6ulwgz001h1uygulwgz001h1uydujwgz011h1uyfwgujz021h1uy6wgujz021h1uydwgumz011h1uy8wgumz001h1uybukwgz041h1uyfwgufwgz041h1uy6wgufwgz041h1uyewgukwgz041h1uy7wgukwgz041h1uyawgumwgz141h1uy5wguy5wgz141h1uy3wguy5wg");
 
 
