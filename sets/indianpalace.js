@@ -4,6 +4,7 @@ let palace = {
     size: [4, 4],
     road: true,
     level: [{
+        id: "R_MultiAge_SummerBonusSetA17a",
         rewards: [
             { type: "coins", values: [880, 2110, 3520, 4930, 6510, 9920, 12360, 15000, 18660, 23470, 30550, 35380, 40550, 46080, 51960, 58190, 97200, 107670] }
         ],
@@ -24,6 +25,7 @@ let west = {
     size: [2, 2],
     road: true,
     level: [{
+        id: "R_MultiAge_SummerBonusSetA17b",
         rewards: [
             { type: "coins", values: [180,430,720,1010,1330,2030,2530,3070,3820,4800,6250,7240,8290,9420,10630,11900,19880,22020] }
         ],
@@ -42,6 +44,7 @@ let east = {
     size: [2, 2],
     road: true,
     level: [{
+        id: "R_MultiAge_SummerBonusSetA17c",
         rewards: [
             { type: "coins", values: [180,430,720,1010,1330,2030,2530,3070,3820,4800,6250,7240,8290,9420,10630,11900,19880,22020] }
         ],
@@ -60,6 +63,7 @@ let bandar = {
     size: [2, 2],
     road: false,
     level: [{
+        id: "D_MultiAge_SummerBonusSetA17b",
         rewards: [
             { type: "happiness", values: [100,140,150,170,190,230,250,280,300,310,360,440,530,610,710,850,1350,1470] } 
         ],
@@ -78,6 +82,7 @@ let jungle = {
     size: [2, 2],
     road: false,
     level: [{
+        id: "D_MultiAge_SummerBonusSetA17a",
         rewards: [
             { type: "happiness", values: [100,140,150,170,190,230,250,280,300,310,360,440,530,610,710,850,1350,1470] } 
         ],

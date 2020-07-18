@@ -62,13 +62,23 @@ let helpElement = document.getElementById("info");
 helpElement.style.display = "none";
 let closeHelp = document.getElementsByClassName("close")[0];
 
+let importElement = document.getElementById("import");
+importElement.style.display = "none";
+let importHelp = document.getElementsByClassName("close")[1];
+
 closeHelp.onclick = function () {
     helpElement.style.display = "none";
+}
+importHelp.onclick = function() {
+    importElement.style.display = "none";
 }
 
 window.onclick = function (event) {
     if (event.target == helpElement) {
         helpElement.style.display = "none";
+    }
+    if(event.target == importElement){
+        importElement.style.display = "none";
     }
 }
 
@@ -136,13 +146,13 @@ function init() {
     // Outline of the max foe city limits
     var lineMat = new THREE.LineBasicMaterial({ color: 0xff0000 });
     var points = [];
-    points.push(new THREE.Vector3(4, 0, -32));
-    points.push(new THREE.Vector3(4, 0, -24));
-    points.push(new THREE.Vector3(24, 0, -24));
-    points.push(new THREE.Vector3(24, 0, -16));
-    points.push(new THREE.Vector3(28, 0, -16));
-    points.push(new THREE.Vector3(28, 0, 0));
-    points.push(new THREE.Vector3(32, 0, 0));
+    points.push(new THREE.Vector3(4, 0, -36));
+    points.push(new THREE.Vector3(4, 0, -28));
+    points.push(new THREE.Vector3(24, 0, -28));
+    points.push(new THREE.Vector3(24, 0, -20));
+    points.push(new THREE.Vector3(28, 0, -20));
+    points.push(new THREE.Vector3(28, 0, -4));
+    points.push(new THREE.Vector3(32, 0, -4));
     points.push(new THREE.Vector3(32, 0, 16));
     points.push(new THREE.Vector3(24, 0, 16));
     points.push(new THREE.Vector3(24, 0, 24));
@@ -153,10 +163,10 @@ function init() {
     points.push(new THREE.Vector3(-24, 0, 24));
     points.push(new THREE.Vector3(-24, 0, 20));
     points.push(new THREE.Vector3(-32, 0, 20));
-    points.push(new THREE.Vector3(-32, 0, -16));
-    points.push(new THREE.Vector3(-24, 0, -16));
-    points.push(new THREE.Vector3(-24, 0, -32));
-    points.push(new THREE.Vector3(4, 0, -32));
+    points.push(new THREE.Vector3(-32, 0, -20));
+    points.push(new THREE.Vector3(-24, 0, -20));
+    points.push(new THREE.Vector3(-24, 0, -36));
+    points.push(new THREE.Vector3(4, 0, -36));
     var lineGeo = new THREE.BufferGeometry().setFromPoints(points);
     line = new THREE.Line(lineGeo, lineMat);
     scene.add(line);
@@ -317,9 +327,11 @@ function addControls() {
     folder7.add(guiControls, 'saveString').listen().name("String:");
     folder7.add(guiControls, 'shareString').listen().name("Full Link:")
     folder7.add(guiControls, 'bitlyString').listen().name("Bitly Link:")
-    var folder77 = gui.addFolder("Load Build");
+    var folder77 = gui.addFolder("Load / Import Build");
     folder77.add(guiControls, 'loadString').listen().name("String:");
     folder77.add(guiControls, 'load').name("Load Build");
+    //folder77.add(guiControls, 'import').name("Import Build")
+    folder77.add(guiControls, 'importHelp').name("How To Import");
     folder7.open();
 
     // Toggles
@@ -339,7 +351,7 @@ function updateAddStats() {
 // Update the highlighting of buildings requiring roads
 function updateRoadHighlight() {
     var highlight = guiControls.highlightRoads;
-    if(highlight){guiControls.numConnectionsHighlight = false}
+    if (highlight) { guiControls.numConnectionsHighlight = false }
     for (var i = 0; i < objects.length; i++) {
         var color = highlight ? (sets[objects[i].set][objects[i].building].road ? 0xffff33 : 0xcccccc) : sets[objects[i].set][objects[i].building].color;
         objects[i].material.color = new THREE.Color(color);
@@ -371,8 +383,8 @@ function updateNumConnectionHighlight() {
             }
             objects[i].material.color = new THREE.Color(color);
         }
-    }else{
-        for (var i = 0; i<objects.length; i++){
+    } else {
+        for (var i = 0; i < objects.length; i++) {
             var color = sets[objects[i].set][objects[i].building].color;
             objects[i].material.color = new THREE.Color(color);
         }
@@ -775,7 +787,7 @@ function dragEnd(event) {
         scene.remove(dragMesh);
     }
     updateConnections();
-    if(guiControls.numConnectionsHighlight){updateNumConnectionHighlight()}
+    if (guiControls.numConnectionsHighlight) { updateNumConnectionHighlight() }
 }
 
 // Probably not the best name tbh, this calculates all the stats of the current setup
@@ -1137,12 +1149,22 @@ function addGuiControls() {
         updateConnections();
     }
     this.loadString = "";
+    this.import = function(){
+        document.querySelector('#importDialog').showModal();
+    }
+    this.importHelp = function(){
+        
+        importElement.style.display = "block";
+    }
+    this.importString = "";
 
     this.texts = true;
     this.line = true;
     this.highlightRoads = false;
     this.numConnectionsHighlight = false;
 }
+
+//dialogPolyfill.registerDialog(document.querySelector('#importDialog'));
 
 function removeBuilding1() {
 
@@ -1220,6 +1242,15 @@ function saveScene() {
 // Clear scene, parse the save string and add buildings
 function loadScene(string) {
     clearScene();
+    if(string.charAt(0) == "{" || string.charAt(0) == "["){
+        importCity(string);
+        updateConnections();
+        dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
+        dragControls.addEventListener('dragstart', dragStart);
+        dragControls.addEventListener('dragend', dragEnd);
+        dragControls.addEventListener('drag', drag);
+        return;
+    }
     if (string.length < 5) {
         updateConnections();
         dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
@@ -1298,6 +1329,7 @@ function toDec(numString, base) {
 // Add a new building!
 function addBuilding(set, building, level, age, connected, x, z) {
     // Add building
+    console.log(set);
     var newBuilding = sets[set][building];
     var n = newBuilding.size[0];
     var m = newBuilding.size[1];
@@ -1346,6 +1378,109 @@ function addBuilding(set, building, level, age, connected, x, z) {
         requestAnimationFrame(animate);
 
     });
+}
+
+function importCity(string) {
+    var cityBuildings = JSON.parse(string);
+    var currentAge = getImportAge(cityBuildings[1].cityentity_id);
+
+    var ids = [];
+    for(var id in cityBuildings){
+        ids.push(id);
+    }
+
+    for (var i = 0; i<ids.length; i++){
+        var str = cityBuildings[ids[i]].cityentity_id; 
+        var setId = getImportSet(str);
+        if(setId == -1){
+            continue;
+        }
+        //console.log(setId);
+
+        var set = sets[setId];
+        var age = str.includes("AllAge") ? currentAge : cityBuildings[ids[i]].level-1;
+        var bld = 0; var lvl = 0; var con = 0;
+        for(var b = 0; b<set.length; b++){
+            for(var l = 0; l<set[b].level.length; l++){
+                if(str.includes(set[b].level[l].id)){
+                    bld = b;
+                    lvl = l;
+                    con = set[b].road ? cityBuildings[ids[i]].connected == 1 ? true : false : true;
+                    break;
+                }
+            }
+        }
+        var x = -cityBuildings[ids[i]].y+32-sets[setId][bld].size[0]/2.0;
+        var z = cityBuildings[ids[i]].x-36+sets[setId][bld].size[1]/2.0;
+        addBuilding(setId, bld, lvl, age, con, x,z)
+    }
+    
+
+}
+
+function getImportAge(th){
+    switch (th) {
+        case "H_BronzeAge_Townhall":
+            return 0;
+        case "H_IronAge_Townhall":
+            return 1;
+        case "H_EarlyMiddleAge_Townhall":
+            return 2;
+        case "H_HighMiddleAge_Townhall":
+            return 3;
+        case "H_LateMiddleAge_Townhall":
+            return 4;
+        case "H_ColonialAge_Townhall":
+            return 5;
+        case "H_IndustrialAge_Townhall":
+            return 6;
+        case "H_ProgressiveEra_Townhall":
+            return 7;
+        case "H_ModernEra_Townhall":
+            return 8;
+        case "H_PostModernEra_Townhall":
+            return 9;
+        case "H_ContemporaryEra_Townhall":
+            return 10;
+        case "H_TomorrowEra_Townhall":
+            return 11;
+        case "H_FutureEra_Townhall":
+            return 12;
+        case "H_ArcticFuture_Townhall":
+            return 13;
+        case "H_OceanicFuture_Townhall":
+            return 14;
+        case "H_VirtualFuture_Townhall":
+            return 15;
+        case "H_SpaceAgeMars_Townhall":
+            return 16;
+        case "H_SpaceAgeAsteroidBelt_Townhall":
+            return 17;
+        default:
+            return 0;
+    }
+}
+
+function getImportSet(str){
+    if(str.includes("SpringBonusSet")){
+        return 0;
+    }else if(str.includes("CarnivalBonus19")){
+        return 1;
+    }else if(str.includes("PatrickBonusSet20")){
+        return 2;
+    }else if(str.includes("SummerBonusSetA17")){
+        return 3;
+    }else if(str.includes("SummerBonusSetB17")){
+        return 4;
+    }else if(str.includes("SportBonusSet18")){
+        return 5;
+    }else if(str.includes("RoyalBonusSet17")){
+        return 6;
+    }else if(str.includes("WinterBonusSet17")){
+        return 7;
+    }else{
+        return -1;
+    }
 }
 
 // Remove everything

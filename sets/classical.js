@@ -4,6 +4,7 @@ let pool = {
     size: [4, 2],
     road: true,
     level: [{
+        id: "A_MultiAge_SportBonusSet18",
         rewards: [
             { type: "happiness", values: [290,370,480,570,680,800,910,1000,1070,1250,1450,1760,2340,2870,3620,4890,7830,8510] }
         ],
@@ -22,6 +23,7 @@ let patio = {
     size: [2, 2],
     road: true,
     level: [{
+        id: "R_MultiAge_SportBonusSet18",
         rewards: [
             { type: "coins", values: [200,480,800,1120,1480,2250,2810,3410,4240,5330,6940,8040,9220,10470,11810,13230,22090,24470] }
         ],
@@ -40,6 +42,7 @@ let statues = {
     size: [2, 2],
     road: false,
     level: [{
+        id: "D_MultiAge_SportBonusSet18",
         rewards: [
             { type: "happiness", values: [120,190,210,230,260,300,340,370,400,420,480,590,700,820,950,1130,1810,1960] }
         ],

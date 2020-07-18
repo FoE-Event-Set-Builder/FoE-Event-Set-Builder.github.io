@@ -4,6 +4,7 @@ let sakura = {
     size: [2, 3],
     road: false,
     level: [{
+        id: "D_MultiAge_SpringBonusSet17b",
         rewards: [
             { type: "happiness", values: [200, 260, 280, 320, 350, 410, 470, 510, 550, 570, 660, 810, 970, 1130, 1300, 1550, 2480, 2700] }
         ],
@@ -14,6 +15,7 @@ let sakura = {
         ]
     },
     {
+        id: "D_MultiAge_SpringBonusSet18b",
         rewards: [
             { type: "happiness", values: [340, 580, 640, 720, 800, 940, 1060, 1170, 1250, 1300, 1510, 1830, 2200, 2560, 2950, 3530, 5650, 6140] }
         ],
@@ -34,6 +36,7 @@ let emp = {
     size: [3, 2],
     road: true,
     level: [{
+        id: "R_MultiAge_SpringBonusSet17b",
         rewards: [
             { type: "coins", values: [300, 720, 1200, 1700, 2200, 2400, 5100, 6500, 8000, 10400, 12000, 13800, 15700, 17700, 19830, 33120, 36690] }
         ],
@@ -44,6 +47,7 @@ let emp = {
         ]
     },
     {
+        id: "R_MultiAge_SpringBonusSet18b",
         rewards: [
             { type: "coins", values: [450, 1080, 1800, 2520, 3330, 5070, 6320, 7670, 9540, 12000, 15620, 18090, 20740, 23560, 26570, 29760, 49710, 55060] }
         ],
@@ -63,6 +67,7 @@ let zen = {
     size: [3, 2],
     road: true,
     level: [{
+        id: "R_MultiAge_SpringBonusSet17a",
         rewards: [
             { type: "coins", values: [260, 630, 1050, 1450, 1950, 2950, 2700, 4500, 5600, 7000, 8100, 10500, 12000, 18800, 15500, 17360, 29000, 32120] }
         ],
@@ -73,6 +78,7 @@ let zen = {
         ]
     },
     {
+        id: "R_MultiAge_SpringBonusSet18a",
         rewards: [
             { type: "coins", values: [380, 900, 1500, 2100, 2780, 4230, 5270, 6390, 7950, 10000, 13020, 15080, 17280, 19640, 22140, 24800, 41420, 45880] }
         ],
@@ -92,6 +98,7 @@ let pond = {
     size: [2, 3],
     road: false,
     level: [{
+        id: "D_MultiAge_SpringBonusSet17a",
         rewards: [
             { type: "happiness", values: [200, 260, 280, 320, 350, 410, 470, 510, 550, 570, 660, 810, 970, 1130, 1300, 1550, 2480, 2700] }
         ],
@@ -102,6 +109,7 @@ let pond = {
         ]
     },
     {
+        id: "D_MultiAge_SpringBonusSet18a",
         rewards: [
             { type: "happiness", values: [340, 580, 640, 720, 800, 940, 1060, 1170, 1250, 1300, 1510, 1830, 2200, 2560, 2950, 3530, 5650, 6140] }
         ],
@@ -121,6 +129,7 @@ let gong = {
     size: [1, 1],
     road: false,
     level: [{
+        id: "L_AllAge_SpringBonusSet17",
         rewards: [
             { type: "medals", values: [1, 1, 1, 1, 1, 1, 2, 2, 4, 5, 6, 8, 10, 12, 15, 18, 24, 30] }
         ],
@@ -132,6 +141,7 @@ let gong = {
         ]
     },
     {
+        id: "L_AllAge_SpringBonusSet18",
         rewards: [
             { type: "medals", values: [1, 1, 1, 1, 1, 1, 2, 2, 4, 5, 6, 8, 10, 12, 15, 18, 24, 30] }
         ],
