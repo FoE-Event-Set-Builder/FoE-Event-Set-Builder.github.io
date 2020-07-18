@@ -4,6 +4,7 @@ let toymaker = {
     size: [3,2],
     road: true,
     level: [{
+        id: "R_MultiAge_WinterBonusSet17c",
         rewards: [
             { type: "coins", values: [300,720,1200,1680,2220,3380,4210,5110,6360,8000,10420,12060,13820,15710,17710,19840,33140,36710] }
         ],
@@ -24,6 +25,7 @@ let moose = {
     size: [2, 3],
     road: true,
     level: [{
+        id: "R_MultiAge_WinterBonusSet17b",
         rewards: [
             { type: "coins", values: [300,720,1200,1680,2220,3380,4210,5110,6360,8000,10420,12060,13820,15710,17710,19840,33140,36710] }
         ],
@@ -44,6 +46,7 @@ let sugar = {
     size: [2, 2],
     road: true,
     level: [{
+        id: "R_MultiAge_WinterBonusSet17a",
         rewards: [
             { type: "coins", values: [200,480,800,1120,1480,2250,2810,3410,4240,5330,6940,8040,9220,10470,11810,13230,22090,24470] }
         ],
@@ -64,6 +67,7 @@ let feast = {
     size: [1, 2],
     road: false,
     level: [{
+        id: "D_MultiAge_WinterBonusSet17b",
         rewards: [
             { type: "happiness", values: [50,70,80,90,100,110,130,140,150,160,180,220,260,310,350,420,680,740] } 
         ],
@@ -83,6 +87,7 @@ let candle = {
     size: [1,2],
     road: false,
     level: [{
+        id: "D_MultiAge_WinterBonusSet17d",
         rewards: [
             { type: "happiness", values: [50,70,80,90,100,110,130,140,150,160,180,220,260,310,350,420,680,740] } 
         ],
@@ -102,6 +107,7 @@ let tinkerer = {
     size: [2, 1],
     road: false,
     level: [{
+        id: "D_MultiAge_WinterBonusSet17c",
         rewards: [
             { type: "happiness", values: [50,70,80,90,100,110,130,140,150,160,180,220,260,310,350,420,680,740] } 
         ],
@@ -121,6 +127,7 @@ let halmbock = {
     size: [2,1],
     road: false,
     level: [{
+        id: "D_MultiAge_WinterBonusSet17a",
         rewards: [
             { type: "happiness", values: [50,70,80,90,100,110,130,140,150,160,180,220,260,310,350,420,680,740] } 
         ],
@@ -140,6 +147,7 @@ let straw = {
     size: [1,1],
     road: false,
     level: [{
+        id: "L_AllAge_WinterBonusSet17b",
         rewards: [
             { type: "medals", values: [1,1,1,1,1,1,2,2,4,5,6,8,10,12,15,18,20,24] } //guestimate https://forgeofempires.fandom.com/wiki/Straw_Star_Tent
         ],
@@ -160,6 +168,7 @@ let madam = {
     size: [1,1],
     road: false,
     level: [{
+        id: "L_AllAge_WinterBonusSet17a",
         rewards: [
             { type: "medals", values: [1,1,1,1,1,1,2,2,4,5,6,8,10,12,15,18,20,24] } //guestimate https://forgeofempires.fandom.com/wiki/Madame_Fortuna%27s_Tent
         ],

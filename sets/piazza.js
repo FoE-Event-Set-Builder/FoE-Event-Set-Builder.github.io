@@ -4,6 +4,7 @@ let homes = {
     size: [2, 3],
     road: true,
     level: [{
+        id: "R_MultiAge_CarnivalBonus19a",
         rewards: [
             { type: "population", values: [81,174,267,375,492,621,759,906,1062,1224,1395,1572,1758,1950,2148,2352,3723,4044] },
             { type: "coins", values: [250,400,700,900,1200,1900,2300,2800,3500,4400,5700,6600,7600,8600,9700,10900,18200,20200] }
@@ -15,6 +16,7 @@ let homes = {
         ]
     },
     {
+        id: "R_MultiAge_CarnivalBonus19b",
         rewards: [
             { type: "population", values: [101,218,334,469,615,776,949,1133,1328,1530,1744,1965,2198,2438,2685,2940,4654,5055] },
             { type: "coins", values: [300,500,900,1300,1700,2500,3200,3800,4800,6000,7800,9100,10400,11800,13300,14900,24900,27500] }
@@ -35,6 +37,7 @@ let cafe = {
     size: [3, 2],
     road: true,
     level: [{
+        id: "R_MultiAge_CarnivalBonus19c",
         rewards: [
             { type: "population", values: [45,96,147,206,271,342,417,498,584,673,767,865,967,1073,1181,1294,2048,2224] },
             { type: "coins", values: [300,700,1200,1700,2200,3400,4200,5100,6400,8000,10400,12100,13800,15700,17700,19800,33100,36700] }
@@ -46,6 +49,7 @@ let cafe = {
         ]
     },
     {
+        id: "R_MultiAge_CarnivalBonus19d",
         rewards: [
             { type: "population", values: [65,131,200,281,369,466,569,680,797,918,1046,1179,1319,1463,1611,1764,2792,3033] },
             { type: "coins", values: [400,900,1500,2100,2800,4200,5300,6400,8000,10000,13000,15100,17300,19600,22100,24800,41400,45900] }
@@ -66,6 +70,7 @@ let clock = {
     size: [3, 2],
     road: true,
     level: [{
+        id: "A_MultiAge_CarnivalBonus19a",
         rewards: [
             { type: "happiness", values: [170,260,310,360,420,490,550,610,650,730,850,1030,1320,1590,1950,2540,4060,4420] }
         ],
@@ -76,6 +81,7 @@ let clock = {
         ]
     },
     {
+        id: "A_MultiAge_CarnivalBonus19b",
         rewards: [
             { type: "happiness", values: [200,280,360,430,510,600,680,750,800,940,1090,1320,1760,2150,2720,3670,5870,6380] }
         ],
@@ -95,6 +101,7 @@ let fountain = {
     size: [2, 3],
     road: false,
     level: [{
+        id: "D_MultiAge_CarnivalBonus19a",
         rewards: [
             { type: "happiness", values: [180,280,320,370,430,510,570,630,670,700,820,990,1230,1430,1710,2050,3270,3560] }
         ],
@@ -105,6 +112,7 @@ let fountain = {
         ]
     },
     {
+        id: "D_MultiAge_CarnivalBonus19b",
         rewards: [
             { type: "happiness", values: [220,330,390,460,540,640,720,790,850,880,1030,1250,1580,1840,2240,2680,4290,4660] }
         ],
@@ -124,6 +132,7 @@ let mask = {
     size: [1, 1],
     road: false,
     level: [{
+        id: "L_AllAge_CarnivalBonus19a",
         rewards: [
             { type: "medals", values: [1,1,1,1,2,2,2,3,4,5,6,10,15,17,20,23,25,28] } //Guestimates https://forgeofempires.fandom.com/wiki/Piazza_Mask_Vendor#Level%202
         ],
@@ -135,6 +144,7 @@ let mask = {
         ]
     },
     {
+        id: "L_AllAge_CarnivalBonus19b",
         rewards: [
             { type: "medals", values: [2,2,2,2,2,2,2,3,4,5,8,12,16,22,30,40,50,50] } //Guestimates https://forgeofempires.fandom.com/wiki/Piazza_Mask_Vendor#Level%202
         ],

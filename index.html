@@ -127,8 +127,19 @@
 
 		</div>
 	</div>
+
 	<div id="canvas" style="position:absolute"></div>
 
+	<div id="import" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<p> Importing your city requires you to have FoeHelper installed. With FoeHelper installed, open the browser inspector using Ctrl+Shift+I on Windows, Cmd+Shift+C on Mac. Go to the console, and enter the following command:</p>
+			<p><strong>JSON.stringify(MainParser.CityMapData)</strong></p>
+			<p>Copy the output string, and paste that into the load city input field. After pasting the text, simply click load city and your build will be imported :)</p>
+			<p><img src="import2.png" width="700" height="354"></p>
+			<p><img src="import1.png" width="700" height="354"></p>
+		</div>
+	</div>
 
 	<script src="js/dat.gui.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="theme.css">
