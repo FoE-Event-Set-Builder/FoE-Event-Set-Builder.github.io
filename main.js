@@ -40,9 +40,10 @@ let indianFountain = getIndianFountain();
 let classicalGarden = getClassicalGarden();
 let royalGarden = getRoyalGarden();
 let winterVillage = getWinterVillage();
+let harvestBarn = getHarvestBarn();
 
 // Array used for easy access of information, DO NOT change order, it'll break everything. Probs a better way to do this, but meh :)
-let sets = [cherry, piazza, celtic, indianPalace, indianFountain, classicalGarden, royalGarden, winterVillage];
+let sets = [cherry, piazza, celtic, indianPalace, indianFountain, classicalGarden, royalGarden, winterVillage, harvestBarn];
 
 // Display information for the dat.gui controls. Again do not change order...
 let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, NishikigoiPond: 3, GongOfWisdom: 4 },
@@ -52,8 +53,9 @@ let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, Nishikigoi
 { ElephantFountain: 0, FountainGate: 1, ChhatriGarden: 2, TitanArum: 3, MemorialChhatri: 4 },
 { GardenPool: 0, GardenPatio: 1, GardenStatues: 2 },
 { KingStatue: 0, QueenStatue: 1, GardenRuins: 2 },
-{ Toymaker: 0, MooseMeadow: 1, SugerBaker: 2, Smörgåsbord: 3, Candlemaker: 4, Tinkerer: 5, Halmbock: 6, StrawStar: 7, MadameFortuna: 8 }];
-let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village"];
+{ Toymaker: 0, MooseMeadow: 1, SugerBaker: 2, Smörgåsbord: 3, Candlemaker: 4, Tinkerer: 5, Halmbock: 6, StrawStar: 7, MadameFortuna: 8 },
+{ Barn: 0, Sunflower: 1, Wheat: 2, Begonia: 3, Autumn: 4, Ochre: 5, Primrose: 6}];
+let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village", "Harvest Barn"];
 
 
 let selBox;
@@ -199,7 +201,7 @@ function addControls() {
     gui.add(guiControls, 'showHelp').name("How To Use")
     var folder1 = gui.addFolder('Add Building');
     folder1.add(guiControls, 'addBuilding1').name("✔️ Add");;
-    folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
+    folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
     folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen().onChange(updateAddStats);
     folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen().onChange(updateAddStats);;
     folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
@@ -398,37 +400,49 @@ function updateSetBuildings() {
         gui.__folders["Add Building"].__controllers[gui.__folders["Add Building"].__controllers.length - 1].remove();
     }
 
-    var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : { 1: 0, 2: 1 };
+    var levels = sets[guiControls.set][guiControls.building].level.length == 1 ? { 1: 0 } : sets[guiControls.set][guiControls.building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
     gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("✔️ Add");;
-    gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).name("Set").onChange(updateSetBuildings);
+    gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
     gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0).onChange(updateAddStats);
     gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats);
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
 
+    //if(fromRewards){break;}
     updateRewards(false, null);
 }
 
 // Update the gui display of building productions
 function updateRewards(current, ob) {
+    //if(!current){updateSetBuildings();}
     var folder = current ? "Current Building" : "Add Building";
     var len = gui.__folders[folder].__controllers.length;
 
-    var stop = current ? 0 : 5;
+    var stop = current ? 0 : 3;
 
     if (gui.__folders[folder].__controllers.length < stop) { return; }
+
+    var set = current ? ob.set : guiControls.set;
+    var building = current ? ob.building : guiControls.building;
+    var age = current ? ob.age : guiControls.age;
 
     for (var x = 0; x < len; x++) {
         if (gui.__folders[folder].__controllers.length <= stop) { break; }
         gui.__folders[folder].__controllers[gui.__folders[folder].__controllers.length - 1].remove();
     }
 
-    var set = current ? ob.set : guiControls.set;
-    var building = current ? ob.building : guiControls.building;
+    if(!current){
+        var levels = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
+        gui.__folders[folder].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats);
+        gui.__folders[folder].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
+    }
+
+    
     var level = current ? ob.level : guiControls.level;
-    var age = current ? ob.age : guiControls.age;
+    
 
     var rewardNum = sets[set][building].level[level].rewards.length;
     var bonusNum = sets[set][building].level[level].bonuses.length;
+
 
     if (current) {
 
@@ -436,7 +450,7 @@ function updateRewards(current, ob) {
         gui.__folders[folder].add(guiControls, 'curSet').listen().name("Set");
         gui.__folders[folder].add(guiControls, 'cBuilding', "").listen().name("Building");
         gui.__folders[folder].add(guiControls, 'cAge', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateCurrentBuilding);
-        var cLevel = sets[set][building].level.length == 1 ? { 1: 0 } : { 1: 0, 2: 1 };
+        var cLevel = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ? {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
         gui.__folders[folder].add(guiControls, 'cLevel', cLevel).listen().name("Level").onChange(updateCurrentBuilding);
         if (sets[set][building].road) {
             //var curVal = ob.connected ? 1 : 0;
@@ -446,6 +460,7 @@ function updateRewards(current, ob) {
         }
 
     } else {
+        
         var bsize = sets[set][building].size[0] + " x " + sets[set][building].size[1];
         gui.__folders[folder].add(guiControls, "bsize").setValue(bsize).name("Size")
         var road = sets[set][building].road ? "Required" : "Not Required";
@@ -1038,10 +1053,13 @@ function addGuiControls() {
     this.road1 = "Not Required";
     this.base1 = "6140 Happiness";
     this.base2 = "";
+    this.base3 = "";
     this.bonus1 = "7370 Happiness";
     this.bonus2 = "4 Atk Atk (%)";
     this.bonus3 = "6 Atk Atk (%)";
     this.bonus4 = "";
+    this.bonus5 = "";
+    this.bonus6 = "";
 
 
     this.curSet = "";
