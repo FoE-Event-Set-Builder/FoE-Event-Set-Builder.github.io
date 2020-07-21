@@ -277,7 +277,7 @@ function addControls() {
 
     // Per Set Productions
     var folder322 = folder21.addFolder("Per Set");
-    folder322.add(guiControls, 'cset', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7 }).listen().name("Set").onChange(updateConnections);
+    folder322.add(guiControls, 'cset', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).listen().name("Set").onChange(updateConnections);
     // Total
     var folder33 = folder322.addFolder("Total");
     var folder34 = folder33.addFolder("Stats");
