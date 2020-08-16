@@ -671,13 +671,16 @@ function onDocumentClick(event) {
         buildingSelected = true;
 
     } else {
-        if (buildingsSelected && !guiControls.numConnectionsHighlight) {
+        if (buildingsSelected) {
             for (var i = 0; i < objects.length; i++) {
                 objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
                 objects[i].selected = false;
                 //console.log("r");
             }
             buildingsSelected = false;
+        }
+        if (guiControls.numConnectionsHighlight){
+            updateNumConnectionHighlight();
         }
         controls.enablePan = true;
         // Reset gui when no building selected
