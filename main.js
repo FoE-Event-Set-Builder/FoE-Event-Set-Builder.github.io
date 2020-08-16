@@ -671,7 +671,7 @@ function onDocumentClick(event) {
         buildingSelected = true;
 
     } else {
-        if (buildingsSelected) {
+        if (buildingsSelected && !guiControls.numConnectionsHighlight) {
             for (var i = 0; i < objects.length; i++) {
                 objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
                 objects[i].selected = false;
