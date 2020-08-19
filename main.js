@@ -1,5 +1,5 @@
 // As you can see this is just me fooling around testing a bunch of stuff, this is a hobby project, proper coding styles be damned :P
-let renderer, scene, camera, objects = [], texts = [], startPosition, groupStart, dragMesh, guiControls, grid, raycaster, gui, selectionBox, selectionHelper;
+let renderer, scene, camera, objects = [], copyObjects = [], texts = [], startPosition, groupStart, dragMesh, guiControls, grid, raycaster, gui, selectionBox, selectionHelper;
 let texture = new THREE.TextureLoader().load(document.location.pathname + 'assets/texture.png');
 let topx = 0;
 let topz = 0;
@@ -9,6 +9,10 @@ let controls;
 let select = false;
 let buildingsSelected = false;
 let keyPressed = false;
+let buildingsPasted = false;
+let mousex, mousez;
+let dragControls;
+let preventDragging = false;
 
 let initDone = false;
 let doUpdateRewards = true;
@@ -113,11 +117,7 @@ function init() {
     window.addEventListener('resize', onWindowResize, false);
 
     // On click for main canvas
-    document.querySelector("#canvas").addEventListener('mousedown', onDocumentClick, false);
-
-    window.addEventListener('mousemove', onMouseMove, false);
-    window.addEventListener('mouseup', onMouseUp, false);
-    window.addEventListener('keydown', keyPressEvent, true);
+    
 
 
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -134,7 +134,7 @@ function init() {
     controls.update();
 
     // Drag controls for moving the buildings
-    var dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
+    dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
     dragControls.addEventListener('dragstart', dragStart);
     dragControls.addEventListener('dragend', dragEnd);
     dragControls.addEventListener('drag', drag);
@@ -186,7 +186,11 @@ function init() {
     selectionBox = new SelectionBox(camera, scene);
     selectionHelper = new SelectionHelper(selectionBox, renderer, 'selectBox');
 
+    document.querySelector("#canvas").addEventListener('mousedown', onDocumentClick, false);
 
+    window.addEventListener('mousemove', onMouseMove, false);
+    window.addEventListener('mouseup', onMouseUp, false);
+    window.addEventListener('keydown', keyPressEvent, true);
 
     initDone = true; // Not really used, but why not leave it in??
 }
@@ -532,13 +536,49 @@ function keyPressEvent(event) {
             removeBuilding1();
         }
     }
+    if (event.key == "c" && event.ctrlKey){ 
+        console.log("copy");
+        copyObjects = [];
+        for(var i = 0; i<objects.length; i++){
+            if(objects[i].selected){
+                copyObjects.push(objects[i]);
+                console.log(i);
+            }
+        }
+    }
+    if(event.key == "v" && event.ctrlKey){
+        if(copyObjects.length == 0){return;}
+        console.log("paste");
+        resetSelectedStatus();
+        var b = copyObjects[0];
+        var x, z;
+        if (b.geometry.parameters.depth % 2 == 1) {
+            z = Math.round(mousez) - 0.5;
+        } else {
+            z = Math.round(mousez);
+        }
+        if (b.geometry.parameters.width % 2 == 0) {
+            x = Math.round(mousex);
+        } else {
+            x = Math.round(mousex) - 0.5;
+        }
+        addBuilding(b.set, b.building, b.level, b.age, b.connected, x, z);
+        for(var i = 1; i<copyObjects.length; i++){
+            var xdiff = copyObjects[0].position.x-copyObjects[i].position.x;
+            var zdiff = copyObjects[0].position.z-copyObjects[i].position.z;
+            b = copyObjects[i];
+            addBuilding(b.set, b.building, b.level, b.age, b.connected, x-xdiff, z-zdiff);
+        }
+        
+        //buildingsPasted = true;
+        //setupDragMesh(copyObjects[0]);
+    }
+    
 }
 
 function onMouseMove(event) {
 
-
     if (keyPressed) { requestAnimationFrame(animate); }
-    if (!select) { return; }
 
     var mouse = new THREE.Vector2(0, 0);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -555,6 +595,11 @@ function onMouseMove(event) {
     // Get intersection with the helper grid
     var gridIntersect = raycaster.intersectObject(grid);
     // Get the clicked position in the scene
+
+    mousex = gridIntersect[0].point.x;
+    mousez = gridIntersect[0].point.z;
+
+    if (!select) { return; }
 
     var n = (currentx - (gridIntersect[0].point.x));
     var m = (currentz - (gridIntersect[0].point.z));
@@ -593,13 +638,10 @@ function onMouseUp(event) {
 
     isDown = false;
     select = false;
-
-
 }
 
 // The almighty on click event! 
 function onDocumentClick(event) {
-
     // clear inputs when main body clicked
     var inputs = document.getElementsByTagName("INPUT");
     for (var i = 0; i < inputs.length; i++) {
@@ -621,11 +663,7 @@ function onDocumentClick(event) {
 
     if (event.button === 2) {
         if (buildingsSelected) {
-            for (var i = 0; i < objects.length; i++) {
-                objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
-                objects[i].selected = false;
-                //console.log("r");
-            }
+            resetSelectedStatus();
             buildingsSelected = false;
         }
         selectionBox.startPoint.set(
@@ -638,7 +676,7 @@ function onDocumentClick(event) {
             0.5);
         select = true;
         return;
-    }
+    } 
 
     // Check if the click intersects with one of the buildings
     var intersects = raycaster.intersectObjects(objects);
@@ -672,11 +710,7 @@ function onDocumentClick(event) {
 
     } else {
         if (buildingsSelected) {
-            for (var i = 0; i < objects.length; i++) {
-                objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
-                objects[i].selected = false;
-                //console.log("r");
-            }
+            resetSelectedStatus();
             buildingsSelected = false;
         }
         if (guiControls.numConnectionsHighlight){
@@ -702,8 +736,17 @@ function onDocumentClick(event) {
     updateConnections();
 }
 
+function resetSelectedStatus(){
+    for (var i = 0; i < objects.length; i++) {
+        objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
+        objects[i].selected = false;
+    }
+}
+
 // Drag control start! Store starting position
 function dragStart(event) {
+
+    if(event.button === 2 || preventDragging){return;}
 
     requestAnimationFrame(animate);
     dragging = true;
@@ -711,7 +754,8 @@ function dragStart(event) {
     groupStart = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
 
     if (buildingsSelected) {
-        var mergeGeometry = new THREE.Geometry();
+        setupDragMesh(event.object);
+        /*var mergeGeometry = new THREE.Geometry();
         var mats = [];
 
         var material = new THREE.MeshPhongMaterial({ color: 0x666666, transparent: true, opacity: 0.5 });
@@ -730,13 +774,36 @@ function dragStart(event) {
         }
         dragMesh = new THREE.Mesh(mergeGeometry, mats)
         scene.add(dragMesh);
-        dragMesh.visible = true;
+        dragMesh.visible = true;*/
     }
+}
+
+function setupDragMesh(selectedBuilding){
+    var mergeGeometry = new THREE.Geometry();
+    var mats = [];
+
+    var material = new THREE.MeshPhongMaterial({ color: 0x666666, transparent: true, opacity: 0.5 });
+    for (var i = 0; i < objects.length; i++) {
+        if (objects[i].selected && objects[i].uuid != selectedBuilding.uuid) {
+            mergeGeometry.merge(objects[i].geometry, objects[i].matrix);
+            mats.push(material);
+            objects[i].visible = false;
+            texts[i].visible = false;
+            console.log(i);
+            //console.log("start: " + objects[i].uuid);
+        }
+    }
+    while (mats.length < 3) {
+        mergeGeometry.merge(selectedBuilding.geometry, selectedBuilding.matrix);
+        mats.push(material);
+    }
+    dragMesh = new THREE.Mesh(mergeGeometry, mats)
+    scene.add(dragMesh);
+    dragMesh.visible = true;
 }
 
 // Function runs whenever a dragged building's position changes
 function drag(event) {
-
     requestAnimationFrame(animate);
     //console.log(dragMesh);
     // Round the position of the object to always align with the grid
@@ -784,7 +851,6 @@ function drag(event) {
 
 // Recalculate production overview
 function dragEnd(event) {
-
     requestAnimationFrame(animate);
     draggin = false;
     if (buildingsSelected) {
@@ -1399,6 +1465,8 @@ function addBuilding(set, building, level, age, connected, x, z) {
         requestAnimationFrame(animate);
 
     });
+
+    return bld.uuid;
 }
 
 function importCity(string) {
@@ -1529,6 +1597,6 @@ function animate() {
 init();
 
 // Easier testing
-//loadScene("101h1uyauy6wgz111h1uy7wguy7z121h1uy9wguy4z131h1uy7uy4wgz141h1uy8wguy5wgz001h1uy9u3wgz011h0uy8wgu6z021h1uy6wgu3z041h1uy7wgu4wgz101h1uy2uy6wgz111h1uy1wguy4z121h1uy9wguy9z121h1uy4wguy7z121h1uy4wguy4z141h1uy7wguy8wgz141h1uy4wguy5wgz141h1uy0wguy5wgz141h1uy1wguy2wgz121h1u0wguy7z121h1u0wguy2z131h1u1uy4wgz001h1uy6u5wgz001h1uy7u8wgz001h1uyau8wgz041h1uy8wgu7wgz021h0uy8wgubz001h1uy6ubwgz001h1uy9udwgz011h1uy6wguez041h1uy7wgucwgz041h1uyewgu4wgz041h1uyawguawgz041h1uyewgucwgz041h1uydwgu7wgz041h1uyawgu6wgz001h1uygu5wgz001h1uydu3wgz001h1uybu4wgz001h1uycu8wgz001h1uyfu8wgz001h1uydudwgz011h1uyfwgu3z011h0uydwgubz021h1uyfwguez021h0uydwgu6z001h1uygubwgz001h1uybucwgz001h1uyeugwgz001h1uyhugwgz001h1uy8ugwgz001h1uy5ugwgz001h1uy9ujwgz001h1uy6ulwgz001h1uygulwgz001h1uydujwgz011h1uyfwgujz021h1uy6wgujz021h1uydwgumz011h1uy8wgumz001h1uybukwgz041h1uyfwgufwgz041h1uy6wgufwgz041h1uyewgukwgz041h1uy7wgukwgz041h1uyawgumwgz141h1uy5wguy5wgz141h1uy3wguy5wg");
+loadScene("00191uauy3wgz00191u7uy7wgz041h1u6wguybwgz01120ucwguy2z01120u7wgu3z021g1uewguy5z041h1udwgu4wgz021g0ucwgu3z041h1u6wguy3wgz011g1uewgu6z021g1u5wgu6z00171ufuy2wgz141h1uyiwguyswgz131e1uyguymwgz111e1uygwguypz121h1uy8wguykz101e1uyjuyowgz101e1uybuyowgz141h1uyawguykwgz131e1uy8uymwgz121h1uy8wguypz111e1uyawguymz141h1uy9wguynwgz141h1uyhwguynwgz141h1uyewguynwgz141h1uydwguynwgz141h1uycwguynwgz140h1uyhwguyswgz011e1uewguyaz021e1ucwguydz001e1ucuy4wgz041h1u9wgu1wgz021g1u5wguyaz011g1u5wguy5z001g1ucu5wgz041h1udwguybwgz001g1ufu3wgz001g1u8u5wgz001g1u5u3wgz001g1uau3wgz001g1ueu0wgz121g1uyiwguymz121g1uyiwguyrz201g1uy4uyowgz231h1uy6wguypwgz211g1uy5wguylwgz241g1uy6wguyoz221g1uy3uylwgz040h1u4wguy0wgz041h1udwguy3wgz001g1ucu0wgz041h1u6wgu4wgz040h1u5wguy8wgz001g1uauy0wgz001g1u8u0wgz001g1u6u0wgz001g1u5uy2wgz001g1u8uy4wgz001g1u5uycwgz001g1u8uyawgz041h1uawgu1wgz010g1u7wguydz020g0u7wguy2z040h1uawguy5wgz001h1uauyewgz001h1u4uy7wgz001h1uduy7wgz121h1uydwguypz121h1uydwguymz040h1uawguy9wgz001h1ucuyawgz001h1uauybwgz041h1ufwguy0wgz040h1u8wguyewgz040h1uewguy8wgz001h1ufuycwgz001h1uguy7wgz760h1uy2upwgz750h1u0upwgz750h1u0urwgz780h1uy2wguqwgz780h1u1wguqwgz760h1uy2urwgz760h1u0uqwgz760h1u2urwgz760h1u2upwgz770h1u2wguqwgz770h1uy1wguqwg?0x0y0x0");
 
 
