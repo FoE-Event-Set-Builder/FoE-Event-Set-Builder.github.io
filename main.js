@@ -635,10 +635,19 @@ function onMouseUp(event) {
 
         if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line" && allSelected[i].uuid != selBox.uuid) {
             //console.log(allSelected[i].uuid);
-            allSelected[i].material.color.set(0xff33ff);
+            //allSelected[i].material.color.set(0xff33ff);
             allSelected[i].selected = true;
             buildingsSelected = true;
 
+        }
+    }
+    for(var i = 0; i < objects.length; i++){
+        if(!objects[i].selected){
+            //objects[i].material.color.set(0x888888);
+            objects[i].material.transparent = true;
+            objects[i].material.opacity = 0.3;
+            texts[i].material.transparent = true;
+            texts[i].material.opacity = 0.3;
         }
     }
     if(buildingsSelected){updateConnections();}
@@ -748,6 +757,10 @@ function resetSelectedStatus(){
     for (var i = 0; i < objects.length; i++) {
         objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
         objects[i].selected = false;
+        objects[i].material.transparent = false;
+        objects[i].material.opacity = 1;
+        texts[i].material.transparent = false;
+        texts[i].material.opacity = 1;
     }
 }
 
