@@ -207,7 +207,7 @@ function addControls() {
     folder1.add(guiControls, 'addBuilding1').name("✔️ Add");;
     folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
     folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen().onChange(updateAddStats);
-    folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen().onChange(updateAddStats);;
+    folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen().onChange(updateLevelStats);;
     folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
     folder1.add(guiControls, 'bsize').name("Size");
     folder1.add(guiControls, 'road1').name("Road");
@@ -349,11 +349,15 @@ function addControls() {
     folder41.open();
 }
 
-function updateAddStats(level) {
+function updateAddStats() {
     //console.log("update");
-    if(level){return;}
-    updateRewards(false, null);
+    
+    updateRewards(false, null, false);
      
+}
+
+function updateLevelStats(){
+    updateRewards(false, null, true);
 }
 
 // Update the highlighting of buildings requiring roads
@@ -410,15 +414,15 @@ function updateSetBuildings() {
     gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("✔️ Add");;
     gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
     gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0).onChange(updateAddStats);
-    gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats(true));
+    gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateLevelStats);
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
 
     //if(fromRewards){break;}
-    updateRewards(false, null);
+    updateRewards(false, null, false);
 }
 
 // Update the gui display of building productions
-function updateRewards(current, ob) {
+function updateRewards(current, ob, level) {
     //if(!current){updateSetBuildings();}
     var folder = current ? "Current Building" : "Add Building";
     var len = gui.__folders[folder].__controllers.length;
@@ -437,8 +441,10 @@ function updateRewards(current, ob) {
     }
 
     if(!current){
+        console.log(sets[set][building].level.length);
         var levels = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
-        gui.__folders[folder].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats);
+        var setLevel = level ? guiControls.level :  levels[Object.keys(levels).length];
+        gui.__folders[folder].add(guiControls, 'level', levels).name("Level").listen().setValue(setLevel).onChange(updateLevelStats);
         gui.__folders[folder].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
     }
 
@@ -706,7 +712,7 @@ function onDocumentClick(event) {
         }
 
         // Update the production stats of the currently selected building
-        updateRewards(true, intersects[0].object);
+        updateRewards(true, intersects[0].object, false);
 
         buildingSelected = true;
 
@@ -1090,7 +1096,7 @@ function updateCurrentBuilding() {
         objects[id].level = guiControls.cLevel;
         objects[id].age = guiControls.cAge;
         objects[id].connected = guiControls.cConnected;
-        updateRewards(true, objects[id]);
+        updateRewards(true, objects[id], false);
         updateConnections();
     }
 }
