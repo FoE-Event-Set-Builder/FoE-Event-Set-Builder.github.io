@@ -349,9 +349,11 @@ function addControls() {
     folder41.open();
 }
 
-function updateAddStats() {
+function updateAddStats(level) {
     //console.log("update");
+    if(level){return;}
     updateRewards(false, null);
+     
 }
 
 // Update the highlighting of buildings requiring roads
@@ -404,11 +406,11 @@ function updateSetBuildings() {
         gui.__folders["Add Building"].__controllers[gui.__folders["Add Building"].__controllers.length - 1].remove();
     }
 
-    var levels = sets[guiControls.set][guiControls.building].level.length == 1 ? { 1: 0 } : sets[guiControls.set][guiControls.building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
+    var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : sets[guiControls.set][0].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
     gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("✔️ Add");;
     gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
     gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0).onChange(updateAddStats);
-    gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats);
+    gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateAddStats(true));
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
 
     //if(fromRewards){break;}
@@ -633,7 +635,7 @@ function onMouseUp(event) {
 
         }
     }
-
+    if(buildingsSelected){updateConnections();}
     selBox.material.color.set(0x0000ff);
 
     isDown = false;
@@ -912,6 +914,7 @@ function updateConnections() {
     var set = guiControls.cset;
 
     for (var i = 0; i < objects.length; i++) {
+        if(buildingsSelected && !objects[i].selected){continue;}
         tiles += objects[i].geometry.parameters.width * objects[i].geometry.parameters.depth;
         var objSet = objects[i].set;
         if (set == objSet) {
@@ -952,7 +955,7 @@ function updateConnections() {
                 }
             }
         }
-
+    }
         guiControls.population = stats[0];
         guiControls.happiness = stats[1];
         guiControls.fps = stats[2];
@@ -1008,7 +1011,7 @@ function updateConnections() {
         guiControls.stdefendingDefense = (parseFloat(sstats[10]) / parseFloat(stiles)).toFixed(2);
         guiControls.stcoinsBoost = (parseFloat(sstats[11]) / parseFloat(stiles)).toFixed(2);
         guiControls.stsupplyBoost = (parseFloat(sstats[12]) / parseFloat(stiles)).toFixed(2);
-    }
+    
 
 
     requestAnimationFrame(animate);
@@ -1597,6 +1600,6 @@ function animate() {
 init();
 
 // Easier testing
-//loadScene("00191uauy3wgz00191u7uy7wgz041h1u6wguybwgz01120ucwguy2z01120u7wgu3z021g1uewguy5z041h1udwgu4wgz021g0ucwgu3z041h1u6wguy3wgz011g1uewgu6z021g1u5wgu6z00171ufuy2wgz141h1uyiwguyswgz131e1uyguymwgz111e1uygwguypz121h1uy8wguykz101e1uyjuyowgz101e1uybuyowgz141h1uyawguykwgz131e1uy8uymwgz121h1uy8wguypz111e1uyawguymz141h1uy9wguynwgz141h1uyhwguynwgz141h1uyewguynwgz141h1uydwguynwgz141h1uycwguynwgz140h1uyhwguyswgz011e1uewguyaz021e1ucwguydz001e1ucuy4wgz041h1u9wgu1wgz021g1u5wguyaz011g1u5wguy5z001g1ucu5wgz041h1udwguybwgz001g1ufu3wgz001g1u8u5wgz001g1u5u3wgz001g1uau3wgz001g1ueu0wgz121g1uyiwguymz121g1uyiwguyrz201g1uy4uyowgz231h1uy6wguypwgz211g1uy5wguylwgz241g1uy6wguyoz221g1uy3uylwgz040h1u4wguy0wgz041h1udwguy3wgz001g1ucu0wgz041h1u6wgu4wgz040h1u5wguy8wgz001g1uauy0wgz001g1u8u0wgz001g1u6u0wgz001g1u5uy2wgz001g1u8uy4wgz001g1u5uycwgz001g1u8uyawgz041h1uawgu1wgz010g1u7wguydz020g0u7wguy2z040h1uawguy5wgz001h1uauyewgz001h1u4uy7wgz001h1uduy7wgz121h1uydwguypz121h1uydwguymz040h1uawguy9wgz001h1ucuyawgz001h1uauybwgz041h1ufwguy0wgz040h1u8wguyewgz040h1uewguy8wgz001h1ufuycwgz001h1uguy7wgz760h1uy2upwgz750h1u0upwgz750h1u0urwgz780h1uy2wguqwgz780h1u1wguqwgz760h1uy2urwgz760h1u0uqwgz760h1u2urwgz760h1u2upwgz770h1u2wguqwgz770h1uy1wguqwg?0x0y0x0");
+loadScene("00191uauy3wgz00191u7uy7wgz041h1u6wguybwgz01120ucwguy2z01120u7wgu3z021g1uewguy5z041h1udwgu4wgz021g0ucwgu3z041h1u6wguy3wgz011g1uewgu6z021g1u5wgu6z00171ufuy2wgz141h1uyiwguyswgz131e1uyguymwgz111e1uygwguypz121h1uy8wguykz101e1uyjuyowgz101e1uybuyowgz141h1uyawguykwgz131e1uy8uymwgz121h1uy8wguypz111e1uyawguymz141h1uy9wguynwgz141h1uyhwguynwgz141h1uyewguynwgz141h1uydwguynwgz141h1uycwguynwgz140h1uyhwguyswgz011e1uewguyaz021e1ucwguydz001e1ucuy4wgz041h1u9wgu1wgz021g1u5wguyaz011g1u5wguy5z001g1ucu5wgz041h1udwguybwgz001g1ufu3wgz001g1u8u5wgz001g1u5u3wgz001g1uau3wgz001g1ueu0wgz121g1uyiwguymz121g1uyiwguyrz201g1uy4uyowgz231h1uy6wguypwgz211g1uy5wguylwgz241g1uy6wguyoz221g1uy3uylwgz040h1u4wguy0wgz041h1udwguy3wgz001g1ucu0wgz041h1u6wgu4wgz040h1u5wguy8wgz001g1uauy0wgz001g1u8u0wgz001g1u6u0wgz001g1u5uy2wgz001g1u8uy4wgz001g1u5uycwgz001g1u8uyawgz041h1uawgu1wgz010g1u7wguydz020g0u7wguy2z040h1uawguy5wgz001h1uauyewgz001h1u4uy7wgz001h1uduy7wgz121h1uydwguypz121h1uydwguymz040h1uawguy9wgz001h1ucuyawgz001h1uauybwgz041h1ufwguy0wgz040h1u8wguyewgz040h1uewguy8wgz001h1ufuycwgz001h1uguy7wgz760h1uy2upwgz750h1u0upwgz750h1u0urwgz780h1uy2wguqwgz780h1u1wguqwgz760h1uy2urwgz760h1u0uqwgz760h1u2urwgz760h1u2upwgz770h1u2wguqwgz770h1uy1wguqwg?0x0y0x0");
 
 
