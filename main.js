@@ -540,6 +540,7 @@ function keyPressEvent(event) {
                 removeBuilding1();
             }
             buildingsSelected = false;
+            resetSelectedStatus();
         } else {
             removeBuilding1();
         }
