@@ -642,6 +642,7 @@ function onMouseUp(event) {
         }
     }
     for(var i = 0; i < objects.length; i++){
+        if(!buildingsSelected){break;}
         if(!objects[i].selected){
             //objects[i].material.color.set(0x888888);
             objects[i].material.transparent = true;
