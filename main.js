@@ -1110,7 +1110,7 @@ function updateCurrentBuilding() {
         var id = objects.indexOf(scene.getObjectByProperty('uuid', guiControls.uuid));
         objects[id].level = guiControls.cLevel;
         objects[id].age = guiControls.cAge;
-        objects[id].connected = guiControls.cConnected;
+        objects[id].connected = JSON.parse(guiControls.cConnected);
         updateRewards(true, objects[id], false);
         updateConnections();
     }
