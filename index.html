@@ -166,7 +166,7 @@
 
 	<script src="main.js"></script>
 	<script>
-		if (window.location.search) loadScene(window.location.search);
+		if (window.location.search) loadScene(decodeURIComponent(window.location.search));
 		else loadScene("");
 	</script>
 </body>
