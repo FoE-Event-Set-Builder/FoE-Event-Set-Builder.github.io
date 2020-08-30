@@ -1343,7 +1343,7 @@ function saveScene() {
         string += ob.level.toString(base);
         string += ob.age.toString(base);
         string += ob.connected ? "1" : "0";
-        string += "u" + ob.position.x.toString(base).replace("-", "y").replace(".", "w") + "u" + ob.position.z.toString(base).replace("-", "y").replace(".", "w");
+        string += "ö" + ob.position.x.toString(base).replace("-", "y").replace(".", "w") + "ö" + ob.position.z.toString(base).replace("-", "y").replace(".", "w");
     }
     string += "?" + guiControls.tempty.toString(base) + "x" + guiControls.troads.toString(base);
     string += "y" + guiControls.stempty.toString(base) + "x" + guiControls.stroads.toString(base);
@@ -1370,6 +1370,8 @@ function loadScene(string) {
         dragControls.addEventListener('drag', drag);
         return;
     }
+
+    var split = string.includes("ö") ? "ö" : "u"; // To make old saves work
     var strings = string.split("?");
     var bldIndex = 0;
 
@@ -1378,7 +1380,7 @@ function loadScene(string) {
 
     var buildings = strings[bldIndex].split("z");
     for (var i = 0; i < buildings.length; i++) {
-        var bld = buildings[i].split("u");
+        var bld = buildings[i].split(split);
         var base = 32;
         var set = toDec(bld[0].substring(0, 1), base);
         var building = toDec(bld[0].substring(1, 2), base);
