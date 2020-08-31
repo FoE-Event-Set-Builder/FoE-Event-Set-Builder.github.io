@@ -203,6 +203,7 @@ function addControls() {
     gui.domElement.id = "gui";
     // Add Building
     gui.add(guiControls, 'showHelp').name("How To Use")
+    gui.add(guiControls, 'fallSet').name("2020 Fall Event Design")
     var folder1 = gui.addFolder('Add Building');
     folder1.add(guiControls, 'addBuilding1').name("✔️ Add");;
     folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
@@ -1122,6 +1123,10 @@ function addGuiControls() {
     this.showHelp = function () {
         //console.log("help");
         helpElement.style.display = "block";
+    }
+
+    this.fallSet = function () {
+        window.open("http://bit.ly/2020-Fall-Event","_blank")
     }
 
     this.set = 0;
