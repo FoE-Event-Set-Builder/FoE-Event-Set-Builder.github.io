@@ -72,11 +72,18 @@ let importElement = document.getElementById("import");
 importElement.style.display = "none";
 let importHelp = document.getElementsByClassName("close")[1];
 
+let fallDoc = document.getElementById("fall");
+fallDoc.style.display = "none"
+let closeFall = document.getElementsByClassName("close")[2];
+
 closeHelp.onclick = function () {
     helpElement.style.display = "none";
 }
 importHelp.onclick = function() {
     importElement.style.display = "none";
+}
+closeFall.onclick = function () {
+    fallDoc.style.display = "none";
 }
 
 window.onclick = function (event) {
@@ -85,6 +92,9 @@ window.onclick = function (event) {
     }
     if(event.target == importElement){
         importElement.style.display = "none";
+    }
+    if(event.target == fallDoc){
+        fallDoc.style.display = "none";
     }
 }
 
@@ -203,7 +213,7 @@ function addControls() {
     gui.domElement.id = "gui";
     // Add Building
     gui.add(guiControls, 'showHelp').name("How To Use")
-    gui.add(guiControls, 'fallSet').name("2020 Fall Event Design")
+    gui.add(guiControls, 'fallSet').name("Fall Event Designs")
     var folder1 = gui.addFolder('Add Building');
     folder1.add(guiControls, 'addBuilding1').name("✔️ Add");;
     folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
@@ -1126,7 +1136,9 @@ function addGuiControls() {
     }
 
     this.fallSet = function () {
-        window.open("http://bit.ly/2020-Fall-Event","_blank")
+        //alert("Sharable link to Fall Event Designs: bit.ly/2020-Fall-Event-Sets")
+        //window.open("http://bit.ly/2020-Fall-Event","_blank")
+        fallDoc.style.display = "block";
     }
 
     this.set = 0;
