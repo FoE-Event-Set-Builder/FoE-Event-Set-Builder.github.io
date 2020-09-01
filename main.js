@@ -113,6 +113,8 @@ function onWindowResize() {
     requestAnimationFrame(animate);
 }
 
+$.notify("Tip: Right click and drag to select buildings of interest, only the selected buildings will be displayed in production overview! (x)",{position: "bottom left", autoHideDelay:60000});
+
 function init() {
     // Basic threejs stuff
     scene = new THREE.Scene();
