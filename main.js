@@ -76,6 +76,10 @@ let fallDoc = document.getElementById("fall");
 fallDoc.style.display = "none"
 let closeFall = document.getElementsByClassName("close")[2];
 
+let mobDoc = document.getElementById("mobile");
+mobDoc.style.display = "none"
+let closeMob = document.getElementsByClassName("close")[3];
+
 closeHelp.onclick = function () {
     helpElement.style.display = "none";
 }
@@ -85,6 +89,13 @@ importHelp.onclick = function() {
 closeFall.onclick = function () {
     fallDoc.style.display = "none";
 }
+closeMob.onclick = function () {
+    mobDoc.style.display = "none";
+}
+
+let mobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
+if(mobile){mobDoc.style.display = "block"}
 
 window.onclick = function (event) {
     if (event.target == helpElement) {
