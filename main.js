@@ -124,7 +124,7 @@ function onWindowResize() {
     requestAnimationFrame(animate);
 }
 
-$.notify("Tip: Right click and drag to select buildings of interest, only the selected buildings will be displayed in production overview! (x)",{position: "bottom left", autoHideDelay:60000});
+$.notify("Tip: Right click and drag to select buildings of interest, only the \n selected buildings will be displayed in production overview! (x)",{position: "top left", gap: 50,  autoHideDelay:60000});
 
 function init() {
     // Basic threejs stuff
@@ -222,7 +222,7 @@ function addControls() {
 
     // Controls! What do you mean the naming scheme makes no sense? 
     guiControls = new addGuiControls();
-    gui = new dat.GUI({ width: 250 });
+    gui = new dat.GUI({ width: 250});
     gui.domElement.id = "gui";
     // Add Building
     gui.add(guiControls, 'showHelp').name("How To Use")
@@ -254,7 +254,7 @@ function addControls() {
     */
 
     // Production overview
-    var folder21 = gui.addFolder("Production Overview");
+    var folder21 = gui.addFolder("Full Production Overview");
 
     // Combined Production
     var folder22 = folder21.addFolder("All Sets");
@@ -1057,7 +1057,13 @@ function updateConnections() {
         guiControls.stcoinsBoost = (parseFloat(sstats[11]) / parseFloat(stiles)).toFixed(2);
         guiControls.stsupplyBoost = (parseFloat(sstats[12]) / parseFloat(stiles)).toFixed(2);
     
-
+        var perTile = document.getElementById("pertile").checked;
+        document.getElementById("tpop").innerHTML = perTile ? guiControls.tpopulation : guiControls.population;
+        document.getElementById("thap").innerHTML = perTile ? guiControls.thappiness : guiControls.happiness;
+        document.getElementById("tfp").innerHTML = perTile ? guiControls.tfps : guiControls.fps;
+        document.getElementById("tgood").innerHTML = perTile ? guiControls.tgoods : guiControls.goods;
+        document.getElementById("taa").innerHTML = perTile ? guiControls.tattackingAttack : guiControls.attackingAttack;
+        document.getElementById("tad").innerHTML = perTile ? guiControls.tattackingDefense : guiControls.attackingDefense;
 
     requestAnimationFrame(animate);
 }
