@@ -1431,21 +1431,21 @@ function loadScene(string) {
         var settings = strings[strings.length - 1].split("y");
         guiControls.tempty = toDec(settings[0].split("x")[0]);
         guiControls.troads = toDec(settings[0].split("x")[1]);
-        gui.__folders["Production Overview"].__folders["All Sets"].__folders["Per Tile"].__controllers[0].setValue(guiControls.tempty);
-        gui.__folders["Production Overview"].__folders["All Sets"].__folders["Per Tile"].__controllers[1].setValue(guiControls.troads);
+        gui.__folders["Full Production Overview"].__folders["All Sets"].__folders["Per Tile"].__controllers[0].setValue(guiControls.tempty);
+        gui.__folders["Full Production Overview"].__folders["All Sets"].__folders["Per Tile"].__controllers[1].setValue(guiControls.troads);
         guiControls.stempty = toDec(settings[1].split("x")[0]);
         guiControls.stroads = toDec(settings[1].split("x")[1]);
-        gui.__folders["Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[0].setValue(guiControls.stempty);
-        gui.__folders["Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[1].setValue(guiControls.stroads);
+        gui.__folders["Full Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[0].setValue(guiControls.stempty);
+        gui.__folders["Full Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[1].setValue(guiControls.stroads);
     } else {
         guiControls.tempty = 0;
         guiControls.troads = 0;
-        gui.__folders["Production Overview"].__folders["All Sets"].__folders["Per Tile"].__controllers[0].setValue(guiControls.tempty);
-        gui.__folders["Production Overview"].__folders["All Sets"].__folders["Per Tile"].__controllers[1].setValue(guiControls.troads);
+        gui.__folders["Full Production Overview"].__folders["All Sets"].__folders["Per Tile"].__controllers[0].setValue(guiControls.tempty);
+        gui.__folders["Full Production Overview"].__folders["All Sets"].__folders["Per Tile"].__controllers[1].setValue(guiControls.troads);
         guiControls.stempty = 0;
         guiControls.stroads = 0;
-        gui.__folders["Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[0].setValue(guiControls.stempty);
-        gui.__folders["Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[1].setValue(guiControls.stroads);
+        gui.__folders["Full Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[0].setValue(guiControls.stempty);
+        gui.__folders["Full Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[1].setValue(guiControls.stroads);
 
     }
 
