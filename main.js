@@ -222,7 +222,7 @@ function addControls() {
 
     // Controls! What do you mean the naming scheme makes no sense? 
     guiControls = new addGuiControls();
-    gui = new dat.GUI({ width: 250});
+    gui = new dat.GUI({ width: 300});
     gui.domElement.id = "gui";
     // Add Building
     gui.add(guiControls, 'showHelp').name("How To Use")
@@ -491,7 +491,7 @@ function updateRewards(current, ob, level) {
         if (sets[set][building].road) {
             //var curVal = ob.connected ? 1 : 0;
             var op = { Diconnected: false, Connected: true };
-            gui.__folders[folder].add(guiControls, 'cConnected', op).listen().setValue(ob.connected).name("Building Connected").onChange(updateCurrentBuilding);
+            gui.__folders[folder].add(guiControls, 'cConnected', op).listen().setValue(ob.connected).name("Road Connection").onChange(updateCurrentBuilding);
             gui.__folders[folder].__controllers[5].__li.className = "cr number";
         }
 
