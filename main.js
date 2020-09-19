@@ -369,7 +369,7 @@ function addControls() {
     folder41.add(guiControls, 'texts').name("Show Building Initials").onChange(updateTextVisibilities);
     folder41.add(guiControls, 'line').name("Show City Outline").onChange(updateLineVisibilities);
     folder41.add(guiControls, 'highlightRoads').name("Show Buildings Requiring Roads").listen().onChange(updateRoadHighlight);
-    folder41.add(guiControls, 'numConnectionsHighlight').listen().name("Show # Connections").onChange(updateNumConnectionHighlight);
+    folder41.add(guiControls, 'numConnectionsHighlight').listen().name("Show # Neighbours").onChange(updateNumConnectionHighlight);
     folder41.open();
 }
 
