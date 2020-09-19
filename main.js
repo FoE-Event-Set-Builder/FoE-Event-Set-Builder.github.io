@@ -1284,8 +1284,16 @@ function addGuiControls() {
         } else {
             var string = saveScene();
             this.saveString = string;
-            this.shareString = "https://foe-event-set-builder.github.io/?" + string;
-            ShortLinkBitly(this.shareString);
+            var sStr = "https://foe-event-set-builder.github.io/?" + string;
+            if(sStr.length > 2000){
+                this.shareString = "Link too long (use save string)"
+                this.bitlyString = "Link too long (use save string)"
+            }else{
+                this.shareString = sStr;
+                ShortLinkBitly(this.shareString);
+            }
+
+            
         }
     }
     this.saveString = "";
@@ -1362,7 +1370,7 @@ function ShortLinkBitly(url) {
         guiControls.bitlyString = "" + data.link;
 
     }).fail(function (data) {
-        guiControls.bitlyString = "error";
+        guiControls.bitlyString = "Link too long for bit.ly (use full link or save string)";
     });
 }
 
