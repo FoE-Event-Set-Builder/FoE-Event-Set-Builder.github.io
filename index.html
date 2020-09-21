@@ -45,23 +45,26 @@
 		.good {background-image: url('./assets/good3.png');}
 		.aa {background-image: url('./assets/aa3.png');}
 		.ad {background-image: url('./assets/ad.png');}
+		.blds {background-image: url('./assets/blds3.png');}
 	</style>
 
 	<div class="bar" style="position:fixed; height: 30px; bottom: 0px; left:0; width:100%;z-index:1">
-		<div class="pop" style="position:fixed; height: 23px; bottom: 3px; left:5px; width:97px;">
+		<div title="Buildings" class="blds" style="position:fixed; height: 23px; bottom: 3px; left:5px; width:97px;">
+			<label id="tblds" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
+		<div title="Population" class="pop" style="position:fixed; height: 23px; bottom: 3px; left:107px; width:97px;">
 			<label id="tpop" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div class="hap" style="position:fixed; height: 23px; bottom: 3px; left:107px; width:97px;">
+		<div title="Happiness" class="hap" style="position:fixed; height: 23px; bottom: 3px; left:209px; width:97px;">
 			<label id="thap" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div class="fp" style="position:fixed; height: 23px; bottom: 3px; left:209px; width:97px;">
+		<div title="Forge Points" class="fp" style="position:fixed; height: 23px; bottom: 3px; left:311px; width:97px;">
 			<label id="tfp" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div class="good" style="position:fixed; height: 23px; bottom: 3px; left:311px; width:97px;">
+		<div title="Goods" class="good" style="position:fixed; height: 23px; bottom: 3px; left:413px; width:97px;">
 			<label id="tgood" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div class="aa" style="position:fixed; height: 23px; bottom: 3px; left:413px; width:97px;">
+		<div title="Attack for attacking army" class="aa" style="position:fixed; height: 23px; bottom: 3px; left:515px; width:97px;">
 			<label id="taa" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div class="ad" style="position:fixed; height: 23px; bottom: 3px; left:515px; width:97px;">
+		<div title="Defence for attacking army" class="ad" style="position:fixed; height: 23px; bottom: 3px; left:617px; width:97px;">
 			<label id="tad" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div><input id="pertile" type="checkbox" style="position:fixed; height: 20px; bottom: 2px; left:617px;" onchange="updateConnections()">
-			<label style="position:fixed; height: 20px; bottom: 1px; left:640px; font-weight: bold; font-family: sans-serif; font-size:10px; color: #ddd;"> Show Per Tile</label><br></div>
+		<div><input id="pertile" type="checkbox" style="position:fixed; height: 20px; bottom: 2px; left:719px;" onchange="updateConnections()">
+			<label style="position:fixed; height: 20px; bottom: 1px; left:742px; font-weight: bold; font-family: sans-serif; font-size:10px; color: #ddd;"> Show Per Tile</label><br></div>
 	</div>
 
 	<div id="info" class="modal">
@@ -120,7 +123,8 @@
 				file (or similar), you can copy the share link and share that directly, or you can use the automatically generated bit-ly link. Alternatively, to make the
 				link easy to copy and share, shorten the full link using your favourite link shortening website. At this
 				stage online saving is not possible.</p>
-			<p>Due to URL length limits (how long of a link a browser can load), the direct link and bit.ly links will only work if you have less than 125-150 buildings. 
+			<p>Due to URL length limits (how long of a link a browser can load), the direct link and bit.ly links will only work if you have less than 300-350 buildings. 
+				For performance reasons I would advise against having that many buildings, though, and rather work on multiple tabs with smaller designs (<100 buildings). 
 				The save string should always work if the direct links are too long.</p>
 			<p>To load a build, either paste the save string under &quot;Load Build&quot; and press the &quot;Load
 				Build&quot; button, or simply open a share link.</p>
@@ -237,6 +241,7 @@
 	<script src="js/OrbitControls.js"></script>
 	<script src="js/DragControls.js"></script>
 	<script src="js/notify.js"></script>
+	<script src="js/lz-string.min.js"></script>
 
 	<script src="sets/cherry.js"></script>
 	<script src="sets/piazza.js"></script>
@@ -252,6 +257,12 @@
 	<script>
 		if (window.location.search) loadScene(decodeURIComponent(window.location.search));
 		else loadScene("");
+	</script>
+
+	<script type="text/javascript">
+		$(function(){
+			$(document).on('click','input[type=text]',function(){ this.select(); });
+		});
 	</script>
 </body>
 

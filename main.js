@@ -923,6 +923,8 @@ function dragEnd(event) {
 
 // Probably not the best name tbh, this calculates all the stats of the current setup
 function updateConnections() {
+    var numBuildings = 0;
+
     var population = 0;
     var happiness = 0;
     var fps = 0;
@@ -960,6 +962,7 @@ function updateConnections() {
 
     for (var i = 0; i < objects.length; i++) {
         if(buildingsSelected && !objects[i].selected){continue;}
+        numBuildings++;
         tiles += objects[i].geometry.parameters.width * objects[i].geometry.parameters.depth;
         var objSet = objects[i].set;
         if (set == objSet) {
@@ -1058,6 +1061,7 @@ function updateConnections() {
         guiControls.stsupplyBoost = (parseFloat(sstats[12]) / parseFloat(stiles)).toFixed(2);
     
         var perTile = document.getElementById("pertile").checked;
+        document.getElementById("tblds").innerHTML = numBuildings;
         document.getElementById("tpop").innerHTML = perTile ? guiControls.tpopulation : guiControls.population;
         document.getElementById("thap").innerHTML = perTile ? guiControls.thappiness : guiControls.happiness;
         document.getElementById("tfp").innerHTML = perTile ? guiControls.tfps : guiControls.fps;
@@ -1065,6 +1069,7 @@ function updateConnections() {
         document.getElementById("taa").innerHTML = perTile ? guiControls.tattackingAttack : guiControls.attackingAttack;
         document.getElementById("tad").innerHTML = perTile ? guiControls.tattackingDefense : guiControls.attackingDefense;
 
+        
     requestAnimationFrame(animate);
 }
 
@@ -1282,7 +1287,7 @@ function addGuiControls() {
             this.shareString = "No Buildings";
             this.bitlyString = "No Buildings";
         } else {
-            var string = saveScene();
+            var string = "64c" + LZString.compressToBase64(saveScene());
             this.saveString = string;
             var sStr = "https://foe-event-set-builder.github.io/?" + string;
             if(sStr.length > 2000){
@@ -1415,11 +1420,14 @@ function loadScene(string) {
         return;
     }
 
+    string = string.charAt(0) === "?" ? string.substring(1) : string;
+    string = string.substring(0,3) === "64c" ? LZString.decompressFromBase64(string.substring(3)) : string;
+
     var split = string.includes("ö") ? "ö" : "u"; // To make old saves work
     var strings = string.split("?");
     var bldIndex = 0;
 
-    if (strings.length == 3 || strings[0] === "") { bldIndex = 1 }
+    //if (strings.length == 3 || strings[0] === "") { bldIndex = 1 }
 
 
     var buildings = strings[bldIndex].split("z");
