@@ -1645,6 +1645,8 @@ function getImportSet(str){
         return 6;
     }else if(str.includes("WinterBonusSet17")){
         return 7;
+    }else if(str.includes("FallBonus20")){
+        return 8;
     }else{
         return -1;
     }
