@@ -465,7 +465,7 @@ function updateRewards(current, ob, level) {
     }
 
     if(!current){
-        console.log(sets[set][building].level.length);
+        //console.log(sets[set][building].level.length);
         var levels = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
         var setLevel = level ? guiControls.level :  levels[Object.keys(levels).length];
         gui.__folders[folder].add(guiControls, 'level', levels).name("Level").listen().setValue(setLevel).onChange(updateLevelStats);
@@ -543,7 +543,7 @@ function updateLineVisibilities() {
 
 
 function keyPressEvent(event) {
-    console.log("hey");
+    //console.log("hey");
     // Prevent backspace from going to previous page
     if (event.which === 8 && !$(event.target).is("input, textarea")) {
         event.preventDefault();
@@ -570,18 +570,18 @@ function keyPressEvent(event) {
         }
     }
     if (event.key == "c" && event.ctrlKey){ 
-        console.log("copy");
+        //console.log("copy");
         copyObjects = [];
         for(var i = 0; i<objects.length; i++){
             if(objects[i].selected){
                 copyObjects.push(objects[i]);
-                console.log(i);
+                //console.log(i);
             }
         }
     }
     if(event.key == "v" && event.ctrlKey){
         if(copyObjects.length == 0){return;}
-        console.log("paste");
+        //console.log("paste");
         resetSelectedStatus();
         var b = copyObjects[0];
         var x, z;
@@ -836,7 +836,7 @@ function setupDragMesh(selectedBuilding){
             mats.push(material);
             objects[i].visible = false;
             texts[i].visible = false;
-            console.log(i);
+            //console.log(i);
             //console.log("start: " + objects[i].uuid);
         }
     }
@@ -1494,7 +1494,7 @@ function toDec(numString, base) {
 // Add a new building!
 function addBuilding(set, building, level, age, connected, x, z) {
     // Add building
-    console.log(set);
+    //console.log(set);
     var newBuilding = sets[set][building];
     var n = newBuilding.size[0];
     var m = newBuilding.size[1];
