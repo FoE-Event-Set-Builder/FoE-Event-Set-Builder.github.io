@@ -1151,6 +1151,40 @@ function updateCurrentBuilding() {
     }
 }
 
+function getAddPosition(){
+    var newBuilding = sets[guiControls.set][guiControls.building];
+    var n = newBuilding.size[0];
+    var m = newBuilding.size[1];
+
+    var top_left = new THREE.Vector3().set(-1,1,-1).unproject(camera);
+    var top_right = new THREE.Vector3().set(1,1,-1).unproject(camera);
+    var bottom = new THREE.Vector3().set(-1,-1,-1).unproject(camera);
+
+    var width = top_right.x - top_left.x;
+    var height = bottom.z - top_left.z;
+
+    //console.log("W: " + width + " H: " + height)
+
+
+    var top = new THREE.Vector3();
+    top.set(1, 1, -1).unproject(camera);
+    //console.log(top)
+    top.x = top.x - n - 20;
+    top.z = top.z + m;
+
+    box = gui.domElement.getBoundingClientRect();
+
+    pos = new THREE.Vector3((box.x / window.innerWidth)*2-1, - (box.y / window.innerHeight)*2+1, -1).unproject(camera);
+    pos.x = Math.round(pos.x - n - 1);
+    pos.z = Math.round(pos.z + m + 1);
+    pos.x = n % 2 == 0 ? pos.x : pos.x+0.5;
+    pos.z = m % 2 == 0 ? pos.z : pos.z-0.5;
+    pos.x = n > 3 ? pos.x + 1 : pos.x;
+    pos.z = m > 3 ? pos.z - 1 : pos.z;
+    console.log(pos)
+    return pos;
+}
+
 // Everything to do with the controls
 function addGuiControls() {
 
@@ -1171,15 +1205,12 @@ function addGuiControls() {
     this.age = 17;
     this.addBuilding1 = function () {
         requestAnimationFrame(animate);
-        var newBuilding = sets[this.set][this.building];
-        var n = newBuilding.size[0];
-        var m = newBuilding.size[1];
+        
 
-        var top = new THREE.Vector3();
-        top.set(-1, 1, -1).unproject(camera);
-        var x = top.x + n;
-        var z = top.z + m;
-        addBuilding(this.set, this.building, this.level, this.age, true, x, z);
+        
+
+        var pos = getAddPosition();
+        addBuilding(this.set, this.building, this.level, this.age, true, pos.x, pos.z);
         requestAnimationFrame(animate);
     }
 
