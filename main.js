@@ -13,6 +13,7 @@ let buildingsPasted = false;
 let mousex, mousez;
 let dragControls;
 let preventDragging = false;
+let startDrag = true;
 
 let initDone = false;
 let doUpdateRewards = true;
@@ -93,6 +94,12 @@ closeMob.onclick = function () {
     mobDoc.style.display = "none";
 }
 
+document.querySelector("#canvas").addEventListener('mousedown', onDocumentClick, false);
+
+window.addEventListener('mousemove', onMouseMove, false);
+window.addEventListener('mouseup', onMouseUp, false);
+window.addEventListener('keydown', keyPressEvent, true);
+
 let mobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 if(mobile){mobDoc.style.display = "block"}
@@ -127,6 +134,8 @@ function onWindowResize() {
 $.notify("Tip: Right click and drag to select buildings of interest, only the \n selected buildings will be displayed in production overview! (x)",{position: "top left", gap: 50,  autoHideDelay:60000});
 
 function init() {
+
+
     // Basic threejs stuff
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xeeeeee);
@@ -209,11 +218,7 @@ function init() {
     selectionBox = new SelectionBox(camera, scene);
     selectionHelper = new SelectionHelper(selectionBox, renderer, 'selectBox');
 
-    document.querySelector("#canvas").addEventListener('mousedown', onDocumentClick, false);
-
-    window.addEventListener('mousemove', onMouseMove, false);
-    window.addEventListener('mouseup', onMouseUp, false);
-    window.addEventListener('keydown', keyPressEvent, true);
+    
 
     initDone = true; // Not really used, but why not leave it in??
 }
@@ -641,6 +646,51 @@ function onMouseMove(event) {
     selBox.visible = true;
     selBox.geometry = new THREE.BoxGeometry(n, 1, m);
     selBox.position.set(currentx - n / 2, 2, currentz - m / 2);
+
+
+    var allSelected = selectionBox.select();
+    //console.log(allSelected)
+    if(!buildingsSelected){
+        for(var i = 0; i < allSelected.length; i++){
+            if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line" && allSelected[i].uuid != selBox.uuid) {
+                buildingsSelected = true;
+            }
+        }
+    }else{
+        var selString = undefined;
+        for(var i = 0; i < allSelected.length; i++){
+            if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line" && allSelected[i].uuid != selBox.uuid) {
+               selString += "-" + allSelected[i].uuid;
+            }
+        }
+        if(typeof selString === "undefined"){
+            for(var i = 0; i < objects.length; i++){
+                objects[i].material.transparent = false;
+                objects[i].material.opacity = 1;
+                texts[i].material.transparent = false;
+                texts[i].material.opacity = 1;
+            }
+            buildingsSelected = false;
+            return;
+        }
+        for(var i = 0; i < objects.length; i++){
+            //if(!buildingsSelected){break;}
+            if(!selString.includes(objects[i].uuid)){
+                //objects[i].material.color.set(0x888888);
+                objects[i].material.transparent = true;
+                objects[i].material.opacity = 0.3;
+                texts[i].material.transparent = true;
+                texts[i].material.opacity = 0.3;
+            }else{
+                objects[i].material.transparent = false;
+                objects[i].material.opacity = 1;
+                texts[i].material.transparent = false;
+                texts[i].material.opacity = 1;
+            }
+        }
+    }
+
+
 }
 
 function onMouseUp(event) {
@@ -681,6 +731,7 @@ function onMouseUp(event) {
 
     isDown = false;
     select = false;
+    preventDragging = false;
 }
 
 // The almighty on click event! 
@@ -718,6 +769,7 @@ function onDocumentClick(event) {
             -(event.clientY / window.innerHeight) * 2 + 1,
             0.5);
         select = true;
+        preventDragging = true;
         return;
     } 
 
@@ -792,37 +844,10 @@ function resetSelectedStatus(){
 
 // Drag control start! Store starting position
 function dragStart(event) {
-
-    if(event.button === 2 || preventDragging){return;}
-
     requestAnimationFrame(animate);
-    dragging = true;
     startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
     groupStart = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
-
-    if (buildingsSelected) {
-        setupDragMesh(event.object);
-        /*var mergeGeometry = new THREE.Geometry();
-        var mats = [];
-
-        var material = new THREE.MeshPhongMaterial({ color: 0x666666, transparent: true, opacity: 0.5 });
-        for (var i = 0; i < objects.length; i++) {
-            if (objects[i].selected && objects[i].uuid != event.object.uuid) {
-                mergeGeometry.merge(objects[i].geometry, objects[i].matrix);
-                mats.push(material);
-                objects[i].visible = false;
-                texts[i].visible = false;
-                //console.log("start: " + objects[i].uuid);
-            }
-        }
-        while (mats.length < 3) {
-            mergeGeometry.merge(event.object.geometry, event.object.matrix);
-            mats.push(material);
-        }
-        dragMesh = new THREE.Mesh(mergeGeometry, mats)
-        scene.add(dragMesh);
-        dragMesh.visible = true;*/
-    }
+    return;
 }
 
 function setupDragMesh(selectedBuilding){
@@ -851,6 +876,23 @@ function setupDragMesh(selectedBuilding){
 
 // Function runs whenever a dragged building's position changes
 function drag(event) {
+    if(preventDragging){
+        event.object.position.x = startPosition.x;
+        event.object.position.z = startPosition.z;
+        dragControls.enabled = false;
+        return;
+    }
+    //console.log("drag");
+    if(startDrag){
+        startDrag = false;
+        dragging = true;
+        //startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
+        //groupStart = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
+        if (buildingsSelected) {
+            setupDragMesh(event.object);
+        }
+    }
+    //console.log("drag2")
     requestAnimationFrame(animate);
     //console.log(dragMesh);
     // Round the position of the object to always align with the grid
@@ -898,6 +940,13 @@ function drag(event) {
 
 // Recalculate production overview
 function dragEnd(event) {
+    startDrag = true;
+    if(preventDragging){
+        dragControls.enabled = true;
+        event.object.position.x = startPosition.x;
+        event.object.position.z = startPosition.z;
+        return;
+    }
     requestAnimationFrame(animate);
     draggin = false;
     if (buildingsSelected) {
@@ -1181,7 +1230,7 @@ function getAddPosition(){
     pos.z = m % 2 == 0 ? pos.z : pos.z-0.5;
     pos.x = n > 3 ? pos.x + 1 : pos.x;
     pos.z = m > 3 ? pos.z - 1 : pos.z;
-    console.log(pos)
+    //console.log(pos)
     return pos;
 }
 
@@ -1710,4 +1759,4 @@ init();
 // Easier testing
 //loadScene("00191uauy3wgz00191u7uy7wgz041h1u6wguybwgz01120ucwguy2z01120u7wgu3z021g1uewguy5z041h1udwgu4wgz021g0ucwgu3z041h1u6wguy3wgz011g1uewgu6z021g1u5wgu6z00171ufuy2wgz141h1uyiwguyswgz131e1uyguymwgz111e1uygwguypz121h1uy8wguykz101e1uyjuyowgz101e1uybuyowgz141h1uyawguykwgz131e1uy8uymwgz121h1uy8wguypz111e1uyawguymz141h1uy9wguynwgz141h1uyhwguynwgz141h1uyewguynwgz141h1uydwguynwgz141h1uycwguynwgz140h1uyhwguyswgz011e1uewguyaz021e1ucwguydz001e1ucuy4wgz041h1u9wgu1wgz021g1u5wguyaz011g1u5wguy5z001g1ucu5wgz041h1udwguybwgz001g1ufu3wgz001g1u8u5wgz001g1u5u3wgz001g1uau3wgz001g1ueu0wgz121g1uyiwguymz121g1uyiwguyrz201g1uy4uyowgz231h1uy6wguypwgz211g1uy5wguylwgz241g1uy6wguyoz221g1uy3uylwgz040h1u4wguy0wgz041h1udwguy3wgz001g1ucu0wgz041h1u6wgu4wgz040h1u5wguy8wgz001g1uauy0wgz001g1u8u0wgz001g1u6u0wgz001g1u5uy2wgz001g1u8uy4wgz001g1u5uycwgz001g1u8uyawgz041h1uawgu1wgz010g1u7wguydz020g0u7wguy2z040h1uawguy5wgz001h1uauyewgz001h1u4uy7wgz001h1uduy7wgz121h1uydwguypz121h1uydwguymz040h1uawguy9wgz001h1ucuyawgz001h1uauybwgz041h1ufwguy0wgz040h1u8wguyewgz040h1uewguy8wgz001h1ufuycwgz001h1uguy7wgz760h1uy2upwgz750h1u0upwgz750h1u0urwgz780h1uy2wguqwgz780h1u1wguqwgz760h1uy2urwgz760h1u0uqwgz760h1u2urwgz760h1u2upwgz770h1u2wguqwgz770h1uy1wguqwg?0x0y0x0");
 
-
+loadScene("850h1ö1ö2z850h1öy8ö3z850h1öybö4z850h1öy8ö5z850h1öybö6z850h1ö0ö7z820h1öyawgö2z820h1öy8wgö7z820h1öy1wgö3z820h1öy1wgö5z820h1ö2wgö4z820h1ö2wgö6z830h1öy9wgö4wgz840h1ö0wgö4wgz830h1ö0wgöy4wgz830h1ö2wgöy4wgz840h1ö1wgöy4wgz810h1ö1wgöy2z820h1ö1wgöy7z850h1ö3ödz850h1öy8öcz850h1öycödz850h1öy8öez850h1öycöfz850h1öy1öez820h1öyawgöbz820h1öy9wgögz820h1öy1wgöcz820h1ö0wgögz820h1ö1wgöbz820h1ö3wgöfz830h1öyawgödwgz840h1ö0wgödwgz830h1ö1wgödwgz840h1öy9wgödwgz830h1ö0wgöy9wgz830h1ö2wgöy9wgz840h1ö1wgöy9wgz810h1ö1wgöycz830h1öybwgöy4wgz830h1öy9wgöy4wgz840h1öyawgöy4wgz810h1öyawgöy2z820h1öyawgöy7z830h1öy6wgöy4wgz830h1öy4wgöy4wgz840h1öy5wgöy4wgz810h1öy5wgöy2z820h1öy3wgöy7z850h1öy6öy7z850h1öy3öy2z840h1öy3wgöy4wgz830h1öy2wgöy4wgz810h1öyawgöycz820h1öy7wgöyhz850h1öy7öycz840h1öybwgöyewgz830h1öy6wgöyewgz803h1öy9öyewgz860h1öyawgöyhz850h1öy4önanz850h1öygöbz850h1öyjöbz850h1öygöfz850h1öyjöfz820h1öyjwgödz820h1öyfwgödz830h1öyhwgöewgz840h1öyhwgöbwgz850h1öbödz850h1ö8ödz820h1ö7wgöbz820h1ö7wgöfz820h1öbwgöbz820h1öbwgöfz840h1ö9wgöbwgz830h1ö9wgöewgz850h1ö3ömz850h1ö0önz850h1ö3ösz850h1ö0örz820h1öy0wgöpz820h1ö3wgöoz830h1ö1wgöqwgz840h1ö1wgönwgz850h1öy8öoz850h1öyböpz820h1öybwgönz820h1öybwgörz820h1öy7wgömz820h1öy7wgösz840h1öy9wgönwgz830h1öy9wgöqwgz850h1öyaölz850h1öyaötz820h1ö0wgölz820h1ö0wgötz850h1öy8öqz820h1ö3wgöq?0x0y0x0");
