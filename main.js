@@ -1,40 +1,15 @@
 // As you can see this is just me fooling around testing a bunch of stuff, this is a hobby project, proper coding styles be damned :P
-let renderer, scene, camera, objects = [], copyObjects = [], texts = [], startPosition, groupStart, dragMesh, guiControls, grid, raycaster, gui, selectionBox, selectionHelper;
+let renderer, controls, scene, camera, frustumSize = 48, line, objects = [], copyObjects = [], texts = [], startPosition, groupStart, dragMesh, guiControls, grid, raycaster, gui, selectionBox, selectionHelper, buttonPressed = false;
 let texture = new THREE.TextureLoader().load(document.location.pathname + 'assets/texture.png');
-let topx = 0;
-let topz = 0;
-let currentx = 0;
-let currentz = 0;
-let controls;
-let select = false;
-let buildingsSelected = false;
-let keyPressed = false;
-let buildingsPasted = false;
-let mousex, mousez;
-let dragControls;
-let preventDragging = false;
-let startDrag = true;
 
-let initDone = false;
-let doUpdateRewards = true;
-let line;
-let frustumSize = 48;
-let dragging = false;
-let isDown = false;
-let moveCam = false;
+// Selection
+let selectMode = false, multipleBuildingsSelected = false, buildingsPasted = false, buildingSelected = false, selBox;
 
-let buildingSelected = false;
-let prevSet = 0;
+// Mouse position
+let mousex, mousez, currentx = 0, currentz = 0;;
 
-let testString = "test";
-
-let pset = 0;
-let pbuilding = 0;
-let plevel = 1;
-let page = 17;
-
-let folder2;
-
+// Dragging
+let dragControls, preventDragging = false, startDrag = true;
 
 // Get the information on all sets and their buildings.
 let cherry = getCherry();
@@ -61,9 +36,6 @@ let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, Nishikigoi
 { Toymaker: 0, MooseMeadow: 1, SugerBaker: 2, Smörgåsbord: 3, Candlemaker: 4, Tinkerer: 5, Halmbock: 6, StrawStar: 7, MadameFortuna: 8 },
 { Barn: 0, Sunflower: 1, Wheat: 2, Begonia: 3, Autumn: 4, Ochre: 5, Primrose: 6}];
 let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village", "Harvest Barn"];
-
-
-let selBox;
 
 let helpElement = document.getElementById("info");
 helpElement.style.display = "none";
@@ -114,6 +86,9 @@ window.onclick = function (event) {
     if(event.target == fallDoc){
         fallDoc.style.display = "none";
     }
+    if(event.target == mobDoc){
+        mobDoc.style.display = "none";
+    }
 }
 
 function onWindowResize() {
@@ -134,8 +109,6 @@ function onWindowResize() {
 $.notify("Tip: Right click and drag to select buildings of interest, only the \n selected buildings will be displayed in production overview! (x)",{position: "top left", gap: 50,  autoHideDelay:60000});
 
 function init() {
-
-
     // Basic threejs stuff
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xeeeeee);
@@ -147,10 +120,6 @@ function init() {
     scene.add(camera);
 
     window.addEventListener('resize', onWindowResize, false);
-
-    // On click for main canvas
-    
-
 
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
@@ -164,12 +133,6 @@ function init() {
     controls.enableRotate = false;
     controls.mouseButtons = { ORBIT: THREE.MOUSE.RIGHT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.LEFT };
     controls.update();
-
-    // Drag controls for moving the buildings
-    //dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
-    //dragControls.addEventListener('dragstart', dragStart);
-    //dragControls.addEventListener('dragend', dragEnd);
-    //dragControls.addEventListener('drag', drag);
 
     raycaster = new THREE.Raycaster();
 
@@ -205,6 +168,7 @@ function init() {
     line = new THREE.Line(lineGeo, lineMat);
     scene.add(line);
 
+    // Selection box
     var boxGeo = new THREE.BoxGeometry(1, 1, 1);
     var boxMat = new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
     selBox = new THREE.Mesh(boxGeo, boxMat);
@@ -212,19 +176,14 @@ function init() {
     selBox.visible = false;
     scene.add(selBox);
 
-
-    addControls();
-
     selectionBox = new SelectionBox(camera, scene);
     selectionHelper = new SelectionHelper(selectionBox, renderer, 'selectBox');
 
-    
-
-    initDone = true; // Not really used, but why not leave it in??
+    // GUI controls
+    addControls();
 }
 
 function addControls() {
-
     // Controls! What do you mean the naming scheme makes no sense? 
     guiControls = new addGuiControls();
     gui = new dat.GUI({ width: 300});
@@ -247,22 +206,15 @@ function addControls() {
     folder1.open();
 
     // Current Building
-    folder2 = gui.addFolder("Current Building");
+    var folder2 = gui.addFolder("Current Building");
     folder2.open();
-    /*
-    folder2.add(guiControls, 'removeBuilding').name("❌ Remove Building");
-    folder2.add(guiControls, 'curSet').listen().name("Set");
-    folder2.add(guiControls, 'cBuilding', "").listen().name("Building");
-    folder2.add(guiControls, 'cAge', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateCurrentBuilding);
-    folder2.add(guiControls, 'cLevel', { 1: 0, 2: 1 }).listen().name("Level").onChange(updateCurrentBuilding);
-    folder2.add(guiControls, 'cConnected').listen().name("Building Connected To Road: ").onChange(updateCurrentBuilding);
-    */
 
     // Production overview
     var folder21 = gui.addFolder("Full Production Overview");
 
     // Combined Production
     var folder22 = folder21.addFolder("All Sets");
+
     // Total
     var folder3 = folder22.addFolder("Total");
     var folder4 = folder3.addFolder("Stats");
@@ -284,10 +236,11 @@ function addControls() {
     folder6.add(guiControls, 'coinsBoost').listen().name("Coins %");
     folder6.add(guiControls, 'supplyBoost').listen().name("Supplies %");
     folder6.open();
+
     // Per Tile
     var folder8 = folder22.addFolder("Per Tile");
-    folder8.add(guiControls, 'tempty').name("Empty Tiles:").onChange(updateConnections);
-    folder8.add(guiControls, 'troads').name("Road Tiles:").onChange(updateConnections);
+    folder8.add(guiControls, 'tempty').name("Empty Tiles:").onChange(calculateStats);
+    folder8.add(guiControls, 'troads').name("Road Tiles:").onChange(calculateStats);
     var folder9 = folder8.addFolder("Stats");
     folder9.add(guiControls, 'tpopulation').listen().name("Population");
     folder9.add(guiControls, 'thappiness').listen().name("Happiness");
@@ -310,7 +263,8 @@ function addControls() {
 
     // Per Set Productions
     var folder322 = folder21.addFolder("Per Set");
-    folder322.add(guiControls, 'cset', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).listen().name("Set").onChange(updateConnections);
+    folder322.add(guiControls, 'cset', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).listen().name("Set").onChange(calculateStats);
+    
     // Total
     var folder33 = folder322.addFolder("Total");
     var folder34 = folder33.addFolder("Stats");
@@ -332,10 +286,11 @@ function addControls() {
     folder36.add(guiControls, 'scoinsBoost').listen().name("Coins %");
     folder36.add(guiControls, 'ssupplyBoost').listen().name("Supplies %");
     folder36.open();
+
     // Per Tile
     var folder38 = folder322.addFolder("Per Tile");
-    folder38.add(guiControls, 'stempty').name("Empty Tiles:").onChange(updateConnections);
-    folder38.add(guiControls, 'stroads').name("Road Tiles:").onChange(updateConnections);
+    folder38.add(guiControls, 'stempty').name("Empty Tiles:").onChange(calculateStats);
+    folder38.add(guiControls, 'stroads').name("Road Tiles:").onChange(calculateStats);
     var folder39 = folder38.addFolder("Stats");
     folder39.add(guiControls, 'stpopulation').listen().name("Population");
     folder39.add(guiControls, 'sthappiness').listen().name("Happiness");
@@ -365,7 +320,6 @@ function addControls() {
     var folder77 = gui.addFolder("Load / Import Build");
     folder77.add(guiControls, 'loadString').listen().name("String:");
     folder77.add(guiControls, 'load').name("Load Build");
-    //folder77.add(guiControls, 'import').name("Import Build")
     folder77.add(guiControls, 'importHelp').name("How To Import");
     folder7.open();
 
@@ -379,10 +333,7 @@ function addControls() {
 }
 
 function updateAddStats() {
-    //console.log("update");
-    
     updateRewards(false, null, false);
-     
 }
 
 function updateLevelStats(){
@@ -434,7 +385,6 @@ function updateNumConnectionHighlight() {
 
 // Update the "Add Building" controls based on which set is selected
 function updateSetBuildings() {
-
     while (gui.__folders["Add Building"].__controllers.length > 0) {
         gui.__folders["Add Building"].__controllers[gui.__folders["Add Building"].__controllers.length - 1].remove();
     }
@@ -446,13 +396,11 @@ function updateSetBuildings() {
     gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateLevelStats);
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
 
-    //if(fromRewards){break;}
     updateRewards(false, null, false);
 }
 
 // Update the gui display of building productions
 function updateRewards(current, ob, level) {
-    //if(!current){updateSetBuildings();}
     var folder = current ? "Current Building" : "Add Building";
     var len = gui.__folders[folder].__controllers.length;
 
@@ -470,23 +418,17 @@ function updateRewards(current, ob, level) {
     }
 
     if(!current){
-        //console.log(sets[set][building].level.length);
         var levels = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
         var setLevel = level ? guiControls.level :  levels[Object.keys(levels).length];
         gui.__folders[folder].add(guiControls, 'level', levels).name("Level").listen().setValue(setLevel).onChange(updateLevelStats);
         gui.__folders[folder].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
     }
 
-    
     var level = current ? ob.level : guiControls.level;
-    
-
     var rewardNum = sets[set][building].level[level].rewards.length;
     var bonusNum = sets[set][building].level[level].bonuses.length;
 
-
     if (current) {
-
         gui.__folders[folder].add(guiControls, 'removeBuilding').name("❌ Remove Building");
         gui.__folders[folder].add(guiControls, 'curSet').listen().name("Set");
         gui.__folders[folder].add(guiControls, 'cBuilding', "").listen().name("Building");
@@ -494,14 +436,11 @@ function updateRewards(current, ob, level) {
         var cLevel = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ? {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
         gui.__folders[folder].add(guiControls, 'cLevel', cLevel).listen().name("Level").onChange(updateCurrentBuilding);
         if (sets[set][building].road) {
-            //var curVal = ob.connected ? 1 : 0;
             var op = { Diconnected: false, Connected: true };
             gui.__folders[folder].add(guiControls, 'cConnected', op).listen().setValue(ob.connected).name("Road Connection").onChange(updateCurrentBuilding);
             gui.__folders[folder].__controllers[5].__li.className = "cr number";
         }
-
     } else {
-        
         var bsize = sets[set][building].size[0] + " x " + sets[set][building].size[1];
         gui.__folders[folder].add(guiControls, "bsize").setValue(bsize).name("Size")
         var road = sets[set][building].road ? "Required" : "Not Required";
@@ -520,17 +459,14 @@ function updateRewards(current, ob, level) {
         var displayBonus = sets[set][building].level[level].bonuses[j].values[age] + " " + displayNames[codes.indexOf(sets[set][building].level[level].bonuses[j].type)];
         gui.__folders[folder].add(guiControls, "bonus" + (j + 1)).setValue(displayBonus).name("Set Bonus " + (j + 1));
     }
-
     if (current) {
         var neighbours = getNeighbours(objects.indexOf(ob), ob.name);
         var unique = [...new Set(neighbours)];
         gui.__folders[folder].add(guiControls, "cNeighbours").setValue(Math.min(unique.length, sets[set][building].level[level].bonuses.length)).name("Current Bonuses");
     }
-
     for (var d = 0; d < gui.__folders[folder].__controllers.length; d++) {
         gui.__folders[folder].__controllers[d].updateDisplay();
     }
-
 }
 
 // Update the visibility of the texts ... duh
@@ -545,18 +481,15 @@ function updateLineVisibilities() {
     line.visible = guiControls.line;
 }
 
-
-
 function keyPressEvent(event) {
-    //console.log("hey");
     // Prevent backspace from going to previous page
     if (event.which === 8 && !$(event.target).is("input, textarea")) {
         event.preventDefault();
     }
 
+    // Delete selected building
     if ((event.key == "Backspace" || event.key == "Delete") && !$(event.target).is("input, textarea")) {
-
-        if (buildingsSelected) {
+        if (multipleBuildingsSelected) {
             var len = objects.length;
             var ids = [];
             for (var i = 0; i < len; i++) {
@@ -568,25 +501,26 @@ function keyPressEvent(event) {
                 guiControls.uuid = ids[j];
                 removeBuilding1();
             }
-            buildingsSelected = false;
+            multipleBuildingsSelected = false;
             resetSelectedStatus();
         } else {
             removeBuilding1();
         }
     }
+
+    // Copy
     if (event.key == "c" && event.ctrlKey){ 
-        //console.log("copy");
         copyObjects = [];
         for(var i = 0; i<objects.length; i++){
             if(objects[i].selected){
                 copyObjects.push(objects[i]);
-                //console.log(i);
             }
         }
     }
+
+    // Paste
     if(event.key == "v" && event.ctrlKey){
         if(copyObjects.length == 0){return;}
-        //console.log("paste");
         resetSelectedStatus();
         var b = copyObjects[0];
         var x, z;
@@ -615,8 +549,7 @@ function keyPressEvent(event) {
 }
 
 function onMouseMove(event) {
-
-    if (keyPressed) { requestAnimationFrame(animate); }
+    if (buttonPressed) { requestAnimationFrame(animate); }
 
     var mouse = new THREE.Vector2(0, 0);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -627,33 +560,28 @@ function onMouseMove(event) {
         mouse.y,
         0.5);
 
-
     raycaster.setFromCamera(mouse, camera);
 
-    // Get intersection with the helper grid
     var gridIntersect = raycaster.intersectObject(grid);
-    // Get the clicked position in the scene
 
     mousex = gridIntersect[0].point.x;
     mousez = gridIntersect[0].point.z;
 
-    if (!select) { return; }
+    if (!selectMode) { return; }
 
     var n = (currentx - (gridIntersect[0].point.x));
     var m = (currentz - (gridIntersect[0].point.z));
-
 
     selBox.visible = true;
     selBox.geometry = new THREE.BoxGeometry(n, 1, m);
     selBox.position.set(currentx - n / 2, 2, currentz - m / 2);
 
-
     var allSelected = selectionBox.select();
-    //console.log(buildingsSelected)
-    if(!buildingsSelected){
+
+    if(!multipleBuildingsSelected){
         for(var i = 0; i < allSelected.length; i++){
             if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line" && allSelected[i].uuid != selBox.uuid) {
-                buildingsSelected = true;
+                multipleBuildingsSelected = true;
             }
         }
     }else{
@@ -670,13 +598,11 @@ function onMouseMove(event) {
                 texts[i].material.transparent = false;
                 texts[i].material.opacity = 1;
             }
-            buildingsSelected = false;
+            multipleBuildingsSelected = false;
             return;
         }
         for(var i = 0; i < objects.length; i++){
-            //if(!buildingsSelected){break;}
             if(!selString.includes(objects[i].uuid)){
-                //objects[i].material.color.set(0x888888);
                 objects[i].material.transparent = true;
                 objects[i].material.opacity = 0.3;
                 texts[i].material.transparent = true;
@@ -689,15 +615,12 @@ function onMouseMove(event) {
             }
         }
     }
-
-
 }
 
 function onMouseUp(event) {
     requestAnimationFrame(animate);
-    keyPressed = false;
-    moveCam = false;
-    if (!select) { return }
+    buttonPressed = false;
+    if (!selectMode) { return }
     selectionBox.endPoint.set(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1,
@@ -708,28 +631,23 @@ function onMouseUp(event) {
     var allSelected = selectionBox.select();
     for (var i = 0; i < allSelected.length; i++) {
         if (allSelected[i].geometry.type != "TextGeometry" && allSelected[i].type != "LineSegments" && allSelected[i].type != "Line" && allSelected[i].uuid != selBox.uuid) {
-            //console.log(allSelected[i].uuid);
-            //allSelected[i].material.color.set(0xff33ff);
             allSelected[i].selected = true;
-            buildingsSelected = true;
-
+            multipleBuildingsSelected = true;
         }
     }
     for(var i = 0; i < objects.length; i++){
-        if(!buildingsSelected){break;}
+        if(!multipleBuildingsSelected){break;}
         if(!objects[i].selected){
-            //objects[i].material.color.set(0x888888);
             objects[i].material.transparent = true;
             objects[i].material.opacity = 0.3;
             texts[i].material.transparent = true;
             texts[i].material.opacity = 0.3;
         }
     }
-    if(buildingsSelected){updateConnections();}
+    if(multipleBuildingsSelected){calculateStats();}
     selBox.material.color.set(0x0000ff);
 
-    isDown = false;
-    select = false;
+    selectMode = false;
     preventDragging = false;
     dragControls.enabled = true;
 }
@@ -742,7 +660,8 @@ function onDocumentClick(event) {
         inputs[i].blur();
     }
 
-    keyPressed = true;
+    buttonPressed = true;
+
     // Get the intersection of the mouse and the scene
     var mouse = new THREE.Vector2(0, 0);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -755,10 +674,11 @@ function onDocumentClick(event) {
     currentx = (gridIntersect[0].point.x);
     currentz = (gridIntersect[0].point.z);
 
+    // Right-click
     if (event.button === 2) {
-        if (buildingsSelected) {
+        if (multipleBuildingsSelected) {
             resetSelectedStatus();
-            buildingsSelected = false;
+            multipleBuildingsSelected = false;
         }
         selectionBox.startPoint.set(
             (event.clientX / window.innerWidth) * 2 - 1,
@@ -768,7 +688,7 @@ function onDocumentClick(event) {
             (event.clientX / window.innerWidth) * 2 - 1,
             -(event.clientY / window.innerHeight) * 2 + 1,
             0.5);
-        select = true;
+        selectMode = true;
         preventDragging = true;
         return;
     } 
@@ -804,9 +724,9 @@ function onDocumentClick(event) {
         buildingSelected = true;
 
     } else {
-        if (buildingsSelected) {
+        if (multipleBuildingsSelected) {
             resetSelectedStatus();
-            buildingsSelected = false;
+            multipleBuildingsSelected = false;
         }
         if (guiControls.numConnectionsHighlight){
             updateNumConnectionHighlight();
@@ -828,12 +748,15 @@ function onDocumentClick(event) {
     }
 
     // Update the production overview
-    updateConnections();
+    calculateStats();
 }
 
 function resetSelectedStatus(){
     for (var i = 0; i < objects.length; i++) {
-        objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
+        var mode = guiControls.highlightRoads ? 2 : guiControls.numConnectionsHighlight ? 1 : 0;
+        if(mode == 0){
+            objects[i].material.color.set(sets[objects[i].set][objects[i].building].color);
+        }
         objects[i].selected = false;
         objects[i].material.transparent = false;
         objects[i].material.opacity = 1;
@@ -847,16 +770,10 @@ function dragStart(event) {
     requestAnimationFrame(animate);
     startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
     groupStart = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
-    currentDragBuilding = event.object.uuid;
-    //dragging = true;
-        //startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
-        //groupStart = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
-    //if (buildingsSelected) {
-        //setupDragMesh(event.object);
-    //}
     return;
 }
 
+// Sets up a mash of all dragged buildings, for performance reasons as moving many buildings is laggy
 function setupDragMesh(selectedBuilding){
     var mergeGeometry = new THREE.Geometry();
     var mats = [];
@@ -868,8 +785,6 @@ function setupDragMesh(selectedBuilding){
             mats.push(material);
             objects[i].visible = false;
             texts[i].visible = false;
-            //console.log(i);
-            //console.log("start: " + objects[i].uuid);
         }
     }
     while (mats.length < 3) {
@@ -881,34 +796,24 @@ function setupDragMesh(selectedBuilding){
     dragMesh.visible = true;
 }
 
-
-let currentDragBuilding;
 // Function runs whenever a dragged building's position changes
 function drag(event) {
     if(preventDragging){
         event.object.position.x = startPosition.x;
         event.object.position.z = startPosition.z;
-        //dragControls.enabled = false;
         return;
     }
-    //console.log("drag");
+    // dragStart would run before onDocumentClick, which would mess up selection logic, so this is a workaround for that
     if(startDrag){
         startDrag = false;
-        dragging = true;
-        //startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
-        //groupStart = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
-        if (buildingsSelected) {
+        if (multipleBuildingsSelected) {
             setupDragMesh(event.object);
         }
         return;
     }
-    if(event.object.uuid != currentDragBuilding){
-        //window.location.href = "http://" + window.location.host + window.location.pathname + "?" + saveScene();
-    }
-    //console.log("drag2")
+
     requestAnimationFrame(animate);
-    //console.log(dragMesh);
-    // Round the position of the object to always align with the grid
+
     if (event.object.geometry.parameters.depth % 2 == 1) {
         event.object.position.z = Math.round(event.object.position.z) - 0.5;
     } else {
@@ -931,38 +836,33 @@ function drag(event) {
         }
     }
 
-
-    if (buildingsSelected) {
+    // Move drag mesh if multiple buildings are selected
+    if (multipleBuildingsSelected) {
         var diffx = event.object.position.x - startPosition.x;
         var diffz = event.object.position.z - startPosition.z;
 
         dragMesh.position.set(dragMesh.position.x + diffx, dragMesh.position.y, dragMesh.position.z + diffz);
-        //requestAnimationFrame(animate);
-
     }
 
-
-    //console.log(event);
     // Move the text with the object, I feel like there should be a way to link it to the object, probably is, but this works fine :)
     texts[objects.indexOf(scene.getObjectByProperty('uuid', event.object.uuid))].position.set(event.object.position.x - event.object.textSize / 2, 2, event.object.position.z + event.object.textSize / 2);
 
     // Update start position
     startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
-
 }
 
 // Recalculate production overview
 function dragEnd(event) {
     startDrag = true;
     if(preventDragging){
-        //dragControls.enabled = true;
         event.object.position.x = startPosition.x;
         event.object.position.z = startPosition.z;
         return;
     }
+
     requestAnimationFrame(animate);
-    draggin = false;
-    if (buildingsSelected) {
+
+    if (multipleBuildingsSelected) {
         var diffx = event.object.position.x - groupStart.x;
         var diffz = event.object.position.z - groupStart.z;
 
@@ -979,64 +879,45 @@ function dragEnd(event) {
         dragMesh.visible = false;
         scene.remove(dragMesh);
     }
-    updateConnections();
+    calculateStats();
     if (guiControls.numConnectionsHighlight) { updateNumConnectionHighlight() }
 }
 
-// Probably not the best name tbh, this calculates all the stats of the current setup
-function updateConnections() {
+// Calculates all the stats of the current setup
+function calculateStats() {
     var numBuildings = 0;
-
-    var population = 0;
-    var happiness = 0;
-    var fps = 0;
-    var goods = 0;
-    var medals = 0;
-    var coins = 0;
-    var supplies = 0;
-    var attackingAttack = 0;
-    var attackingDefense = 0;
-    var defendingAttack = 0;
-    var defendingDefense = 0;
-    var coinsBoost = 0;
-    var supplyBoost = 0;
     var names = ["population", "happiness", "fps", "goods", "medals", "coins", "supplies", "attackingAttack", "attackingDefense", "defendingAttack", "defendingDefense", "coinsBoost", "supplyBoost"];
+    
+    // Total stats
+    var population = 0, happiness = 0, fps = 0, goods = 0, medals = 0, coins = 0, supplies = 0, attackingAttack = 0, attackingDefense = 0, defendingAttack = 0, defendingDefense = 0, coinsBoost = 0, supplyBoost = 0;
     var stats = [population, happiness, fps, goods, medals, coins, supplies, attackingAttack, attackingDefense, defendingAttack, defendingDefense, coinsBoost, supplyBoost];
     var tiles = guiControls.tempty + guiControls.troads;
 
-    var spopulation = 0;
-    var shappiness = 0;
-    var sfps = 0;
-    var sgoods = 0;
-    var smedals = 0;
-    var scoins = 0;
-    var ssupplies = 0;
-    var sattackingAttack = 0;
-    var sattackingDefense = 0;
-    var sdefendingAttack = 0;
-    var sdefendingDefense = 0;
-    var scoinsBoost = 0;
-    var ssupplyBoost = 0;
+    // Per set stats
+    var spopulation = 0, shappiness = 0, sfps = 0, sgoods = 0, smedals = 0, scoins = 0, ssupplies = 0, sattackingAttack = 0, sattackingDefense = 0, sdefendingAttack = 0, sdefendingDefense = 0, scoinsBoost = 0, ssupplyBoost = 0;
     var sstats = [spopulation, shappiness, sfps, sgoods, smedals, scoins, ssupplies, sattackingAttack, sattackingDefense, sdefendingAttack, sdefendingDefense, scoinsBoost, ssupplyBoost];
     var stiles = guiControls.stempty + guiControls.stroads;
-
     var set = guiControls.cset;
 
     for (var i = 0; i < objects.length; i++) {
-        if(buildingsSelected && !objects[i].selected){continue;}
+        // If buildings are selected, only count the selected buildings
+        if(multipleBuildingsSelected && !objects[i].selected){continue;}
+
         numBuildings++;
         tiles += objects[i].geometry.parameters.width * objects[i].geometry.parameters.depth;
+
         var objSet = objects[i].set;
         if (set == objSet) {
             stiles += objects[i].geometry.parameters.width * objects[i].geometry.parameters.depth;
         }
+
+        // Do not count disconnected buildings
         if (objects[i].connected == true || objects[i].road == false) {
             var neighbours = getNeighbours(i, objects[i].name);
             var unique = [...new Set(neighbours)];
-
-
-
             var rewardNum = sets[objSet][objects[i].building].level[objects[i].level].rewards.length;
+
+            // Base productions
             for (var r = 0; r < rewardNum; r++) {
                 for (var l = 0; l < stats.length; l++) {
                     if (sets[objSet][objects[i].building].level[objects[i].level].rewards[r].type == names[l]) {
@@ -1047,9 +928,9 @@ function updateConnections() {
                         break;
                     }
                 }
-
             }
 
+            // Bonus productions
             for (var j = 0; j < unique.length; j++) {
                 if (sets[objSet][objects[i].building].level[objects[i].level].bonuses.length <= j) {
                     break;
@@ -1066,72 +947,74 @@ function updateConnections() {
             }
         }
     }
-        guiControls.population = stats[0];
-        guiControls.happiness = stats[1];
-        guiControls.fps = stats[2];
-        guiControls.goods = stats[3];
-        guiControls.medals = stats[4];
-        guiControls.coins = stats[5];
-        guiControls.supplies = stats[6];
-        guiControls.attackingAttack = stats[7];
-        guiControls.attackingDefense = stats[8];
-        guiControls.defendingAttack = stats[9];
-        guiControls.defendingDefense = stats[10];
-        guiControls.coinsBoost = stats[11];
-        guiControls.supplyBoost = stats[12];
 
-        guiControls.tpopulation = (parseFloat(stats[0]) / parseFloat(tiles)).toFixed(2);
-        guiControls.thappiness = (parseFloat(stats[1]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tfps = (parseFloat(stats[2]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tgoods = (parseFloat(stats[3]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tmedals = (parseFloat(stats[4]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tcoins = (parseFloat(stats[5]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tsupplies = (parseFloat(stats[6]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tattackingAttack = (parseFloat(stats[7]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tattackingDefense = (parseFloat(stats[8]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tdefendingAttack = (parseFloat(stats[9]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tdefendingDefense = (parseFloat(stats[10]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tcoinsBoost = (parseFloat(stats[11]) / parseFloat(tiles)).toFixed(2);
-        guiControls.tsupplyBoost = (parseFloat(stats[12]) / parseFloat(tiles)).toFixed(2);
+    // Update GUI Controls
+    guiControls.population = stats[0];
+    guiControls.happiness = stats[1];
+    guiControls.fps = stats[2];
+    guiControls.goods = stats[3];
+    guiControls.medals = stats[4];
+    guiControls.coins = stats[5];
+    guiControls.supplies = stats[6];
+    guiControls.attackingAttack = stats[7];
+    guiControls.attackingDefense = stats[8];
+    guiControls.defendingAttack = stats[9];
+    guiControls.defendingDefense = stats[10];
+    guiControls.coinsBoost = stats[11];
+    guiControls.supplyBoost = stats[12];
 
-        guiControls.spopulation = sstats[0];
-        guiControls.shappiness = sstats[1];
-        guiControls.sfps = sstats[2];
-        guiControls.sgoods = sstats[3];
-        guiControls.smedals = sstats[4];
-        guiControls.scoins = sstats[5];
-        guiControls.ssupplies = sstats[6];
-        guiControls.sattackingAttack = sstats[7];
-        guiControls.sattackingDefense = sstats[8];
-        guiControls.sdefendingAttack = sstats[9];
-        guiControls.sdefendingDefense = sstats[10];
-        guiControls.scoinsBoost = sstats[11];
-        guiControls.ssupplyBoost = sstats[12];
+    guiControls.tpopulation = (parseFloat(stats[0]) / parseFloat(tiles)).toFixed(2);
+    guiControls.thappiness = (parseFloat(stats[1]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tfps = (parseFloat(stats[2]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tgoods = (parseFloat(stats[3]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tmedals = (parseFloat(stats[4]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tcoins = (parseFloat(stats[5]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tsupplies = (parseFloat(stats[6]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tattackingAttack = (parseFloat(stats[7]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tattackingDefense = (parseFloat(stats[8]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tdefendingAttack = (parseFloat(stats[9]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tdefendingDefense = (parseFloat(stats[10]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tcoinsBoost = (parseFloat(stats[11]) / parseFloat(tiles)).toFixed(2);
+    guiControls.tsupplyBoost = (parseFloat(stats[12]) / parseFloat(tiles)).toFixed(2);
 
-        guiControls.stpopulation = (parseFloat(sstats[0]) / parseFloat(stiles)).toFixed(2);
-        guiControls.sthappiness = (parseFloat(sstats[1]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stfps = (parseFloat(sstats[2]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stgoods = (parseFloat(sstats[3]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stmedals = (parseFloat(sstats[4]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stcoins = (parseFloat(sstats[5]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stsupplies = (parseFloat(sstats[6]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stattackingAttack = (parseFloat(sstats[7]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stattackingDefense = (parseFloat(sstats[8]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stdefendingAttack = (parseFloat(sstats[9]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stdefendingDefense = (parseFloat(sstats[10]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stcoinsBoost = (parseFloat(sstats[11]) / parseFloat(stiles)).toFixed(2);
-        guiControls.stsupplyBoost = (parseFloat(sstats[12]) / parseFloat(stiles)).toFixed(2);
-    
-        var perTile = document.getElementById("pertile").checked;
-        document.getElementById("tblds").innerHTML = numBuildings;
-        document.getElementById("tpop").innerHTML = perTile ? guiControls.tpopulation : guiControls.population;
-        document.getElementById("thap").innerHTML = perTile ? guiControls.thappiness : guiControls.happiness;
-        document.getElementById("tfp").innerHTML = perTile ? guiControls.tfps : guiControls.fps;
-        document.getElementById("tgood").innerHTML = perTile ? guiControls.tgoods : guiControls.goods;
-        document.getElementById("taa").innerHTML = perTile ? guiControls.tattackingAttack : guiControls.attackingAttack;
-        document.getElementById("tad").innerHTML = perTile ? guiControls.tattackingDefense : guiControls.attackingDefense;
+    guiControls.spopulation = sstats[0];
+    guiControls.shappiness = sstats[1];
+    guiControls.sfps = sstats[2];
+    guiControls.sgoods = sstats[3];
+    guiControls.smedals = sstats[4];
+    guiControls.scoins = sstats[5];
+    guiControls.ssupplies = sstats[6];
+    guiControls.sattackingAttack = sstats[7];
+    guiControls.sattackingDefense = sstats[8];
+    guiControls.sdefendingAttack = sstats[9];
+    guiControls.sdefendingDefense = sstats[10];
+    guiControls.scoinsBoost = sstats[11];
+    guiControls.ssupplyBoost = sstats[12];
 
-        
+    guiControls.stpopulation = (parseFloat(sstats[0]) / parseFloat(stiles)).toFixed(2);
+    guiControls.sthappiness = (parseFloat(sstats[1]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stfps = (parseFloat(sstats[2]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stgoods = (parseFloat(sstats[3]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stmedals = (parseFloat(sstats[4]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stcoins = (parseFloat(sstats[5]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stsupplies = (parseFloat(sstats[6]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stattackingAttack = (parseFloat(sstats[7]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stattackingDefense = (parseFloat(sstats[8]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stdefendingAttack = (parseFloat(sstats[9]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stdefendingDefense = (parseFloat(sstats[10]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stcoinsBoost = (parseFloat(sstats[11]) / parseFloat(stiles)).toFixed(2);
+    guiControls.stsupplyBoost = (parseFloat(sstats[12]) / parseFloat(stiles)).toFixed(2);
+
+    // Update quick stats bar
+    var perTile = document.getElementById("pertile").checked;
+    document.getElementById("tblds").innerHTML = numBuildings;
+    document.getElementById("tpop").innerHTML = perTile ? guiControls.tpopulation : guiControls.population;
+    document.getElementById("thap").innerHTML = perTile ? guiControls.thappiness : guiControls.happiness;
+    document.getElementById("tfp").innerHTML = perTile ? guiControls.tfps : guiControls.fps;
+    document.getElementById("tgood").innerHTML = perTile ? guiControls.tgoods : guiControls.goods;
+    document.getElementById("taa").innerHTML = perTile ? guiControls.tattackingAttack : guiControls.attackingAttack;
+    document.getElementById("tad").innerHTML = perTile ? guiControls.tattackingDefense : guiControls.attackingDefense;
+
     requestAnimationFrame(animate);
 }
 
@@ -1209,10 +1092,11 @@ function updateCurrentBuilding() {
         objects[id].age = guiControls.cAge;
         objects[id].connected = JSON.parse(guiControls.cConnected);
         updateRewards(true, objects[id], false);
-        updateConnections();
+        calculateStats();
     }
 }
 
+// Position where new building is added
 function getAddPosition(){
     var newBuilding = sets[guiControls.set][guiControls.building];
     var n = newBuilding.size[0];
@@ -1249,15 +1133,10 @@ function getAddPosition(){
 
 // Everything to do with the controls
 function addGuiControls() {
-
     this.showHelp = function () {
-        //console.log("help");
         helpElement.style.display = "block";
     }
-
     this.fallSet = function () {
-        //alert("Sharable link to Fall Event Designs: bit.ly/2020-Fall-Event-Sets")
-        //window.open("http://bit.ly/2020-Fall-Event","_blank")
         fallDoc.style.display = "block";
     }
 
@@ -1266,11 +1145,6 @@ function addGuiControls() {
     this.level = 1;
     this.age = 17;
     this.addBuilding1 = function () {
-        requestAnimationFrame(animate);
-        
-
-        
-
         var pos = getAddPosition();
         addBuilding(this.set, this.building, this.level, this.age, true, pos.x, pos.z);
         requestAnimationFrame(animate);
@@ -1288,7 +1162,6 @@ function addGuiControls() {
     this.bonus5 = "";
     this.bonus6 = "";
 
-
     this.curSet = "";
     this.cBuilding = "";
     this.cLevel = null;
@@ -1300,11 +1173,10 @@ function addGuiControls() {
     this.updateBuilding = function () {
         if (this.uuid != null) {
             var id = objects.indexOf(scene.getObjectByProperty('uuid', this.uuid));
-
             objects[id].level = this.cLevel;
             objects[id].age = this.cAge;
             objects[id].connected = this.cConnected;
-            updateConnections();
+            calculateStats();
         }
     }
 
@@ -1390,8 +1262,6 @@ function addGuiControls() {
                 this.shareString = sStr;
                 ShortLinkBitly(this.shareString);
             }
-
-            
         }
     }
     this.saveString = "";
@@ -1399,14 +1269,13 @@ function addGuiControls() {
     this.bitlyString = "";
     this.load = function () {
         loadScene(this.loadString);
-        updateConnections();
+        calculateStats();
     }
     this.loadString = "";
     this.import = function(){
         document.querySelector('#importDialog').showModal();
     }
     this.importHelp = function(){
-        
         importElement.style.display = "block";
     }
     this.importString = "";
@@ -1417,15 +1286,11 @@ function addGuiControls() {
     this.numConnectionsHighlight = false;
 }
 
-//dialogPolyfill.registerDialog(document.querySelector('#importDialog'));
-
 function removeBuilding1() {
-
     requestAnimationFrame(animate);
-    if (!buildingSelected && !buildingsSelected) {
+    if (!buildingSelected && !multipleBuildingsSelected) {
         return;
     }
-    //console.log("removing: " + guiControls.uuid);
     var ob = scene.getObjectByProperty('uuid', guiControls.uuid);
     var text = texts[objects.indexOf(ob)];
     scene.remove(text);
@@ -1437,7 +1302,7 @@ function removeBuilding1() {
     guiControls.cLevel = null;
     guiControls.cAge = null;
     guiControls.cConnected = null;
-    updateConnections();
+    calculateStats();
 
     while (gui.__folders["Current Building"].__controllers.length > 0) {
         gui.__folders["Current Building"].__controllers[gui.__folders["Current Building"].__controllers.length - 1].remove();
@@ -1447,7 +1312,6 @@ function removeBuilding1() {
 }
 
 function ShortLinkBitly(url) {
-
     var apiKey = 'aad38d22cab392ecf419e3ecfd811157a5b63a4a';
 
     var params = {
@@ -1497,7 +1361,7 @@ function loadScene(string) {
     clearScene();
     if(string.charAt(0) == "{" || string.charAt(0) == "["){
         importCity(string);
-        updateConnections();
+        calculateStats();
         dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
         dragControls.addEventListener('dragstart', dragStart);
         dragControls.addEventListener('dragend', dragEnd);
@@ -1505,7 +1369,7 @@ function loadScene(string) {
         return;
     }
     if (string.length < 5) {
-        updateConnections();
+        calculateStats();
         dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
         dragControls.addEventListener('dragstart', dragStart);
         dragControls.addEventListener('dragend', dragEnd);
@@ -1519,9 +1383,6 @@ function loadScene(string) {
     var split = string.includes("ö") ? "ö" : "u"; // To make old saves work
     var strings = string.split("?");
     var bldIndex = 0;
-
-    //if (strings.length == 3 || strings[0] === "") { bldIndex = 1 }
-
 
     var buildings = strings[bldIndex].split("z");
     for (var i = 0; i < buildings.length; i++) {
@@ -1555,10 +1416,7 @@ function loadScene(string) {
         guiControls.stroads = 0;
         gui.__folders["Full Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[0].setValue(guiControls.stempty);
         gui.__folders["Full Production Overview"].__folders["Per Set"].__folders["Per Tile"].__controllers[1].setValue(guiControls.stroads);
-
     }
-
-
 
     dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
     dragControls.addEventListener('dragstart', dragStart);
@@ -1566,7 +1424,6 @@ function loadScene(string) {
     dragControls.addEventListener('drag', drag);
 
     guiControls.population = "-";
-
 
     requestAnimationFrame(animate);
 }
@@ -1586,8 +1443,6 @@ function toDec(numString, base) {
 
 // Add a new building!
 function addBuilding(set, building, level, age, connected, x, z) {
-    // Add building
-    //console.log(set);
     var newBuilding = sets[set][building];
     var n = newBuilding.size[0];
     var m = newBuilding.size[1];
@@ -1608,7 +1463,6 @@ function addBuilding(set, building, level, age, connected, x, z) {
     bld.connected = connected;
     bld.road = newBuilding.road;
     bld.selected = false;
-
 
     // Add text
     var loader = new THREE.FontLoader();
@@ -1634,7 +1488,6 @@ function addBuilding(set, building, level, age, connected, x, z) {
         texts.push(mesh);
         scene.updateMatrixWorld();
         requestAnimationFrame(animate);
-
     });
 
     return bld.uuid;
@@ -1655,7 +1508,6 @@ function importCity(string) {
         if(setId == -1){
             continue;
         }
-        //console.log(setId);
 
         var set = sets[setId];
         var age = str.includes("AllAge") ? currentAge : cityBuildings[ids[i]].level-1;
@@ -1674,8 +1526,6 @@ function importCity(string) {
         var z = cityBuildings[ids[i]].x-36+sets[setId][bld].size[1]/2.0;
         addBuilding(setId, bld, lvl, age, con, x,z)
     }
-    
-
 }
 
 function getImportAge(th){
@@ -1761,7 +1611,7 @@ function clearScene() {
 // Let there be life!
 function animate() {
     if (guiControls.population == "-") {
-        updateConnections();
+        calculateStats();
     }
 
     renderer.render(scene, camera)
