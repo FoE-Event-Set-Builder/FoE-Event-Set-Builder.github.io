@@ -21,9 +21,10 @@ let classicalGarden = getClassicalGarden();
 let royalGarden = getRoyalGarden();
 let winterVillage = getWinterVillage();
 let harvestBarn = getHarvestBarn();
+let winterBakery = getBakery();
 
 // Array used for easy access of information, DO NOT change order, it'll break everything. Probs a better way to do this, but meh :)
-let sets = [cherry, piazza, celtic, indianPalace, indianFountain, classicalGarden, royalGarden, winterVillage, harvestBarn];
+let sets = [cherry, piazza, celtic, indianPalace, indianFountain, classicalGarden, royalGarden, winterVillage, harvestBarn, winterBakery];
 
 // Display information for the dat.gui controls. Again do not change order...
 let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, NishikigoiPond: 3, GongOfWisdom: 4 },
@@ -34,8 +35,9 @@ let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, Nishikigoi
 { GardenPool: 0, GardenPatio: 1, GardenStatues: 2 },
 { KingStatue: 0, QueenStatue: 1, GardenRuins: 2 },
 { Toymaker: 0, MooseMeadow: 1, SugerBaker: 2, Smörgåsbord: 3, Candlemaker: 4, Tinkerer: 5, Halmbock: 6, StrawStar: 7, MadameFortuna: 8 },
-{ Barn: 0, Sunflower: 1, Wheat: 2, Begonia: 3, Autumn: 4, Ochre: 5, Primrose: 6}];
-let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village", "Harvest Barn"];
+{ Barn: 0, Sunflower: 1, Wheat: 2, Begonia: 3, Autumn: 4, Ochre: 5, Primrose: 6},
+{ Gingerbread: 0, Marzipan: 1, Macaron: 2, Lussebullar: 3}];
+let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village", "Harvest Barn", "Winter Bakery"];
 
 let helpElement = document.getElementById("info");
 helpElement.style.display = "none";
@@ -193,7 +195,7 @@ function addControls() {
     gui.add(guiControls, 'fallSet').name("Fall Event Designs")
     var folder1 = gui.addFolder('Add Building');
     folder1.add(guiControls, 'addBuilding1').name("✔️ Add");;
-    folder1.add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
+    folder1.add(guiControls, 'set', { "Cherry Garden": 0, "Piazza": 1, "Celtic Forest": 2, "Indian Palace": 3, "Indian Fountain": 4, "Classical Garden": 5, "Royal Garden": 6, "Winter Village": 7, "Harvest Barn": 8, "Winter Bakery": 9}).name("Set").onChange(updateSetBuildings);
     folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen().onChange(updateAddStats);
     folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen().onChange(updateLevelStats);;
     folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
@@ -263,7 +265,7 @@ function addControls() {
 
     // Per Set Productions
     var folder322 = folder21.addFolder("Per Set");
-    folder322.add(guiControls, 'cset', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).listen().name("Set").onChange(calculateStats);
+    folder322.add(guiControls, 'cset', { "Cherry Garden": 0, "Piazza": 1, "Celtic Forest": 2, "Indian Palace": 3, "Indian Fountain": 4, "Classical Garden": 5, "Royal Garden": 6, "Winter Village": 7, "Harvest Barn": 8, "Winter Bakery": 9}).listen().name("Set").onChange(calculateStats);
     
     // Total
     var folder33 = folder322.addFolder("Total");
@@ -390,10 +392,12 @@ function updateSetBuildings() {
     }
 
     var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : sets[guiControls.set][0].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
+    var setLevel = levels[Object.keys(levels).length];
+    //if(guiControls.set == 9){console.log("hey"); levels = {6: 0}; setLevel = 0;}
     gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("✔️ Add");;
-    gui.__folders["Add Building"].add(guiControls, 'set', { CherryGarden: 0, Piazza: 1, CelticForest: 2, IndianPalace: 3, IndianFountain: 4, ClassicalGarden: 5, RoyalGarden: 6, WinterVillage: 7, HarvestBarn: 8}).name("Set").onChange(updateSetBuildings);
+    gui.__folders["Add Building"].add(guiControls, 'set', { "Cherry Garden": 0, "Piazza": 1, "Celtic Forest": 2, "Indian Palace": 3, "Indian Fountain": 4, "Classical Garden": 5, "Royal Garden": 6, "Winter Village": 7, "Harvest Barn": 8, "Winter Bakery": 9}).name("Set").onChange(updateSetBuildings);
     gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0).onChange(updateAddStats);
-    gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(levels[Object.keys(levels).length]).onChange(updateLevelStats);
+    gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(setLevel).onChange(updateLevelStats);
     gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
 
     updateRewards(false, null, false);
@@ -425,6 +429,7 @@ function updateRewards(current, ob, level) {
     }
 
     var level = current ? ob.level : guiControls.level;
+    console.log("lvl " + level);
     var rewardNum = sets[set][building].level[level].rewards.length;
     var bonusNum = sets[set][building].level[level].bonuses.length;
 
@@ -516,6 +521,9 @@ function keyPressEvent(event) {
                 copyObjects.push(objects[i]);
             }
         }
+        if(buildingSelected && !multipleBuildingsSelected){
+            copyObjects.push(scene.getObjectByProperty('uuid', guiControls.uuid));
+        }
     }
 
     // Paste
@@ -534,19 +542,40 @@ function keyPressEvent(event) {
         } else {
             x = Math.round(mousex) - 0.5;
         }
-        addBuilding(b.set, b.building, b.level, b.age, b.connected, x, z);
+
+        var currentIds = "";
+        for(var i = 0; i<scene.children.length; i++){
+            currentIds += "-" + scene.children[i].uuid;
+        }
+
+        //var num = 1;
+        addBuilding(b.set, b.building, b.level, b.age, b.connected, x, z,true);
         for(var i = 1; i<copyObjects.length; i++){
             var xdiff = copyObjects[0].position.x-copyObjects[i].position.x;
             var zdiff = copyObjects[0].position.z-copyObjects[i].position.z;
             b = copyObjects[i];
-            addBuilding(b.set, b.building, b.level, b.age, b.connected, x-xdiff, z-zdiff);
+            addBuilding(b.set, b.building, b.level, b.age, b.connected, x-xdiff, z-zdiff,true);
+            //num++;
         }
-        
-        //buildingsPasted = true;
-        //setupDragMesh(copyObjects[0]);
+
+        /*
+        //console.log(ids);
+        for(var i = 0; i<scene.children.length; i++){
+            continue;
+            if(!scene.children[i].pasted){continue;}
+            var ob = scene.children[i];
+            ob.visible = false; 
+            ob.selected = true;
+        }
+        //var ob1 = scene.getObjectByProperty('uuid', id);
+        buildingsPasted = true;
+        //setupDragMesh(scene.children[scene.children.length-1]);
+        */
     }
     
 }
+
+//let pasteMeshCreated = false;
 
 function onMouseMove(event) {
     if (buttonPressed) { requestAnimationFrame(animate); }
@@ -566,6 +595,26 @@ function onMouseMove(event) {
 
     mousex = gridIntersect[0].point.x;
     mousez = gridIntersect[0].point.z;
+
+    /*
+    if(buildingsPasted){
+        if(pasteMeshCreated){
+            dragMesh.position.x = mousex;
+            dragMesh.position.z = mousez;
+            requestAnimationFrame(animate);
+        }else{
+            console.log("setup");
+            var objs = [];
+            for(var i = 0; i<objects.length;i++){
+                if(objects[i].selected){
+                    objs.push(objects[i]);
+                }
+            }
+            setupDragMesh(objs[0]);
+            pasteMeshCreated = true;
+        }
+    }
+    */
 
     if (!selectMode) { return; }
 
@@ -658,6 +707,15 @@ function onDocumentClick(event) {
     var inputs = document.getElementsByTagName("INPUT");
     for (var i = 0; i < inputs.length; i++) {
         inputs[i].blur();
+    }
+
+    if(buildingsPasted){
+        for(var i = 0; i<objects.length; i++){
+            if(objects[i].selected){
+                objects.visible = true;
+
+            }
+        }
     }
 
     buttonPressed = true;
@@ -1146,7 +1204,7 @@ function addGuiControls() {
     this.age = 17;
     this.addBuilding1 = function () {
         var pos = getAddPosition();
-        addBuilding(this.set, this.building, this.level, this.age, true, pos.x, pos.z);
+        addBuilding(this.set, this.building, this.level, this.age, true, pos.x, pos.z,false);
         requestAnimationFrame(animate);
     }
 
@@ -1155,6 +1213,10 @@ function addGuiControls() {
     this.base1 = "6140 Happiness";
     this.base2 = "";
     this.base3 = "";
+    this.base4 = "";
+    this.base5 = "";
+    this.base6 = "";
+    this.base7 = "";
     this.bonus1 = "7370 Happiness";
     this.bonus2 = "4 Atk Atk (%)";
     this.bonus3 = "6 Atk Atk (%)";
@@ -1395,7 +1457,7 @@ function loadScene(string) {
         var connected = bld[0].substring(4, 5) == "1" ? true : false;
         var x = toDec(bld[1], base);
         var z = toDec(bld[2], base);
-        addBuilding(set, building, level, age, connected, x, z);
+        addBuilding(set, building, level, age, connected, x, z,false);
     }
     if (strings.length >= 2 && !(strings[0] === "" && strings.length == 2)) {
         var settings = strings[strings.length - 1].split("y");
@@ -1442,7 +1504,7 @@ function toDec(numString, base) {
 
 
 // Add a new building!
-function addBuilding(set, building, level, age, connected, x, z) {
+function addBuilding(set, building, level, age, connected, x, z,pasted) {
     var newBuilding = sets[set][building];
     var n = newBuilding.size[0];
     var m = newBuilding.size[1];
@@ -1462,7 +1524,7 @@ function addBuilding(set, building, level, age, connected, x, z) {
     bld.name = newBuilding.name;
     bld.connected = connected;
     bld.road = newBuilding.road;
-    bld.selected = false;
+    bld.selected = pasted ? true : false;
 
     // Add text
     var loader = new THREE.FontLoader();
@@ -1524,7 +1586,7 @@ function importCity(string) {
         }
         var x = -cityBuildings[ids[i]].y+32-sets[setId][bld].size[0]/2.0;
         var z = cityBuildings[ids[i]].x-36+sets[setId][bld].size[1]/2.0;
-        addBuilding(setId, bld, lvl, age, con, x,z)
+        addBuilding(setId, bld, lvl, age, con, x,z,false)
     }
 }
 
