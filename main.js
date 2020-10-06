@@ -1524,7 +1524,7 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     bld.name = newBuilding.name;
     bld.connected = connected;
     bld.road = newBuilding.road;
-    bld.selected = pasted ? true : false;
+    bld.selected = false;
 
     // Add text
     var loader = new THREE.FontLoader();
