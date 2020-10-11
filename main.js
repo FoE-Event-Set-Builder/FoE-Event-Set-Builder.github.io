@@ -231,12 +231,12 @@ function addControls() {
     folder5.add(guiControls, 'supplies').listen().name("Supplies");
     folder5.open();
     var folder6 = folder3.addFolder("Boosts");
-    folder6.add(guiControls, 'attackingAttack').listen().name("Atk Atk %");
-    folder6.add(guiControls, 'attackingDefense').listen().name("Atk Def %");
-    folder6.add(guiControls, 'defendingAttack').listen().name("Def Atk %");
-    folder6.add(guiControls, 'defendingDefense').listen().name("Def Def %");
-    folder6.add(guiControls, 'coinsBoost').listen().name("Coins %");
-    folder6.add(guiControls, 'supplyBoost').listen().name("Supplies %");
+    folder6.add(guiControls, 'attackingAttack').listen().name("Attacking Atk %");
+    folder6.add(guiControls, 'attackingDefense').listen().name("Attacking Def %");
+    folder6.add(guiControls, 'defendingAttack').listen().name("City Def Atk %");
+    folder6.add(guiControls, 'defendingDefense').listen().name("City Def Def %");
+    folder6.add(guiControls, 'coinsBoost').listen().name("Coins Boost %");
+    folder6.add(guiControls, 'supplyBoost').listen().name("Supply Boost %");
     folder6.open();
 
     // Per Tile
@@ -255,12 +255,12 @@ function addControls() {
     folder10.add(guiControls, 'tsupplies').listen().name("Supplies");
     folder10.open();
     var folder11 = folder8.addFolder("Boosts");
-    folder11.add(guiControls, 'tattackingAttack').listen().name("Atk Atk %");
-    folder11.add(guiControls, 'tattackingDefense').listen().name("Atk Def %");
-    folder11.add(guiControls, 'tdefendingAttack').listen().name("Def Atk %");
-    folder11.add(guiControls, 'tdefendingDefense').listen().name("Def Def %");
-    folder11.add(guiControls, 'tcoinsBoost').listen().name("Coins %");
-    folder11.add(guiControls, 'tsupplyBoost').listen().name("Supplies %");
+    folder11.add(guiControls, 'tattackingAttack').listen().name("Attacking Atk %");
+    folder11.add(guiControls, 'tattackingDefense').listen().name("Attacking Def %");
+    folder11.add(guiControls, 'tdefendingAttack').listen().name("City Def Atk %");
+    folder11.add(guiControls, 'tdefendingDefense').listen().name("City Def Def %");
+    folder11.add(guiControls, 'tcoinsBoost').listen().name("Coins Boost %");
+    folder11.add(guiControls, 'tsupplyBoost').listen().name("Supply Boost %");
     folder11.open();
 
     // Per Set Productions
@@ -281,12 +281,12 @@ function addControls() {
     folder35.add(guiControls, 'ssupplies').listen().name("Supplies");
     folder35.open();
     var folder36 = folder33.addFolder("Boosts");
-    folder36.add(guiControls, 'sattackingAttack').listen().name("Atk Atk %");
-    folder36.add(guiControls, 'sattackingDefense').listen().name("Atk Def %");
-    folder36.add(guiControls, 'sdefendingAttack').listen().name("Def Atk %");
-    folder36.add(guiControls, 'sdefendingDefense').listen().name("Def Def %");
-    folder36.add(guiControls, 'scoinsBoost').listen().name("Coins %");
-    folder36.add(guiControls, 'ssupplyBoost').listen().name("Supplies %");
+    folder36.add(guiControls, 'sattackingAttack').listen().name("Attacking Atk %");
+    folder36.add(guiControls, 'sattackingDefense').listen().name("Attacking Def %");
+    folder36.add(guiControls, 'sdefendingAttack').listen().name("City Def Atk %");
+    folder36.add(guiControls, 'sdefendingDefense').listen().name("City Def Def %");
+    folder36.add(guiControls, 'scoinsBoost').listen().name("Coins Boost %");
+    folder36.add(guiControls, 'ssupplyBoost').listen().name("Supply Boost %");
     folder36.open();
 
     // Per Tile
@@ -305,12 +305,12 @@ function addControls() {
     folder310.add(guiControls, 'stsupplies').listen().name("Supplies");
     folder310.open();
     var folder311 = folder38.addFolder("Boosts");
-    folder311.add(guiControls, 'stattackingAttack').listen().name("Atk Atk %");
-    folder311.add(guiControls, 'stattackingDefense').listen().name("Atk Def %");
-    folder311.add(guiControls, 'stdefendingAttack').listen().name("Def Atk %");
-    folder311.add(guiControls, 'stdefendingDefense').listen().name("Def Def %");
-    folder311.add(guiControls, 'stcoinsBoost').listen().name("Coins %");
-    folder311.add(guiControls, 'stsupplyBoost').listen().name("Supplies %");
+    folder311.add(guiControls, 'stattackingAttack').listen().name("Attacking Atk %");
+    folder311.add(guiControls, 'stattackingDefense').listen().name("Attacking Def %");
+    folder311.add(guiControls, 'stdefendingAttack').listen().name("City Def Atk %");
+    folder311.add(guiControls, 'stdefendingDefense').listen().name("City Def Def %");
+    folder311.add(guiControls, 'stcoinsBoost').listen().name("Coins Boost %");
+    folder311.add(guiControls, 'stsupplyBoost').listen().name("Supply Boost %");
     folder311.open();
 
     // Save / Load Build
@@ -453,7 +453,7 @@ function updateRewards(current, ob, level) {
     }
 
     var codes = ["population", "happiness", "fps", "goods", "medals", "coins", "supplies", "attackingAttack", "attackingDefense", "defendingAttack", "defendingDefense", "coinsBoost", "supplyBoost"];
-    var displayNames = ["Population", "Happiness", "FPs", "Goods", "Medals", "Coins", "Supplies", "Atk Atk (%)", "Atk Def (%)", "Def Atk (%)", "Def Def (%)", "Coin Boost (%)", "Supply Boost (%)"]
+    var displayNames = ["Population", "Happiness", "FPs", "Goods", "Medals", "Coins", "Supplies", "Attacking Atk (%)", "Attacking Def (%)", "City Def Atk (%)", "City Def Def (%)", "Coin Boost (%)", "Supply Boost (%)"]
     for (var i = 0; i < rewardNum; i++) {
         //var displayBase = displayNames[codes.indexOf(sets[set][building].level[level].rewards[i].type)] + ": " + sets[set][building].level[level].rewards[i].values[age];
         var displayBase = sets[set][building].level[level].rewards[i].values[age] + " " + displayNames[codes.indexOf(sets[set][building].level[level].rewards[i].type)];
@@ -1218,8 +1218,8 @@ function addGuiControls() {
     this.base6 = "";
     this.base7 = "";
     this.bonus1 = "7370 Happiness";
-    this.bonus2 = "4 Atk Atk (%)";
-    this.bonus3 = "6 Atk Atk (%)";
+    this.bonus2 = "4 Attacking Atk (%)";
+    this.bonus3 = "6 Attacking Atk (%)";
     this.bonus4 = "";
     this.bonus5 = "";
     this.bonus6 = "";
