@@ -416,6 +416,9 @@ function updateRewards(current, ob, level) {
     var building = current ? ob.building : guiControls.building;
     var age = current ? ob.age : guiControls.age;
 
+    age = parseInt(age)
+    console.log(age);
+
     for (var x = 0; x < len; x++) {
         if (gui.__folders[folder].__controllers.length <= stop) { break; }
         gui.__folders[folder].__controllers[gui.__folders[folder].__controllers.length - 1].remove();
@@ -1147,7 +1150,7 @@ function updateCurrentBuilding() {
     if (buildingSelected && guiControls.cLevel != null && guiControls.cAge != null && guiControls.cConnected != null) {
         var id = objects.indexOf(scene.getObjectByProperty('uuid', guiControls.uuid));
         objects[id].level = guiControls.cLevel;
-        objects[id].age = guiControls.cAge;
+        objects[id].age = parseInt(guiControls.cAge);
         objects[id].connected = JSON.parse(guiControls.cConnected);
         updateRewards(true, objects[id], false);
         calculateStats();
@@ -1236,7 +1239,7 @@ function addGuiControls() {
         if (this.uuid != null) {
             var id = objects.indexOf(scene.getObjectByProperty('uuid', this.uuid));
             objects[id].level = this.cLevel;
-            objects[id].age = this.cAge;
+            objects[id].age = parseInt(this.cAge);
             objects[id].connected = this.cConnected;
             calculateStats();
         }
