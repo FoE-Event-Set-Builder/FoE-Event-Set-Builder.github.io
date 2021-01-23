@@ -771,7 +771,7 @@ function onDocumentClick(event) {
         guiControls.curSet = setNames[intersects[0].object.set];
         guiControls.cBuilding = intersects[0].object.name;
         guiControls.cLevel = intersects[0].object.level;
-        guiControls.cAge = intersects[0].object.age;
+        guiControls.cAge = parseInt(intersects[0].object.age);
         guiControls.cConnected = intersects[0].object.connected;
         if (intersects[0].object.road) {
             gui.__folders["Current Building"].name = intersects[0].object.name + " - Road Required";
@@ -1457,6 +1457,7 @@ function loadScene(string) {
         var building = toDec(bld[0].substring(1, 2), base);
         var level = toDec(bld[0].substring(2, 3), base);
         var age = toDec(bld[0].substring(3, 4), base);
+        console.log(age);
         var connected = bld[0].substring(4, 5) == "1" ? true : false;
         var x = toDec(bld[1], base);
         var z = toDec(bld[2], base);
@@ -1523,7 +1524,7 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     bld.set = set;
     bld.building = building;
     bld.level = level;
-    bld.age = age;
+    bld.age = parseInt(age);
     bld.name = newBuilding.name;
     bld.connected = connected;
     bld.road = newBuilding.road;
@@ -1576,6 +1577,7 @@ function importCity(string) {
 
         var set = sets[setId];
         var age = str.includes("AllAge") ? currentAge : cityBuildings[ids[i]].level-1;
+        age = parseInt(age)
         var bld = 0; var lvl = 0; var con = 0;
         for(var b = 0; b<set.length; b++){
             for(var l = 0; l<set[b].level.length; l++){
@@ -1589,6 +1591,7 @@ function importCity(string) {
         }
         var x = -cityBuildings[ids[i]].y+32-sets[setId][bld].size[0]/2.0;
         var z = cityBuildings[ids[i]].x-36+sets[setId][bld].size[1]/2.0;
+        console.log(x,z);
         addBuilding(setId, bld, lvl, age, con, x,z,false)
     }
 }
