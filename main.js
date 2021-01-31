@@ -1506,6 +1506,19 @@ function toDec(numString, base) {
     return parseInt(parts[0], base);
 }
 
+// Round to nearest half value https://www.breakingpar.com/bkp/home.nsf/0/87256B280015193F87257124007E0011
+function roundToHalf(value) {
+    var converted = parseFloat(value); // Make sure we have a number
+    var decimal = (converted - parseInt(converted, 10));
+    decimal = Math.round(decimal * 10);
+    if (decimal == 5) { return (parseInt(converted, 10)+0.5); }
+    if ( (decimal < 3) || (decimal > 7) ) {
+       return Math.round(converted);
+    } else {
+       return (parseInt(converted, 10)+0.5);
+    }
+}
+
 
 // Add a new building!
 function addBuilding(set, building, level, age, connected, x, z,pasted) {
@@ -1520,6 +1533,10 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     material.emissive.setHex(0x111111);
     material.emissiveIntensity = 0;
     var bld = new THREE.Mesh(geometry, material);
+    console.log(x + " " + z)
+    x = Math.sign(x)*roundToHalf(Math.abs(x));
+    z = Math.sign(z)*roundToHalf(Math.abs(z));
+    console.log(x + " " + z)
     bld.position.set(x, 1, z);
     bld.set = set;
     bld.building = building;
