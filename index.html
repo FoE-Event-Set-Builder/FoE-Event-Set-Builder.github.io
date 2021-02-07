@@ -47,25 +47,28 @@
 		.aa {background-image: url('./assets/aa3.png');}
 		.ad {background-image: url('./assets/ad.png');}
 		.blds {background-image: url('./assets/blds3.png');}
+		.tile {background-image: url('./assets/exp3.png');}
 	</style>
 
 	<div class="bar" style="position:fixed; height: 30px; bottom: 0px; left:0; width:100%;z-index:1">
-		<div title="Buildings" class="blds" style="position:fixed; height: 23px; bottom: 3px; left:5px; width:97px;">
-			<label id="tblds" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div title="Population" class="pop" style="position:fixed; height: 23px; bottom: 3px; left:107px; width:97px;">
+		<div title="Buildings (Selection Kits)" class="blds" style="position:fixed; height: 23px; bottom: 3px; left:5px; width:97px;">
+			<label id="tblds" style="position:relative; left:27px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
+		<div title="Tiles" class="tile" style="position:fixed; height: 23px; bottom: 3px; left:107px; width:97px;">
+			<label id="ttile" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
+		<div title="Population" class="pop" style="position:fixed; height: 23px; bottom: 3px; left:209px; width:97px;">
 			<label id="tpop" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div title="Happiness" class="hap" style="position:fixed; height: 23px; bottom: 3px; left:209px; width:97px;">
+		<div title="Happiness" class="hap" style="position:fixed; height: 23px; bottom: 3px; left:311px; width:97px;">
 			<label id="thap" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div title="Forge Points" class="fp" style="position:fixed; height: 23px; bottom: 3px; left:311px; width:97px;">
+		<div title="Forge Points" class="fp" style="position:fixed; height: 23px; bottom: 3px; left:413px; width:97px;">
 			<label id="tfp" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div title="Goods" class="good" style="position:fixed; height: 23px; bottom: 3px; left:413px; width:97px;">
+		<div title="Goods" class="good" style="position:fixed; height: 23px; bottom: 3px; left:515px; width:97px;">
 			<label id="tgood" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div title="Attack for attacking army" class="aa" style="position:fixed; height: 23px; bottom: 3px; left:515px; width:97px;">
+		<div title="Attack for attacking army" class="aa" style="position:fixed; height: 23px; bottom: 3px; left:617px; width:97px;">
 			<label id="taa" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div title="Defence for attacking army" class="ad" style="position:fixed; height: 23px; bottom: 3px; left:617px; width:97px;">
+		<div title="Defence for attacking army" class="ad" style="position:fixed; height: 23px; bottom: 3px; left:719px; width:97px;">
 			<label id="tad" style="position:relative; left:40px; top:4px; color:#ddd; font-weight: bold; font-family: sans-serif"></label></div>
-		<div><input id="pertile" type="checkbox" style="position:fixed; height: 20px; bottom: 2px; left:719px;" onchange="calculateStats()">
-			<label style="position:fixed; height: 20px; bottom: 1px; left:742px; font-weight: bold; font-family: sans-serif; font-size:10px; color: #ddd;"> Show Per Tile</label><br></div>
+		<div><input id="pertile" type="checkbox" style="position:fixed; height: 20px; bottom: 2px; left:821px;" onchange="calculateStats()">
+			<label style="position:fixed; height: 20px; bottom: 1px; left:844px; font-weight: bold; font-family: sans-serif; font-size:10px; color: #ddd;"> Show Per Tile</label><br></div>
 	</div>
 
 	<div id="info" class="modal">
