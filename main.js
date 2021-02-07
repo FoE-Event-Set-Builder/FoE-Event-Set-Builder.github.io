@@ -417,7 +417,7 @@ function updateRewards(current, ob, level) {
     var age = current ? ob.age : guiControls.age;
 
     age = parseInt(age)
-    console.log(age);
+    //console.log(age);
 
     for (var x = 0; x < len; x++) {
         if (gui.__folders[folder].__controllers.length <= stop) { break; }
@@ -432,7 +432,7 @@ function updateRewards(current, ob, level) {
     }
 
     var level = current ? ob.level : guiControls.level;
-    console.log("lvl " + level);
+    //console.log("lvl " + level);
     var rewardNum = sets[set][building].level[level].rewards.length;
     var bonusNum = sets[set][building].level[level].bonuses.length;
 
@@ -947,6 +947,7 @@ function dragEnd(event) {
 // Calculates all the stats of the current setup
 function calculateStats() {
     var numBuildings = 0;
+    var numKits = 0;
     var names = ["population", "happiness", "fps", "goods", "medals", "coins", "supplies", "attackingAttack", "attackingDefense", "defendingAttack", "defendingDefense", "coinsBoost", "supplyBoost"];
     
     // Total stats
@@ -965,6 +966,7 @@ function calculateStats() {
         if(multipleBuildingsSelected && !objects[i].selected){continue;}
 
         numBuildings++;
+        numKits += parseInt(objects[i].level) + 1; // 0 - Indexed
         tiles += objects[i].geometry.parameters.width * objects[i].geometry.parameters.depth;
 
         var objSet = objects[i].set;
@@ -1068,7 +1070,9 @@ function calculateStats() {
 
     // Update quick stats bar
     var perTile = document.getElementById("pertile").checked;
-    document.getElementById("tblds").innerHTML = numBuildings;
+    console.log(numKits);
+    document.getElementById("tblds").innerHTML = numBuildings + " (" + numKits + ")";
+    document.getElementById("ttile").innerHTML = tiles;
     document.getElementById("tpop").innerHTML = perTile ? guiControls.tpopulation : guiControls.population;
     document.getElementById("thap").innerHTML = perTile ? guiControls.thappiness : guiControls.happiness;
     document.getElementById("tfp").innerHTML = perTile ? guiControls.tfps : guiControls.fps;
@@ -1457,7 +1461,7 @@ function loadScene(string) {
         var building = toDec(bld[0].substring(1, 2), base);
         var level = toDec(bld[0].substring(2, 3), base);
         var age = toDec(bld[0].substring(3, 4), base);
-        console.log(age);
+        //console.log(age);
         var connected = bld[0].substring(4, 5) == "1" ? true : false;
         var x = toDec(bld[1], base);
         var z = toDec(bld[2], base);
@@ -1533,10 +1537,10 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     material.emissive.setHex(0x111111);
     material.emissiveIntensity = 0;
     var bld = new THREE.Mesh(geometry, material);
-    console.log(x + " " + z)
+    //console.log(x + " " + z)
     x = Math.sign(x)*roundToHalf(Math.abs(x));
     z = Math.sign(z)*roundToHalf(Math.abs(z));
-    console.log(x + " " + z)
+    //console.log(x + " " + z)
     bld.position.set(x, 1, z);
     bld.set = set;
     bld.building = building;
@@ -1608,7 +1612,7 @@ function importCity(string) {
         }
         var x = -cityBuildings[ids[i]].y+32-sets[setId][bld].size[0]/2.0;
         var z = cityBuildings[ids[i]].x-36+sets[setId][bld].size[1]/2.0;
-        console.log(x,z);
+        //console.log(x,z);
         addBuilding(setId, bld, lvl, age, con, x,z,false)
     }
 }
