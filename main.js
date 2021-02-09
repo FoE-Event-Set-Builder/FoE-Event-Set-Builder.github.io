@@ -967,6 +967,7 @@ function calculateStats() {
 
         numBuildings++;
         numKits += parseInt(objects[i].level) + 1; // 0 - Indexed
+        if(objects[i].set == 9){numKits += 5}
         tiles += objects[i].geometry.parameters.width * objects[i].geometry.parameters.depth;
 
         var objSet = objects[i].set;
