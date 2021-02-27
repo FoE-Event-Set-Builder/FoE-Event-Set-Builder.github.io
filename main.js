@@ -1010,6 +1010,42 @@ function calculateStats() {
                 }
             }
         }
+
+        // Count boosts of disconnected buildings
+        if (objects[i].connected == false && objects[i].road == true) {
+            var neighbours = getNeighbours(i, objects[i].name);
+            var unique = [...new Set(neighbours)];
+            var rewardNum = sets[objSet][objects[i].building].level[objects[i].level].rewards.length;
+
+            // Base productions
+            for (var r = 0; r < rewardNum; r++) {
+                for (var l = 7; l < stats.length; l++) {
+                    if (sets[objSet][objects[i].building].level[objects[i].level].rewards[r].type == names[l]) {
+                        stats[l] += sets[objSet][objects[i].building].level[objects[i].level].rewards[r].values[objects[i].age];
+                        if (set == objSet) {
+                            sstats[l] += sets[objSet][objects[i].building].level[objects[i].level].rewards[r].values[objects[i].age];
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Bonus productions
+            for (var j = 0; j < unique.length; j++) {
+                if (sets[objSet][objects[i].building].level[objects[i].level].bonuses.length <= j) {
+                    break;
+                }
+                for (var l = 7; l < stats.length; l++) {
+                    if (sets[objSet][objects[i].building].level[objects[i].level].bonuses[j].type == names[l]) {
+                        stats[l] += sets[objSet][objects[i].building].level[objects[i].level].bonuses[j].values[objects[i].age];
+                        if (set == objSet) {
+                            sstats[l] += sets[objSet][objects[i].building].level[objects[i].level].bonuses[j].values[objects[i].age];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // Update GUI Controls
