@@ -195,6 +195,7 @@ function addControls() {
     // Add Building
     gui.add(guiControls, 'showHelp').name("How To Use")
     gui.add(guiControls, 'fallSet').name("Fall Event Designs")
+    gui.add(guiControls, 'supportMe').name("Support Me!")
     var folder1 = gui.addFolder('Add Building');
     folder1.add(guiControls, 'addBuilding1').name("✔️ Add");;
     folder1.add(guiControls, 'set', { "Cherry Garden": 0, "Piazza": 1, "Celtic Forest": 2, "Indian Palace": 3, "Indian Fountain": 4, "Classical Garden": 5, "Royal Garden": 6, "Winter Village": 7, "Harvest Barn": 8, "Winter Bakery": 9, "Horror Circus": 10}).name("Set").onChange(updateSetBuildings);
@@ -1242,6 +1243,9 @@ function addGuiControls() {
     }
     this.fallSet = function () {
         fallDoc.style.display = "block";
+    }
+    this.supportMe = function () {
+        window.open("https://bit.ly/MooingCat-Patreon")
     }
 
     this.set = 0;
