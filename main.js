@@ -40,7 +40,9 @@ let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, Nishikigoi
 { Gingerbread: 0, Marzipan: 1, Macaron: 2, Lussebullar: 3},
 { TerrorTeacups: 0, MysticalOrgan: 1, WheelOfDeath: 2, HelterSkelter: 3, ClownTown: 4}];
 let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village", "Harvest Barn", "Winter Bakery", "Horror Circus"];
-//teacups,organ,wheel,helter,clown
+
+document.getElementById("pertile").checked = true
+
 let helpElement = document.getElementById("info");
 helpElement.style.display = "none";
 let closeHelp = document.getElementsByClassName("close")[0];
@@ -1109,16 +1111,37 @@ function calculateStats() {
     guiControls.stsupplyBoost = (parseFloat(sstats[12]) / parseFloat(stiles)).toFixed(2);
 
     // Update quick stats bar
-    var perTile = document.getElementById("pertile").checked;
-    console.log(numKits);
-    document.getElementById("tblds").innerHTML = numBuildings + " (" + numKits + ")";
-    document.getElementById("ttile").innerHTML = tiles;
-    document.getElementById("tpop").innerHTML = perTile ? guiControls.tpopulation : guiControls.population;
-    document.getElementById("thap").innerHTML = perTile ? guiControls.thappiness : guiControls.happiness;
-    document.getElementById("tfp").innerHTML = perTile ? guiControls.tfps : guiControls.fps;
-    document.getElementById("tgood").innerHTML = perTile ? guiControls.tgoods : guiControls.goods;
-    document.getElementById("taa").innerHTML = perTile ? guiControls.tattackingAttack : guiControls.attackingAttack;
-    document.getElementById("tad").innerHTML = perTile ? guiControls.tattackingDefense : guiControls.attackingDefense;
+    
+    //var perTile = document.getElementById("pertile").checked;
+    //console.log(numKits);
+    //document.getElementById("tblds").innerHTML = numBuildings + " (" + numKits + ")";
+    //document.getElementById("ttile").innerHTML = tiles;
+    //document.getElementById("tpop").innerHTML = perTile ? guiControls.tpopulation : guiControls.population;
+    //document.getElementById("thap").innerHTML = perTile ? guiControls.thappiness : guiControls.happiness;
+    //document.getElementById("tfp").innerHTML = perTile ? guiControls.tfps : guiControls.fps;
+    //document.getElementById("tgood").innerHTML = perTile ? guiControls.tgoods : guiControls.goods;
+    //document.getElementById("taa").innerHTML = perTile ? guiControls.tattackingAttack : guiControls.attackingAttack;
+    //document.getElementById("tad").innerHTML = perTile ? guiControls.tattackingDefense : guiControls.attackingDefense
+
+
+    if(document.getElementById("pertile").checked){
+        document.getElementById("tblds").innerHTML = numBuildings + " (" + numKits + ")";
+        document.getElementById("ttile").innerHTML = tiles;
+        document.getElementById("tfp").innerHTML = isNaN(guiControls.tfps) ? guiControls.fps +  " (0.0)" : guiControls.fps +  " (" + guiControls.tfps + ")";
+        document.getElementById("tgood").innerHTML = isNaN(guiControls.tgoods) ? guiControls.goods +  " (0.0)" : guiControls.goods +  " (" + guiControls.tgoods + ")";
+        document.getElementById("taa").innerHTML = isNaN(guiControls.tattackingAttack) ? guiControls.attackingAttack +  " (0.0)" : guiControls.attackingAttack +  " (" + guiControls.tattackingAttack + ")";
+        document.getElementById("tad").innerHTML = isNaN(guiControls.tattackingDefense) ? guiControls.attackingDefense +  " (0.0)" : guiControls.attackingDefense +  " (" + guiControls.tattackingDefense + ")";
+        document.getElementById("tac").innerHTML = isNaN(parseFloat(guiControls.tattackingAttack)+parseFloat(guiControls.tattackingDefense)) ? (guiControls.attackingAttack+guiControls.attackingDefense) +  " (0.0)" : (guiControls.attackingAttack+guiControls.attackingDefense) +  " (" + Math.round((parseFloat(guiControls.tattackingAttack)+parseFloat(guiControls.tattackingDefense))*100)/100 + ")";
+    } else {
+        document.getElementById("tblds").innerHTML = numBuildings + " (" + numKits + ")";
+        document.getElementById("ttile").innerHTML = tiles
+        document.getElementById("tfp").innerHTML = guiControls.fps
+        document.getElementById("tgood").innerHTML = guiControls.goods
+        document.getElementById("taa").innerHTML = guiControls.attackingAttack
+        document.getElementById("tad").innerHTML = guiControls.attackingDefense
+        document.getElementById("tac").innerHTML = guiControls.attackingAttack + guiControls.attackingDefense
+        
+    }
 
     requestAnimationFrame(animate);
 }
