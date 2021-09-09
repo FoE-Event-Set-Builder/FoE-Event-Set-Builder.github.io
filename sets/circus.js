@@ -9,9 +9,9 @@ let teacups = {
             {type: "happiness", values: [170,260,310,360,420,490,550,610,650,730,850,1030,1320,1590,1950,2540,4060,4420,4770]}
         ],
         bonuses: [
-            {type: "defendingAttack", values: Array(18).fill(1)},
-            {type: "defendingDefense", values: Array(18).fill(4)},
-            {type: "defendingAttack", values: Array(18).fill(2)}
+            {type: "defendingAttack", values: Array(18).fill(4)},
+            {type: "defendingDefense", values: Array(18).fill(3)},
+            {type: "attackingDefense", values: Array(18).fill(3)}
             ]
     },
     {
@@ -20,9 +20,9 @@ let teacups = {
             {type: "happiness", values: [200,280,360,430,510,600,680,750,800,940,1090,1320,1760,2150,2720,3670,5870,6380,6890]}
         ],
         bonuses: [
-            {type: "defendingAttack", values: Array(18).fill(3)},
+            {type: "defendingAttack", values: Array(18).fill(8)},
             {type: "defendingDefense", values: Array(18).fill(7)},
-            {type: "defendingAttack", values: Array(18).fill(5)}
+            {type: "attackingDefense", values: Array(18).fill(6)}
             ]
     }
     ],
@@ -40,9 +40,9 @@ let organ = {
             {type: "happiness", values: [90,140,160,190,220,250,290,310,340,350,410,500,620,720,860,1020,1640,1780,1920]}
         ],
         bonuses: [
-            {type: "coinsBoost", values: Array(18).fill(1)},
             {type: "coinsBoost", values: Array(18).fill(4)},
-            {type: "attackingDefense", values: Array(18).fill(3)}
+            {type: "defendingAttack", values: Array(18).fill(1)},
+            {type: "attackingDefense", values: Array(18).fill(2)}
             ]
     },
     {
@@ -51,9 +51,9 @@ let organ = {
             {type: "happiness", values: [110,160,190,230,270,320,360,400,420,440,510,620,790,920,1120,1340,2150,2330,2520]}
         ],
         bonuses: [
-            {type: "coinsBoost", values: Array(18).fill(3)},
-            {type: "coinsBoost", values: Array(18).fill(7)},
-            {type: "attackingDefense", values: Array(18).fill(7)}
+            {type: "coinsBoost", values: Array(18).fill(8)},
+            {type: "defendingAttack", values: Array(18).fill(3)},
+            {type: "attackingDefense", values: Array(18).fill(5)}
             ]
     }
     ],
@@ -72,7 +72,7 @@ let wheel = {
         ],
         bonuses: [
             {type: "medals", values: Array(18).fill(1)},
-            {type: "fps", values: Array(18).fill(2)}
+            {type: "fps", values: Array(18).fill(1)}
             ]
 
     },
@@ -83,7 +83,7 @@ let wheel = {
         ],
         bonuses: [
             {type: "medals", values: Array(18).fill(1)},
-            {type: "fps", values: Array(18).fill(4)}
+            {type: "fps", values: Array(18).fill(3)}
             ]
     }
     ],
@@ -136,7 +136,7 @@ let clown = {
             {type: "coins", values: Array(18).fill(1)}
         ],
         bonuses: [
-            {type: "coins", values: Array(18).fill(1)},
+            {type: "fps", values: Array(18).fill(1)},
             {type: "goods", values: Array(18).fill(5)}
             ]
     },
@@ -146,7 +146,7 @@ let clown = {
             {type: "coins", values: Array(18).fill(1)}
         ],
         bonuses: [
-            {type: "coins", values: Array(18).fill(1)},
+            {type: "fps", values: Array(18).fill(2)},
             {type: "goods", values: Array(18).fill(15)}
             ]
     }
