@@ -3,7 +3,7 @@ let renderer, controls, scene, camera, frustumSize = 48, line, objects = [], cop
 let texture = new THREE.TextureLoader().load(document.location.pathname + 'assets/texture.png');
 
 // Selection
-let selectMode = false, multipleBuildingsSelected = false, buildingsPasted = false, buildingSelected = false, selBox;
+let selectMode = false, multipleBuildingsSelected = false, buildingsPasted = false, buildingSelected = false, selBox, iso = false;
 
 // Mouse position
 let mousex, mousez, currentx = 0, currentz = 0;;
@@ -112,6 +112,55 @@ function onWindowResize() {
     requestAnimationFrame(animate);
 }
 
+/*
+function updateCamera() {
+    if(document.getElementById("iso").checked){
+        //camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 100);
+        var aspect = window.innerWidth / window.innerHeight;
+        camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 100);
+        camera.position.set( -0.0000001, 20, 0 );
+        camera.lookAt(scene.position)
+        //camera.position.set( 0, 20, 0 );
+        //camera.rotation.order = 'YXZ';
+        //camera.rotation.y = - Math.PI / 4;
+        //controls.enableRotate = true;
+        //camera.position.set( 0, 20, 0 );
+        //camera.rotateY(90*THREE.Math.DEG2RAD)
+        //camera.lookAt(scene.position);
+        //camera.rotation.x = Math.atan( - 1 / Math.sqrt( 2 ) );
+        //controls = new THREE.OrbitControls(camera, document.querySelector("#canvas"));
+        //controls.enableRotate = false;
+        controls = new THREE.OrbitControls(camera, document.querySelector("#canvas"));
+        controls.enableRotate = false;
+        controls.mouseButtons = { ORBIT: THREE.MOUSE.RIGHT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.LEFT };
+        controls.update();
+        dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
+        dragControls.addEventListener('dragstart', dragStart);
+        dragControls.addEventListener('dragend', dragEnd);
+        dragControls.addEventListener('drag', drag);
+        animate();
+    } else {
+        //camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 100);
+        var aspect = window.innerWidth / window.innerHeight;
+        camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 100);
+        camera.position.set( 0, 20, 0 );
+        camera.lookAt(scene.position)
+        //camera.rotation.order = 'YXZ';
+        //camera.rotation.y = 0;
+        //camera.rotation.x = - Math.PI / 2;
+        controls = new THREE.OrbitControls(camera, document.querySelector("#canvas"));
+        controls.enableRotate = false;
+        controls.mouseButtons = { ORBIT: THREE.MOUSE.RIGHT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.LEFT };
+        controls.update();
+        dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
+        dragControls.addEventListener('dragstart', dragStart);
+        dragControls.addEventListener('dragend', dragEnd);
+        dragControls.addEventListener('drag', drag);
+        animate();
+    }
+}
+*/
+
 $.notify("Tip: Right click and drag to select buildings of interest, only the \n selected buildings will be displayed in production overview! (x)",{position: "top left", gap: 50,  autoHideDelay:60000});
 
 function init() {
@@ -122,7 +171,14 @@ function init() {
     var aspect = window.innerWidth / window.innerHeight;
     camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 100);
 
+
+
+    //camera.position.set( -20, 20, 20 );
+    //camera.rotation.order = 'YXZ';
+    //camera.rotation.x = Math.atan( - 1 / Math.sqrt( 2 ) );
+
     camera.position.set(0, 20, 0);
+    
     scene.add(camera);
 
     window.addEventListener('resize', onWindowResize, false);
@@ -880,16 +936,31 @@ function drag(event) {
 
     requestAnimationFrame(animate);
 
+    
+    //var dragmouse = new THREE.Vector2()
+
+    //raycaster.setFromCamera(dragmouse, camera);
+
+    var gridIntersect = raycaster.intersectObject(grid);
+
+    var mx = gridIntersect[0].point.x;
+    var mz = gridIntersect[0].point.z;
+
+
+    //var isofactor = document.getElementById("iso").checked ? -1 : 1;
     if (event.object.geometry.parameters.depth % 2 == 1) {
-        event.object.position.z = Math.round(event.object.position.z) - 0.5;
+        event.object.position.z = Math.round(mz) - 0.5;
     } else {
-        event.object.position.z = Math.round(event.object.position.z);
+        event.object.position.z = Math.round(mz);// - 0.5;
     }
     if (event.object.geometry.parameters.width % 2 == 0) {
-        event.object.position.x = Math.round(event.object.position.x);
+        event.object.position.x = Math.round(mx);// - 0.5;
     } else {
-        event.object.position.x = Math.round(event.object.position.x) - 0.5;
+        event.object.position.x = Math.round(mx) - 0.5;
     }
+
+    event.object.position.y = 0
+    //console.log(event.object.position.y)
 
     // If the new position overlaps with an existing building, reset it to the previous location
     for (var i = 0; i < objects.length; i++) {
@@ -911,7 +982,7 @@ function drag(event) {
     }
 
     // Move the text with the object, I feel like there should be a way to link it to the object, probably is, but this works fine :)
-    texts[objects.indexOf(scene.getObjectByProperty('uuid', event.object.uuid))].position.set(event.object.position.x - event.object.textSize / 2, 2, event.object.position.z + event.object.textSize / 2);
+    texts[objects.indexOf(scene.getObjectByProperty('uuid', event.object.uuid))].position.set(event.object.position.x - event.object.textSize / 2, 0, event.object.position.z + event.object.textSize / 2);
 
     // Update start position
     startPosition = new THREE.Vector3(event.object.position.x, event.object.position.y, event.object.position.z);
@@ -1138,8 +1209,8 @@ function calculateStats() {
         document.getElementById("tfp").innerHTML = guiControls.fps
         document.getElementById("tgood").innerHTML = guiControls.goods
         document.getElementById("taa").innerHTML = guiControls.attackingAttack
-        document.getElementById("tad").innerHTML = guiControls.attackingDefense
-        document.getElementById("tac").innerHTML = guiControls.attackingAttack + guiControls.attackingDefense
+        document.getElementById("tad").innerHTML = "+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + guiControls.attackingDefense
+        document.getElementById("tac").innerHTML = "=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + (guiControls.attackingAttack + guiControls.attackingDefense)
         
     }
 
@@ -1595,11 +1666,11 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     var newBuilding = sets[set][building];
     var n = newBuilding.size[0];
     var m = newBuilding.size[1];
-    var geometry = new THREE.BoxGeometry(n, 1, m);
-    var img = document.location.pathname + "assets/" + n + "x" + m + ".png";
-    var tx = new THREE.TextureLoader().load(img);
-    tx.minFilter = THREE.LinearFilter;
-    var material = new THREE.MeshPhongMaterial({ color: newBuilding.color, map: tx });
+    var geometry = new THREE.BoxGeometry(n, 0.1, m);
+    //var img = document.location.pathname + "assets/1.png";// + n + "x" + m + ".png";
+    //var tx = new THREE.TextureLoader().load(img);
+    //tx.minFilter = THREE.LinearFilter;
+    var material = new THREE.MeshPhongMaterial({ color: newBuilding.color, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 });
     material.emissive.setHex(0x111111);
     material.emissiveIntensity = 0;
     var bld = new THREE.Mesh(geometry, material);
@@ -1607,7 +1678,7 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     x = Math.sign(x)*roundToHalf(Math.abs(x));
     z = Math.sign(z)*roundToHalf(Math.abs(z));
     //console.log(x + " " + z)
-    bld.position.set(x, 1, z);
+    bld.position.set(x, 0, z);
     bld.set = set;
     bld.building = building;
     bld.level = level;
@@ -1617,13 +1688,19 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     bld.road = newBuilding.road;
     bld.selected = false;
 
+    var geo = new THREE.EdgesGeometry(bld.geometry);
+    var mat = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 50});
+    //mat.side = THREE.DoubleSide;
+    var wire = new THREE.LineSegments(geo,mat)
+    bld.add(wire)
+
     // Add text
     var loader = new THREE.FontLoader();
     loader.load(document.location.pathname + 'assets/Arial_Regular.json', function (font) {
         var offset = 0.5;
         var size = n > m ? m - m * offset : n - n * offset;
         var textGeometry = new THREE.TextGeometry(newBuilding.text, {
-            font: font, size: size, height: 5, curveSegments: 12, bevelThickness: 1, bevelSize: 1, bevelEnabled: false
+            font: font, size: size, height: 0.1, curveSegments: 12, bevelThickness: 1, bevelSize: 1, bevelEnabled: false
         });
 
         var textMaterial = new THREE.MeshPhongMaterial(
@@ -1632,7 +1709,7 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
 
         textGeometry.rotateX(-1.57);
         var mesh = new THREE.Mesh(textGeometry, textMaterial);
-        mesh.position.set(x - size / 2, 2, z + size / 2);
+        mesh.position.set(x-size/2, 0, z+size/2);
         mesh.visible = guiControls.texts;
         bld.textSize = size;
         scene.add(bld);
