@@ -1125,13 +1125,13 @@ function calculateStats() {
 
 
     if(document.getElementById("pertile").checked){
-        document.getElementById("tblds").innerHTML = numBuildings + " (" + numKits + ")";
+        document.getElementById("tblds").innerHTML = numBuildings + "&nbsp;(" + numKits + ")";
         document.getElementById("ttile").innerHTML = tiles;
-        document.getElementById("tfp").innerHTML = isNaN(guiControls.tfps) ? guiControls.fps +  " (0.0)" : guiControls.fps +  " (" + guiControls.tfps + ")";
-        document.getElementById("tgood").innerHTML = isNaN(guiControls.tgoods) ? guiControls.goods +  " (0.0)" : guiControls.goods +  " (" + guiControls.tgoods + ")";
-        document.getElementById("taa").innerHTML = isNaN(guiControls.tattackingAttack) ? guiControls.attackingAttack +  " (0.0)" : guiControls.attackingAttack +  " (" + guiControls.tattackingAttack + ")";
-        document.getElementById("tad").innerHTML = isNaN(guiControls.tattackingDefense) ? guiControls.attackingDefense +  " (0.0)" : guiControls.attackingDefense +  " (" + guiControls.tattackingDefense + ")";
-        document.getElementById("tac").innerHTML = isNaN(parseFloat(guiControls.tattackingAttack)+parseFloat(guiControls.tattackingDefense)) ? (guiControls.attackingAttack+guiControls.attackingDefense) +  " (0.0)" : (guiControls.attackingAttack+guiControls.attackingDefense) +  " (" + Math.round((parseFloat(guiControls.tattackingAttack)+parseFloat(guiControls.tattackingDefense))*100)/100 + ")";
+        document.getElementById("tfp").innerHTML = isNaN(guiControls.tfps) ? guiControls.fps +  "&nbsp;(0.0)" : guiControls.fps +  "&nbsp;(" + guiControls.tfps + ")";
+        document.getElementById("tgood").innerHTML = isNaN(guiControls.tgoods) ? guiControls.goods +  "&nbsp;(0.0)" : guiControls.goods +  "&nbsp;(" + guiControls.tgoods + ")";
+        document.getElementById("taa").innerHTML = isNaN(guiControls.tattackingAttack) ? guiControls.attackingAttack +  "&nbsp;(0.0)" : guiControls.attackingAttack +  "&nbsp;(" + guiControls.tattackingAttack + ")";
+        document.getElementById("tad").innerHTML = isNaN(guiControls.tattackingDefense) ? "+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + guiControls.attackingDefense +  "&nbsp;(0.0)" : "+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + guiControls.attackingDefense +  "&nbsp;(" + guiControls.tattackingDefense + ")";
+        document.getElementById("tac").innerHTML = isNaN(parseFloat(guiControls.tattackingAttack)+parseFloat(guiControls.tattackingDefense)) ? "=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + (guiControls.attackingAttack+guiControls.attackingDefense) +  "&nbsp;(0.0)" : "=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + (guiControls.attackingAttack+guiControls.attackingDefense) +  "&nbsp;(" + Math.round((parseFloat(guiControls.tattackingAttack)+parseFloat(guiControls.tattackingDefense))*100)/100 + ")";
     } else {
         document.getElementById("tblds").innerHTML = numBuildings + " (" + numKits + ")";
         document.getElementById("ttile").innerHTML = tiles
