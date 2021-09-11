@@ -196,7 +196,7 @@ function addControls() {
     gui.domElement.id = "gui";
     // Add Building
     gui.add(guiControls, 'showHelp').name("How To Use")
-    gui.add(guiControls, 'fallSet').name("Fall Event Designs")
+    gui.add(guiControls, 'fallSet').name("Fall Set Designs!")
     gui.add(guiControls, 'supportMe').name("Support The Builder!")
     var folder1 = gui.addFolder('Add Building');
     folder1.add(guiControls, 'addBuilding1').name("✔️ Add");;
