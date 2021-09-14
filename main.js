@@ -112,14 +112,16 @@ function onWindowResize() {
     requestAnimationFrame(animate);
 }
 
-/*
+
 function updateCamera() {
     if(document.getElementById("iso").checked){
         //camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 100);
         var aspect = window.innerWidth / window.innerHeight;
         camera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 0.1, 100);
-        camera.position.set( -0.0000001, 20, 0 );
+        //camera.position.set( -0.0000001, 20, 0 );
+        camera.position.set( -20, 20, 20 );
         camera.lookAt(scene.position)
+        //grid.visible = false
         //camera.position.set( 0, 20, 0 );
         //camera.rotation.order = 'YXZ';
         //camera.rotation.y = - Math.PI / 4;
@@ -159,7 +161,7 @@ function updateCamera() {
         animate();
     }
 }
-*/
+
 
 $.notify("Tip: Right click and drag to select buildings of interest, only the \n selected buildings will be displayed in production overview! (x)",{position: "top left", gap: 50,  autoHideDelay:60000});
 
@@ -990,6 +992,18 @@ function drag(event) {
 
 // Recalculate production overview
 function dragEnd(event) {
+    if (event.object.geometry.parameters.depth % 2 == 1) {
+        event.object.position.z = Math.round(event.object.position.z) - 0.5;
+    } else {
+        event.object.position.z = Math.round(event.object.position.z)
+    }
+    if (event.object.geometry.parameters.width % 2 == 0) {
+        event.object.position.x = Math.round(event.object.position.x)
+    } else {
+        event.object.position.x = Math.round(event.object.position.x) - 0.5;
+    }
+    event.object.position.y = Math.round(event.object.position.y)
+
     startDrag = true;
     if(preventDragging){
         event.object.position.x = startPosition.x;
@@ -1022,6 +1036,7 @@ function dragEnd(event) {
 
 // Calculates all the stats of the current setup
 function calculateStats() {
+    
     var numBuildings = 0;
     var numKits = 0;
     var names = ["population", "happiness", "fps", "goods", "medals", "coins", "supplies", "attackingAttack", "attackingDefense", "defendingAttack", "defendingDefense", "coinsBoost", "supplyBoost"];
@@ -1689,7 +1704,7 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     bld.selected = false;
 
     var geo = new THREE.EdgesGeometry(bld.geometry);
-    var mat = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 50});
+    var mat = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 2});
     //mat.side = THREE.DoubleSide;
     var wire = new THREE.LineSegments(geo,mat)
     bld.add(wire)

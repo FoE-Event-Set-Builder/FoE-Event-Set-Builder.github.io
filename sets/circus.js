@@ -21,7 +21,7 @@ let teacups = {
         ],
         bonuses: [
             {type: "defendingAttack", values: Array(18).fill(8)},
-            {type: "defendingDefense", values: Array(18).fill(7)},
+            {type: "defendingDefense", values: Array(18).fill(6)},
             {type: "attackingDefense", values: Array(18).fill(6)}
             ]
     }
@@ -52,7 +52,7 @@ let organ = {
         ],
         bonuses: [
             {type: "coinsBoost", values: Array(18).fill(8)},
-            {type: "defendingAttack", values: Array(18).fill(3)},
+            {type: "defendingAttack", values: Array(18).fill(4)},
             {type: "attackingDefense", values: Array(18).fill(5)}
             ]
     }
