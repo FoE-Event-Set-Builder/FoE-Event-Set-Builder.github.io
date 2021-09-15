@@ -9,8 +9,8 @@ let teacups = {
             {type: "happiness", values: [170,260,310,360,420,490,550,610,650,730,850,1030,1320,1590,1950,2540,4060,4420,4770]}
         ],
         bonuses: [
-            {type: "defendingAttack", values: Array(18).fill(4)},
-            {type: "defendingDefense", values: Array(18).fill(3)},
+            {type: "defendingDefense", values: Array(18).fill(4)},
+            {type: "defendingAttack", values: Array(18).fill(3)},
             {type: "attackingDefense", values: Array(18).fill(3)}
             ]
     },
@@ -20,8 +20,8 @@ let teacups = {
             {type: "happiness", values: [200,280,360,430,510,600,680,750,800,940,1090,1320,1760,2150,2720,3670,5870,6380,6890]}
         ],
         bonuses: [
-            {type: "defendingAttack", values: Array(18).fill(8)},
-            {type: "defendingDefense", values: Array(18).fill(6)},
+            {type: "defendingDefense", values: Array(18).fill(8)},
+            {type: "defendingAttack", values: Array(18).fill(6)},
             {type: "attackingDefense", values: Array(18).fill(6)}
             ]
     }
