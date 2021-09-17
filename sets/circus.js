@@ -11,7 +11,7 @@ let teacups = {
         bonuses: [
             {type: "defendingDefense", values: Array(18).fill(4)},
             {type: "defendingAttack", values: Array(18).fill(3)},
-            {type: "attackingDefense", values: Array(18).fill(3)}
+            {type: "attackingAttack", values: Array(18).fill(3)}
             ]
     },
     {
@@ -22,7 +22,7 @@ let teacups = {
         bonuses: [
             {type: "defendingDefense", values: Array(18).fill(8)},
             {type: "defendingAttack", values: Array(18).fill(6)},
-            {type: "attackingDefense", values: Array(18).fill(6)}
+            {type: "attackingAttack", values: Array(18).fill(6)}
             ]
     }
     ],

@@ -121,7 +121,7 @@ function updateCamera() {
         //camera.position.set( -0.0000001, 20, 0 );
         camera.position.set( -20, 20, 20 );
         camera.lookAt(scene.position)
-        //grid.visible = false
+        grid.visible = false
         //camera.position.set( 0, 20, 0 );
         //camera.rotation.order = 'YXZ';
         //camera.rotation.y = - Math.PI / 4;
@@ -1681,7 +1681,7 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
     var newBuilding = sets[set][building];
     var n = newBuilding.size[0];
     var m = newBuilding.size[1];
-    var geometry = new THREE.BoxGeometry(n, 0.1, m);
+    var geometry = new THREE.BoxGeometry(n, 0.0001, m);
     //var img = document.location.pathname + "assets/1.png";// + n + "x" + m + ".png";
     //var tx = new THREE.TextureLoader().load(img);
     //tx.minFilter = THREE.LinearFilter;
@@ -1715,7 +1715,7 @@ function addBuilding(set, building, level, age, connected, x, z,pasted) {
         var offset = 0.5;
         var size = n > m ? m - m * offset : n - n * offset;
         var textGeometry = new THREE.TextGeometry(newBuilding.text, {
-            font: font, size: size, height: 0.1, curveSegments: 12, bevelThickness: 1, bevelSize: 1, bevelEnabled: false
+            font: font, size: size, height: 0.001, curveSegments: 12, bevelThickness: 1, bevelSize: 1, bevelEnabled: false
         });
 
         var textMaterial = new THREE.MeshPhongMaterial(
