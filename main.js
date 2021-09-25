@@ -1580,7 +1580,7 @@ function saveScene() {
 // Clear scene, parse the save string and add buildings
 function loadScene(string) {
     clearScene();
-    if(string.charAt(0) == "{" || string.charAt(0) == "["){
+    if(string.charAt(0) == "{" || string.charAt(0) == "[" || string.charAt(0) == "'" || string.charAt(0) == "\""){
         importCity(string);
         calculateStats();
         dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
