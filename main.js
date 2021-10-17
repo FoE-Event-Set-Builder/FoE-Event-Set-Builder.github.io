@@ -27,6 +27,24 @@ let circusSet = getCircus();
 // Array used for easy access of information, DO NOT change order, it'll break everything. Probs a better way to do this, but meh :)
 let sets = [cherry, piazza, celtic, indianPalace, indianFountain, classicalGarden, royalGarden, winterVillage, harvestBarn, winterBakery, circusSet];
 
+for (var i = 0; i < sets.length; i++){
+    for (var j = 0; j < sets[i].length; j++){
+        for (var x = 0; x < sets[i][j].level.length;x++){
+            for (var y = 0; y < sets[i][j].level[x].rewards.length;y++){
+                if (sets[i][j].level[x].rewards[y].values.length < 19){
+                    sets[i][j].level[x].rewards[y].values.push(sets[i][j].level[x].rewards[y].values[17])
+                }
+            }
+            for (var y = 0; y < sets[i][j].level[x].bonuses.length;y++){
+                if (sets[i][j].level[x].bonuses[y].values.length < 19){
+                    sets[i][j].level[x].bonuses[y].values.push(sets[i][j].level[x].bonuses[y].values[17])
+                }
+            }
+            
+        }
+    }
+} 
+
 // Display information for the dat.gui controls. Again do not change order...
 let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, NishikigoiPond: 3, GongOfWisdom: 4 },
 { Homes: 0, Cafe: 1, ClockTower: 2, Fountain: 3, MaskVendor: 4 },
@@ -261,7 +279,7 @@ function addControls() {
     folder1.add(guiControls, 'set', { "Cherry Garden": 0, "Piazza": 1, "Celtic Forest": 2, "Indian Palace": 3, "Indian Fountain": 4, "Classical Garden": 5, "Royal Garden": 6, "Winter Village": 7, "Harvest Barn": 8, "Winter Bakery": 9, "Horror Circus": 10}).name("Set").onChange(updateSetBuildings);
     folder1.add(guiControls, 'building', setBuildings[guiControls.set]).name("Building").listen().onChange(updateAddStats);
     folder1.add(guiControls, 'level', { 1: 0, 2: 1 }).name("Level").listen().onChange(updateLevelStats);;
-    folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
+    folder1.add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17, SAV: 18 }).listen().name("Age").onChange(updateAddStats);
     folder1.add(guiControls, 'bsize').name("Size");
     folder1.add(guiControls, 'road1').name("Road");
     folder1.add(guiControls, 'base1').name("Base");
@@ -461,7 +479,7 @@ function updateSetBuildings() {
     gui.__folders["Add Building"].add(guiControls, 'set', { "Cherry Garden": 0, "Piazza": 1, "Celtic Forest": 2, "Indian Palace": 3, "Indian Fountain": 4, "Classical Garden": 5, "Royal Garden": 6, "Winter Village": 7, "Harvest Barn": 8, "Winter Bakery": 9, "Horror Circus": 10}).name("Set").onChange(updateSetBuildings);
     gui.__folders["Add Building"].add(guiControls, 'building', setBuildings[guiControls.set]).listen().name("Building").setValue(0).onChange(updateAddStats);
     gui.__folders["Add Building"].add(guiControls, 'level', levels).name("Level").listen().setValue(setLevel).onChange(updateLevelStats);
-    gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
+    gui.__folders["Add Building"].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17, SAV: 18 }).listen().name("Age").onChange(updateAddStats);
 
     updateRewards(false, null, false);
 }
@@ -491,7 +509,7 @@ function updateRewards(current, ob, level) {
         var levels = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
         var setLevel = level ? guiControls.level :  levels[Object.keys(levels).length];
         gui.__folders[folder].add(guiControls, 'level', levels).name("Level").listen().setValue(setLevel).onChange(updateLevelStats);
-        gui.__folders[folder].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateAddStats);
+        gui.__folders[folder].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17, SAV: 18 }).listen().name("Age").onChange(updateAddStats);
     }
 
     var level = current ? ob.level : guiControls.level;
@@ -503,7 +521,7 @@ function updateRewards(current, ob, level) {
         gui.__folders[folder].add(guiControls, 'removeBuilding').name("❌ Remove Building");
         gui.__folders[folder].add(guiControls, 'curSet').listen().name("Set");
         gui.__folders[folder].add(guiControls, 'cBuilding', "").listen().name("Building");
-        gui.__folders[folder].add(guiControls, 'cAge', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17 }).listen().name("Age").onChange(updateCurrentBuilding);
+        gui.__folders[folder].add(guiControls, 'cAge', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17, SAV: 18 }).listen().name("Age").onChange(updateCurrentBuilding);
         var cLevel = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ? {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
         gui.__folders[folder].add(guiControls, 'cLevel', cLevel).listen().name("Level").onChange(updateCurrentBuilding);
         if (sets[set][building].road) {
@@ -1581,6 +1599,8 @@ function saveScene() {
 function loadScene(string) {
     clearScene();
     if(string.charAt(0) == "{" || string.charAt(0) == "[" || string.charAt(0) == "'" || string.charAt(0) == "\""){
+        string = string.charAt(0) == "'" ? string.slice(1,-1) : string
+        console.log(string)
         importCity(string);
         calculateStats();
         dragControls = new THREE.DragControls(objects, camera, renderer.domElement);
@@ -1813,6 +1833,8 @@ function getImportAge(th){
             return 16;
         case "H_SpaceAgeAsteroidBelt_Townhall":
             return 17;
+        case "H_SpaceAgeVenus_Townhall":
+            return 17;
         default:
             return 0;
     }
@@ -1837,6 +1859,10 @@ function getImportSet(str){
         return 7;
     }else if(str.includes("FallBonus20")){
         return 8;
+    }else if(str.includes("WinterBonus20")){
+        return 9;
+    }else if(str.includes("HalloweenBonusSet")){
+        return 10;
     }else{
         return -1;
     }
