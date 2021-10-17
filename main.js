@@ -1834,7 +1834,7 @@ function getImportAge(th){
         case "H_SpaceAgeAsteroidBelt_Townhall":
             return 17;
         case "H_SpaceAgeVenus_Townhall":
-            return 17;
+            return 18;
         default:
             return 0;
     }
