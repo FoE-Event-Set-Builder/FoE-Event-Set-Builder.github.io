@@ -474,7 +474,7 @@ function updateSetBuildings() {
         gui.__folders["Add Building"].__controllers[gui.__folders["Add Building"].__controllers.length - 1].remove();
     }
 
-    var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : sets[guiControls.set][0].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
+    var levels = sets[guiControls.set][0].level.length == 1 ? { 1: 0 } : sets[guiControls.set][0].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : sets[guiControls.set][0].level.length == 5 ? {1: 0, 2: 1, 3: 2, 4: 3, 5: 4} : { 1: 0, 2: 1 };
     var setLevel = levels[Object.keys(levels).length];
     //if(guiControls.set == 9){console.log("hey"); levels = {6: 0}; setLevel = 0;}
     gui.__folders["Add Building"].add(guiControls, 'addBuilding1').name("✔️ Add");;
@@ -508,7 +508,7 @@ function updateRewards(current, ob, level) {
     }
 
     if(!current){
-        var levels = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : { 1: 0, 2: 1 };
+        var levels = sets[set][building].level.length == 1 ? { 1: 0 } : sets[set][building].level.length == 4 ?  {1: 0, 2: 1, 3: 2, 4: 3} : sets[set][building].level.length == 5 ? {1: 0, 2: 1, 3: 2, 4: 3, 5: 4} : { 1: 0, 2: 1 };
         var setLevel = level ? guiControls.level :  levels[Object.keys(levels).length];
         gui.__folders[folder].add(guiControls, 'level', levels).name("Level").listen().setValue(setLevel).onChange(updateLevelStats);
         gui.__folders[folder].add(guiControls, 'age', { BA: 0, IA: 1, EMA: 2, HMA: 3, LMA: 4, CA: 5, INA: 6, PE: 7, ME: 8, PME: 9, CE: 10, TE: 11, FE: 12, AF: 13, OF: 14, VF: 15, SAM: 16, SAAB: 17, SAV: 18 }).listen().name("Age").onChange(updateAddStats);
