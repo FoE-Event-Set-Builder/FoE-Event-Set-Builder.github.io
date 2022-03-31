@@ -11,8 +11,7 @@ let house = {
             { type: "coins", values:  Array(18).fill(1)}
         ],
         bonuses: [
-            { type: "supplies", values: Array(18).fill(1)},
-            { type: "goods", values: Array(18).fill(3)}
+            { type: "supplies", values: Array(18).fill(1)}
         ]
     },
     {
@@ -24,7 +23,7 @@ let house = {
         ],
         bonuses: [
             { type: "supplies", values: Array(18).fill(1)},
-            { type: "medals", values: Array(18).fill(1)}
+            { type: "goods", values: Array(18).fill(2)}
         ]
     },
     {
@@ -36,9 +35,8 @@ let house = {
         ],
         bonuses: [
             { type: "supplies", values: Array(18).fill(1)},
-            { type: "goods", values: Array(18).fill(3)},
-            { type: "medals", values: Array(18).fill(1)},
-            { type: "fps", values: Array(18).fill(1)}
+            { type: "goods", values: Array(18).fill(4)},
+            { type: "medals", values: Array(18).fill(1)}
         ]
     },
     {
@@ -50,11 +48,9 @@ let house = {
         ],
         bonuses: [
             { type: "supplies", values: Array(18).fill(1)},
-            { type: "goods", values: Array(18).fill(4)},
-            { type: "medals", values: Array(18).fill(1)},
-            { type: "fps", values: Array(18).fill(1)},
             { type: "goods", values: Array(18).fill(6)},
-            { type: "fps", values: Array(18).fill(2)}
+            { type: "medals", values: Array(18).fill(1)},
+            { type: "fps", values: Array(18).fill(1)}
         ]
     },
     {
@@ -66,15 +62,15 @@ let house = {
         ],
         bonuses: [
             { type: "supplies", values: Array(18).fill(1)},
-            { type: "goods", values: Array(18).fill(6)},
+            { type: "goods", values: Array(18).fill(10)},
             { type: "medals", values: Array(18).fill(1)},
-            { type: "fps", values: Array(18).fill(2)},
-            { type: "goods", values: Array(18).fill(11)},
-            { type: "fps", values: Array(18).fill(4)}
+            { type: "fps", values: Array(18).fill(4)},
+            { type: "goods", values: Array(18).fill(30)},
+            { type: "fps", values: Array(18).fill(10)}
         ]
     }
     ],
-    color: 0x6d494c
+    color: 0xaedefe
 }
 
 let wild = {
@@ -88,13 +84,12 @@ let wild = {
             { type: "happiness", values: Array(18).fill(1)},
         ],
         bonuses: [
-            { type: "goods", values: Array(18).fill(4)},
-            { type: "attackingAttack", values: Array(18).fill(4)},
-            { type: "goods", values: Array(18).fill(4)}
+            { type: "supplyBoost", values: Array(18).fill(10)},
+            { type: "attackingAttack", values: Array(18).fill(10)}
         ]
     }
     ],
-    color: 0xbff374
+    color: 0xe880ec
 }
 
 let snap = {
@@ -108,13 +103,13 @@ let snap = {
             { type: "happiness", values: Array(18).fill(1)},
         ],
         bonuses: [
-            { type: "goods", values: Array(18).fill(6)},
-            { type: "coins", values: Array(18).fill(1)},
-            { type: "fps", values: Array(18).fill(3)}
+            { type: "coinsBoost", values: Array(18).fill(5)},
+            { type: "defendingDefense", values: Array(18).fill(8)},
+            { type: "attackingAttack", values: Array(18).fill(5)}
         ]
     }
     ],
-    color: 0xf4ed7e
+    color: 0x9400d3
 }
 
 let daylily = {
@@ -128,12 +123,12 @@ let daylily = {
             { type: "happiness", values: Array(18).fill(1)},
         ],
         bonuses: [
-            { type: "goods", values: Array(18).fill(5)},
-            { type: "fps", values: Array(18).fill(1)}
+            { type: "coinsBoost", values: Array(18).fill(10)},
+            { type: "attackingDefense", values: Array(18).fill(7)}
         ]
     }
     ],
-    color: 0xcf14eb
+    color: 0xff392e
 }
 
 let marigold = {
@@ -147,13 +142,13 @@ let marigold = {
             { type: "happiness", values: Array(18).fill(1)},
         ],
         bonuses: [
-            { type: "fps", values: Array(18).fill(1)},
-            { type: "supplies", values: Array(18).fill(1)},
-            { type: "goods", values: Array(18).fill(7)}
+            { type: "supplyBoost", values: Array(18).fill(5)},
+            { type: "attackingDefense", values: Array(18).fill(3)},
+            { type: "attackingAttack", values: Array(18).fill(3)}
         ]
     }
     ],
-    color: 0x88e6f5
+    color: 0xffaa00
 }
 
 let saphire = {
@@ -167,31 +162,31 @@ let saphire = {
             { type: "medals", values: Array(18).fill(1)},
         ],
         bonuses: [
-            { type: "supplyBoost", values: Array(18).fill(10) },
-            { type: "fps", values: Array(18).fill(1) }
+            { type: "goods", values: Array(18).fill(4) },
+            { type: "fps", values: Array(18).fill(4) }
         ]
     }
     ],
-    color: 0xee407b
+    color: 0x4a7fff
 }
 
 let magenta = {
     name: "Magenta Arch",
     text: "M",
     size: [3, 1],
-    road: true,
+    road: false,
     level: [{
         id: "L_AllAge_ArcheologyBonus22b",
         rewards: [
             { type: "medals", values: Array(18).fill(1)},
         ],
         bonuses: [
-            { type: "coinsBoost", values: Array(18).fill(10) },
-            { type: "goods", values: Array(18).fill(3) }
+            { type: "fps", values: Array(18).fill(2) },
+            { type: "goods", values: Array(18).fill(9) }
         ]
     }
     ],
-    color: 0xf3949b
+    color: 0xf6178c
 }
 
 function getButterfly() {
