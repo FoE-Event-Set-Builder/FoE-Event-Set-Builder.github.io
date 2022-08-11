@@ -74,6 +74,62 @@
 			<label style="position:fixed; height: 20px; bottom: 1px; left:930px; font-weight: bold; font-family: sans-serif; font-size:10px; color: #ddd;"> Isometric View (experimental)</label><br></div-->
 	</div>
 
+
+
+
+	<div id="savePopup" class="modal">
+		<div class="modal-content" style="position:absolute;float:left;left:50%;top:50%;transform:translate(-50%, -50%);max-width: 420px;max-height:90%;text-align: center;overflow-y: scroll;">
+			<h1>Create Share Link</h1> 
+			<div>
+				<div >
+				<button style="background-color: #4c66af;
+				border: none;
+				color: white;
+				padding: 10px 31px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 5px 5px;
+				cursor: pointer;">Generate Links</button>
+				</div>
+				<div>
+				<p>Share String:&nbsp;&nbsp;<input type="text"> </p>
+				<p>Full Link:&emsp;&nbsp;&nbsp;&nbsp;<input type="text"></p>
+				<p>Bitly Link:&emsp;&nbsp;<input type="text"></p>
+				</div>
+			</div>
+			<h1>Save Locally*</h1> 
+			<p>Name:&nbsp;&nbsp;<input type="text" class="saveName"> </p>
+			<button class="saveButton" style="background-color: #4c66af;
+				border: none;
+				color: white;
+				padding: 10px 31px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 5px 5px;
+				cursor: pointer;">Save Design</button>
+			<p>Existing Saved Designs</p>
+			<textarea class="savesText" style="overflow: scroll; height: 100px;width:250px;resize:none;"></textarea>
+
+			<p>*Saving locally will store the designs in your browser's "Web Storage", which you can read more about <a href="https://javascript.info/localstorage" target="_blank">here.</a></p>
+			<p>This means you can only see your saved designs on this specific browser. It also means that you might delete all your saves if you clear your browser data/cookies, for more see <a href="https://stackoverflow.com/a/37105645" target="_blank">this explanation.</a></p>
+			<p>Therefore, I recommend downloading your saves to your computer if you want to be safe. I have no access to your saves, so I can't help you if you lose them. Using the "Load Design" menu you can upload this file to import all your designs. You can also use this to transfer saved designs to another browser/computer.</p>
+			<button style="background-color: #4c66af;
+				border: none;
+				color: white;
+				padding: 10px 31px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 5px 5px;
+				cursor: pointer;">Download</button>
+		</div>
+	</div>
+
 	<div id="info" class="modal">
 		<div class="modal-content">
 			<span class="close">&times;</span>

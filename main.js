@@ -61,7 +61,40 @@ let setBuildings = [{ SakuraRock: 0, EmperorsEntrance: 1, ZenZone: 2, Nishikigoi
 {ButterflyHouse: 0, WildflowerMeadow: 1, SnapdragonBloom: 2, DaylilyFlowerbed: 3, MarigoldPatch: 4, SaphireArch: 5, MagentaArch: 6}];
 let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "Indian Fountain", "Classical Garden", "Royal Garden", "Winter Village", "Harvest Barn", "Winter Bakery", "Horror Circus", "Butterfly Sanctuary"];
 
+
+let saveElement = document.getElementById("savePopup");
+saveElement.style.display = "none";
+
+let saveDesign = document.getElementsByClassName("saveButton")[0];
+let savesText = document.getElementsByClassName("savesText")[0]
+savesText.value = ""
+for(let key in localStorage) {
+    if (!localStorage.hasOwnProperty(key) || key=="randid") {
+        continue;
+    }
+    savesText.value += key + "\n"
+}   
+
+
+saveDesign.onclick = function () {
+    var saveName = document.getElementsByClassName("saveName")[0].value;
+    
+    localStorage.setItem(saveName,Math.random()*100)
+    savesText.value = ""
+    for(let key in localStorage) {
+        if (!localStorage.hasOwnProperty(key) || key=="randid") {
+          continue;
+        }
+        savesText.value += key + "\n"
+      }
+}
+
+
+
+
 document.getElementById("pertile").checked = true
+
+
 
 let helpElement = document.getElementById("info");
 helpElement.style.display = "none";
@@ -115,6 +148,10 @@ window.onclick = function (event) {
     if(event.target == mobDoc){
         mobDoc.style.display = "none";
     }
+    if(event.target == saveElement){
+        saveElement.style.display = "none";
+    }
+
 }
 
 function onWindowResize() {
