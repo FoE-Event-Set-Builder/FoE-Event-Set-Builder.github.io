@@ -63,30 +63,181 @@ let setNames = ["Cherry Garden", "Piazza", "Celtic Forest", "Indian Palace", "In
 
 
 let saveElement = document.getElementById("savePopup");
-saveElement.style.display = "none";
+let loadElement = document.getElementById("loadPopup")
+//loadElement.style.display = "block";
 
+let generateLinks = document.getElementsByClassName("generateLinks")[0];
 let saveDesign = document.getElementsByClassName("saveButton")[0];
-let savesText = document.getElementsByClassName("savesText")[0]
-savesText.value = ""
-for(let key in localStorage) {
-    if (!localStorage.hasOwnProperty(key) || key=="randid") {
-        continue;
-    }
-    savesText.value += key + "\n"
-}   
+let deleteDesign = document.getElementsByClassName("deleteButton")[0];
+let loadDesign = document.getElementsByClassName("loadButton")[0];
+let downloadSaves = document.getElementsByClassName("downloadButton")[0];
+let uploadSaves = document.getElementsByClassName("uploadButton")[0];
+//let savesText = document.getElementsByClassName("savesText")[0];
+//savesText.value = "";
+let savesList = document.getElementsByClassName("savesList")[0];
+let loadList = document.getElementsByClassName("loadList")[0];
+//savesList.innerHTML = "";
 
-
-saveDesign.onclick = function () {
-    var saveName = document.getElementsByClassName("saveName")[0].value;
-    
-    localStorage.setItem(saveName,Math.random()*100)
-    savesText.value = ""
+function updateSavesLists(){
+    savesList.innerHTML = "";
+    loadList.innerHTML = "";
     for(let key in localStorage) {
         if (!localStorage.hasOwnProperty(key) || key=="randid") {
           continue;
         }
-        savesText.value += key + "\n"
+        var entry = document.createElement("option")
+        entry.value = key
+        entry.innerHTML = key
+        savesList.appendChild(entry)
+        var entry = document.createElement("option")
+        entry.value = key
+        entry.innerHTML = key
+        loadList.appendChild(entry)
       }
+}
+
+function getLocalStorage() {
+    var a = {};
+    for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        var v = localStorage.getItem(k);
+        a[k] = v;
+    }
+    var s = JSON.stringify(a);
+    return s;
+}
+
+function download(filename,text){
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+
+downloadSaves.onclick = function(){
+    // Generate download of hello.txt file with some content
+    var text = "{"; //JSON.stringify(localStorage)
+    for(let key in localStorage) {
+        if (!localStorage.hasOwnProperty(key) || key=="randid") {
+          continue;
+        }
+        text += '"' + key + '":"' + localStorage.getItem(key) + '",'
+    }
+    text = text.slice(0,-1)
+    text += "}"
+    var filename = "EventSetBuilder-Saves.txt";
+    
+    download(filename, text);
+}
+
+uploadSaves.onclick = function(){
+    var input = document.createElement('input');
+    input.type = 'file';
+
+    input.onchange = e => { 
+        var file = e.target.files[0];
+        console.log(file)
+        var reader = new FileReader()
+        //reader.onload = event => console.log(event.target.result) // desired file content
+        //reader.onerror = error => reject(error)
+        reader.readAsText(file)
+        reader.onload = function(e) {
+            var items = JSON.parse(reader.result)
+            var num = 0
+            for(var key in items){
+                localStorage.setItem(key,items[key])
+                num++;
+            }
+            updateSavesLists()
+            $("p.fadeOutText")[0].innerHTML = num + " Design(s) Uploaded"
+            $("p.fadeOutText")[0].style.display = "block"
+        };
+        
+    }
+
+    input.click();
+
+
+    
+}
+$("p.fadeOutText").toggle()
+updateSavesLists()
+
+loadDesign.onclick = function() {
+    var key = $("select.loadList")[0].value
+    var string = localStorage.getItem(key)
+    loadScene(string)
+    
+    loadElement.style.display = "none";
+    $("p.fadeOutText")[0].style.display = "none"
+}
+
+deleteDesign.onclick = function () {
+
+    if ($("input.confirmDelete")[0].checked == false || confirm("You really want to delete this design?") == true){
+        var item = $(".savesList").val()[0]
+        localStorage.removeItem(item)
+        updateSavesLists()
+    }
+    
+}
+
+saveDesign.onclick = function () {
+    if (objects.length == 0) {
+        alert("No Buildings!")
+    }else{
+        var saveName = document.getElementsByClassName("saveName")[0].value;
+
+        var string = "64c" + LZString.compressToBase64(saveScene());
+        localStorage.setItem(saveName,string)
+        updateSavesLists()
+    }
+}
+
+generateLinks.onclick = function(){
+    if (objects.length == 0) {
+        $("input.shareString")[0].value = "No Buildings!";
+        $("input.fullLink")[0].value = "No Buildings!";
+        $("input.bitlyLink")[0].value = "No Buildings!";
+    } else {
+        var string = "64c" + LZString.compressToBase64(saveScene());
+        $("input.shareString")[0].value = string
+        var sStr = "https://foe-event-set-builder.github.io/?" + string;
+        if(sStr.length > 2000){
+            $("input.fullLink")[0].value = "Link too long (use save string)"
+            $("input.bitlyLink")[0].value ="Link too long (use save string)"
+        }else{
+            $("input.fullLink")[0].value = sStr
+            var apiKey = 'aad38d22cab392ecf419e3ecfd811157a5b63a4a';
+
+            var params = {
+                "long_url": sStr
+            };
+
+            $.ajax({
+                url: "https://api-ssl.bitly.com/v4/shorten",
+                cache: false,
+                dataType: "json",
+                method: "POST",
+                contentType: "application/json",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + apiKey);
+                },
+                data: JSON.stringify(params)
+            }).done(function (data) {
+                $("input.bitlyLink")[0].value = "" + data.link;
+
+            }).fail(function (data) {
+                $("input.bitlyLink")[0].value = "Link too long for bit.ly (use full link or save string)";
+            });
+        }
+    }
 }
 
 
@@ -150,6 +301,10 @@ window.onclick = function (event) {
     }
     if(event.target == saveElement){
         saveElement.style.display = "none";
+    }
+    if(event.target == loadElement){
+        loadElement.style.display = "none";
+        $("p.fadeOutText")[0].style.display = "none"
     }
 
 }
@@ -453,12 +608,17 @@ function addControls() {
     folder311.open();
 
     // Save / Load Build
-    var folder7 = gui.addFolder("Save Build");
+    var folder999 = gui.addFolder("Save / Load Design")
+    folder999.add(guiControls, "newSave").name("Save Design")
+    folder999.add(guiControls, "newLoad").name("Load Design")
+
+    var folder888 = folder999.addFolder("Old Save / Load Functions")
+    var folder7 = folder888.addFolder("Save Build");
     folder7.add(guiControls, 'save').name("Save Build");
     folder7.add(guiControls, 'saveString').listen().name("String:");
     folder7.add(guiControls, 'shareString').listen().name("Full Link:")
     folder7.add(guiControls, 'bitlyString').listen().name("Bitly Link:")
-    var folder77 = gui.addFolder("Load / Import Build");
+    var folder77 = folder888.addFolder("Load / Import Build");
     folder77.add(guiControls, 'loadString').listen().name("String:");
     folder77.add(guiControls, 'load').name("Load Build");
     folder77.add(guiControls, 'importHelp').name("How To Import");
@@ -1551,6 +1711,15 @@ function addGuiControls() {
     this.stcoinsBoost = "0";
     this.stsupplyBoost = "0";
 
+    this.newSave = function() {
+        updateSavesLists();
+        saveElement.style.display = "block";
+    }
+
+    this.newLoad = function() {
+        updateSavesLists();
+        loadElement.style.display = "block";
+    }
     this.save = function () {
         if (objects.length == 0) {
             this.saveString = "No Buildings";

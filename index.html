@@ -78,11 +78,11 @@
 
 
 	<div id="savePopup" class="modal">
-		<div class="modal-content" style="position:absolute;float:left;left:50%;top:50%;transform:translate(-50%, -50%);max-width: 420px;max-height:90%;text-align: center;overflow-y: scroll;">
+		<div class="modal-content" style="position:absolute;float:left;left:50%;top:50%;transform:translate(-50%, -50%);max-width: 440px;max-height:90%;text-align: center;overflow-y: scroll;">
 			<h1>Create Share Link</h1> 
 			<div>
 				<div >
-				<button style="background-color: #4c66af;
+				<button class="generateLinks" style="background-color: #4c66af;
 				border: none;
 				color: white;
 				padding: 10px 31px;
@@ -94,14 +94,14 @@
 				cursor: pointer;">Generate Links</button>
 				</div>
 				<div>
-				<p>Share String:&nbsp;&nbsp;<input type="text"> </p>
-				<p>Full Link:&emsp;&nbsp;&nbsp;&nbsp;<input type="text"></p>
-				<p>Bitly Link:&emsp;&nbsp;<input type="text"></p>
+				<p>Share String:&nbsp;&nbsp;<input type="text" class="shareString"> </p>
+				<p>Full Link:&emsp;&nbsp;&nbsp;&nbsp;<input type="text" class="fullLink"></p>
+				<p>Bitly Link:&emsp;&nbsp;<input type="text" class="bitlyLink"></p>
 				</div>
 			</div>
 			<h1>Save Locally*</h1> 
-			<p>Name:&nbsp;&nbsp;<input type="text" class="saveName"> </p>
-			<button class="saveButton" style="background-color: #4c66af;
+			Design Name:&nbsp;&nbsp;<input type="text" class="saveName"> 
+			<p><button class="saveButton" style="background-color: #4c66af;
 				border: none;
 				color: white;
 				padding: 10px 31px;
@@ -110,14 +110,25 @@
 				display: inline-block;
 				font-size: 16px;
 				margin: 5px 5px;
-				cursor: pointer;">Save Design</button>
-			<p>Existing Saved Designs</p>
-			<textarea class="savesText" style="overflow: scroll; height: 100px;width:250px;resize:none;"></textarea>
-
+				cursor: pointer;">Save Design</button></p>
+			<p>Existing Saved Designs:</p>
+			
+			<select class="savesList" style="overflow: scroll; height:100px;width:270px;resize:none;margin:0 auto" multiple></select>
+			<button class="deleteButton" style="background-color: #4c66af;
+				border: none;
+				color: white;
+				padding: 10px 30px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 5px 5px;
+				cursor: pointer;">Delete Design</button><br><input type="checkbox" class="confirmDelete" checked>Confirm Prompt?</input></br>
+				Select an item and click the delete button to remove that design, <b>THIS CAN NOT BE REVERSED</b>
 			<p>*Saving locally will store the designs in your browser's "Web Storage", which you can read more about <a href="https://javascript.info/localstorage" target="_blank">here.</a></p>
 			<p>This means you can only see your saved designs on this specific browser. It also means that you might delete all your saves if you clear your browser data/cookies, for more see <a href="https://stackoverflow.com/a/37105645" target="_blank">this explanation.</a></p>
 			<p>Therefore, I recommend downloading your saves to your computer if you want to be safe. I have no access to your saves, so I can't help you if you lose them. Using the "Load Design" menu you can upload this file to import all your designs. You can also use this to transfer saved designs to another browser/computer.</p>
-			<button style="background-color: #4c66af;
+			<button class="downloadButton" style="background-color: #4c66af;
 				border: none;
 				color: white;
 				padding: 10px 31px;
@@ -129,6 +140,39 @@
 				cursor: pointer;">Download</button>
 		</div>
 	</div>
+
+	<div id="loadPopup" class="modal">
+		<div class="modal-content" style="position:absolute;float:left;left:50%;top:50%;transform:translate(-50%, -50%);max-width: 440px;max-height:90%;text-align: center;overflow-y: scroll;">
+			<h1>Load Design</h1> 
+			<p>To load a design, select one of your saved designs in the dropdown menu below, then click the "Load Design" button!</p>
+			<select class="loadList" style="min-width: 150px;"></select>
+			<p></p>
+			<button class="loadButton" style="background-color: #4c66af;
+				border: none;
+				color: white;
+				padding: 10px 31px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 5px 5px;
+				cursor: pointer;">Load Design</button>
+			<p>You can upload saved designs using the button below. Select the save file you want to import, and all the designs from it will be added to the list of existing designs. If an existing design has the same name as a design in the save file, it will be overwritten. </p>
+			<button class="uploadButton" style="background-color: #4c66af;
+				border: none;
+				color: white;
+				padding: 10px 31px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 5px 5px;
+				cursor: pointer;">Upload Designs From File</button>
+				<p class="fadeOutText">Designs Uploaded!</p>
+				<p>The old load / import features are still available under: <li>Save / Load Designs > Old Save / Load Funtions</li></p>
+		</div>
+	</div>
+
 
 	<div id="info" class="modal">
 		<div class="modal-content">
@@ -190,7 +234,7 @@
 			<p>Due to URL length limits (how long of a link a browser can load), the direct link and bit.ly links will only work if you have less than 300-350 buildings. 
 				For performance reasons I would advise against having that many buildings, though, and rather work on multiple tabs with smaller designs (<100 buildings). 
 				The save string should always work if the direct links are too long.</p>
-			<p>To load a build, either paste the save string under &quot;Load Build&quot; and press the &quot;Load
+			<p>To load a build, either paste the save string under &quot;Load Build&quot; and click the &quot;Load
 				Build&quot; button, or simply open a share link.</p>
 			<p><strong>WARNING: Loading a build will delete the current build, make sure to save before loading a new
 					build.</strong></p>
