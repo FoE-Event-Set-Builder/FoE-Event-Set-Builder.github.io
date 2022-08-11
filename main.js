@@ -611,7 +611,7 @@ function addControls() {
     var folder999 = gui.addFolder("Save / Load Design")
     folder999.add(guiControls, "newSave").name("Save Design")
     folder999.add(guiControls, "newLoad").name("Load Design")
-
+    folder999.open()
     var folder888 = folder999.addFolder("Old Save / Load Functions")
     var folder7 = folder888.addFolder("Save Build");
     folder7.add(guiControls, 'save').name("Save Build");
@@ -622,7 +622,7 @@ function addControls() {
     folder77.add(guiControls, 'loadString').listen().name("String:");
     folder77.add(guiControls, 'load').name("Load Build");
     folder77.add(guiControls, 'importHelp').name("How To Import");
-    folder7.open();
+    //folder7.open();
 
     // Toggles
     var folder41 = gui.addFolder("Settings / Toggles");
